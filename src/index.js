@@ -1,0 +1,173 @@
+'use strict';
+
+/**
+ * html-render — renderer-ready Markdown in, approved HG Insights Claude Design
+ * page body out.
+ *
+ * The pipeline, in order:
+ *   parse Markdown -> identify page class -> validate against that class's
+ *   contract -> map structured content to approved components -> assemble the
+ *   approved layout -> emit deterministic HTML.
+ *
+ * No language model runs at render time. Given the same Markdown and the same
+ * renderer version, the output bytes are identical.
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const { splitFrontmatter, parseBody, MarkdownError } = require('./parse/markdown');
+const { parseYaml, YamlError } = require('./parse/yaml');
+const { validateDocument, ValidationError } = require('./validate/validate');
+const { plainText } = require('./validate/fields');
+const { layoutFor } = require('./layouts');
+const { renderSchema } = require('./schema');
+const { escapeText, indent, lines } = require('./html');
+const config = require('./config');
+
+const STYLES = fs.readFileSync(path.join(__dirname, 'assets', 'styles.css'), 'utf8').trimEnd();
+const SCRIPT = fs.readFileSync(path.join(__dirname, 'assets', 'script.js'), 'utf8').trimEnd();
+
+const DEFAULTS = { styles: true, script: true, schema: true, font: true };
+
+/**
+ * Parse and validate without rendering. Throws on invalid input.
+ * Useful on its own for a `--check` pass.
+ */
+function parseDocument(source, { file } = {}) {
+  let split;
+  try {
+    split = splitFrontmatter(source);
+  } catch (error) {
+    if (error instanceof MarkdownError) throw new ValidationError([{ path: '', message: error.message, line: error.line }], file);
+    throw error;
+  }
+
+  let frontmatter;
+  try {
+    frontmatter = parseYaml(split.frontmatter, split.frontmatterLine - 1);
+  } catch (error) {
+    if (error instanceof YamlError) throw new ValidationError([{ path: 'frontmatter', message: error.message, line: error.line }], file);
+    throw error;
+  }
+
+  let body;
+  try {
+    body = parseBody(split.body, split.bodyLine);
+  } catch (error) {
+    if (error instanceof MarkdownError) throw new ValidationError([{ path: '', message: error.message, line: error.line }], file);
+    throw error;
+  }
+
+  const parsed = { frontmatter, body, bodyLine: split.bodyLine };
+  const { report, pageType, layout, sections } = validateDocument(parsed);
+  if (!report.ok) throw new ValidationError(report.errors, file);
+
+  return { frontmatter, pageType, layout, sections, preamble: body.preamble };
+}
+
+/** Render renderer-ready Markdown to a finished page body. */
+function render(source, options = {}) {
+  const settings = { ...DEFAULTS, ...options };
+  const doc = parseDocument(source, settings);
+  const layout = layoutFor(doc.pageType);
+  const bodyHtml = layout.render(doc);
+
+  const parts = [];
+  if (settings.styles) {
+    const css = settings.font ? `@import url('${config.fontHref}');\n\n${STYLES}` : STYLES;
+    parts.push(`<style>\n${css}\n</style>`);
+  }
+  parts.push(bodyHtml);
+  if (settings.schema) {
+    parts.push(renderSchema(doc.frontmatter, { pageType: doc.pageType, sections: doc.sections }));
+  }
+  if (settings.script) {
+    parts.push(`<script>\n${SCRIPT}\n</script>`);
+  }
+
+  const wrapped = `<div class="${config.pageClass}" data-page-type="${escapeText(doc.pageType)}">\n${indent(lines(parts))}\n</div>`;
+  const meta = buildMeta(doc, bodyHtml);
+  return { html: `${header(meta)}\n${wrapped}\n`, meta, pageType: doc.pageType, layout: doc.layout };
+}
+
+function buildMeta(doc, bodyHtml) {
+  const fm = doc.frontmatter;
+  const text = bodyHtml
+    .replace(/<script[\s\S]*?<\/script>/g, ' ')
+    .replace(/<style[\s\S]*?<\/style>/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&[a-z]+;|&#\d+;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return {
+    pageType: doc.pageType,
+    layout: doc.layout,
+    title: plainText(fm.title),
+    description: plainText(fm.description),
+    url: fm.url,
+    published: String(fm.published),
+    updated: String(fm.updated || fm.published),
+    sections: doc.sections.length,
+    words: text ? text.split(' ').length : 0,
+  };
+}
+
+/**
+ * A comment header carrying the values WordPress needs in its own fields
+ * (title, meta description, canonical URL) plus a QA line for the web team.
+ */
+function header(meta) {
+  const rule = '='.repeat(76);
+  const rows = [
+    `Page type        ${meta.pageType}${meta.layout ? ` (${meta.layout} layout)` : ''}`,
+    `Title            ${meta.title}`,
+    `Meta description ${meta.description}`,
+    `Canonical URL    ${meta.url}`,
+    `Published        ${meta.published}    Updated  ${meta.updated}`,
+    `Body             ${meta.sections} sections, ~${meta.words} words`,
+  ];
+  return [
+    `<!-- ${rule}`,
+    `     HG Insights GEO page body - html-render v${config.rendererVersion}`,
+    '',
+    ...rows.map((row) => `     ${row.replace(/--/g, '-')}`),
+    '',
+    '     Paste this whole block into the WordPress page container. It contains no',
+    '     <html>, <head>, site navigation, or footer - page body only.',
+    `     ${rule} -->`,
+  ].join('\n');
+}
+
+/** Render a file to a string. */
+function renderFile(file, options = {}) {
+  const source = fs.readFileSync(file, 'utf8');
+  return render(source, { ...options, file });
+}
+
+/**
+ * Wrap a rendered body in a minimal standalone document, purely so the output
+ * can be opened in a browser and compared against the supplied design. This is
+ * a review aid — it is never what the web team receives.
+ */
+function previewDocument(result) {
+  return [
+    '<!DOCTYPE html>',
+    `<html lang="${config.language}">`,
+    '<head>',
+    '<meta charset="utf-8">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1">',
+    `<title>${escapeText(result.meta.title)} | HG Insights</title>`,
+    `<meta name="description" content="${escapeText(result.meta.description).replace(/"/g, '&quot;')}">`,
+    '<style>body{margin:0}.preview-note{font:600 12px/1.4 system-ui,sans-serif;background:#212121;color:#fff;padding:10px 16px;letter-spacing:.04em}</style>',
+    '</head>',
+    '<body>',
+    `<div class="preview-note">PREVIEW ONLY — visual review wrapper. The deliverable is the page body inside, page type: ${escapeText(result.meta.pageType)}.</div>`,
+    result.html.trimEnd(),
+    '</body>',
+    '</html>',
+    '',
+  ].join('\n');
+}
+
+module.exports = { render, renderFile, parseDocument, previewDocument, ValidationError, STYLES, SCRIPT };
