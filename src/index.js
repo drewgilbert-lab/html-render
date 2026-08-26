@@ -25,10 +25,31 @@ const { renderSchema } = require('./schema');
 const { escapeText, indent, lines } = require('./html');
 const config = require('./config');
 
-const STYLES = fs.readFileSync(path.join(__dirname, 'assets', 'styles.css'), 'utf8').trimEnd();
-const SCRIPT = fs.readFileSync(path.join(__dirname, 'assets', 'script.js'), 'utf8').trimEnd();
+const STYLES_TEMPLATE = fs.readFileSync(path.join(__dirname, 'assets', 'styles.css'), 'utf8').trimEnd();
+const SCRIPT_TEMPLATE = fs.readFileSync(path.join(__dirname, 'assets', 'script.js'), 'utf8').trimEnd();
 
 const DEFAULTS = { styles: true, script: true, schema: true, font: true };
+
+/**
+ * Both assets are scoped to the page wrapper class, and that class is
+ * configurable, so neither may contain it literally: each carries
+ * `config.PAGE_CLASS_TOKEN` where the class name belongs and is substituted
+ * here. A build step is the usual answer to this; the repo deliberately has
+ * none, and a literal string swap needs no toolchain to stay true.
+ */
+function withPageClass(template, pageClass) {
+  return template.split(config.PAGE_CLASS_TOKEN).join(pageClass);
+}
+
+/** The scoped stylesheet, ready to emit. */
+function stylesheet(pageClass = config.pageClass) {
+  return withPageClass(STYLES_TEMPLATE, pageClass);
+}
+
+/** The scoped behaviour script, ready to emit. */
+function behaviourScript(pageClass = config.pageClass) {
+  return withPageClass(SCRIPT_TEMPLATE, pageClass);
+}
 
 /**
  * Parse and validate without rendering. Throws on invalid input.
@@ -75,7 +96,8 @@ function render(source, options = {}) {
 
   const parts = [];
   if (settings.styles) {
-    const css = settings.font ? `@import url('${config.fontHref}');\n\n${STYLES}` : STYLES;
+    const styles = stylesheet(config.pageClass);
+    const css = settings.font ? `@import url('${config.fontHref}');\n\n${styles}` : styles;
     parts.push(`<style>\n${css}\n</style>`);
   }
   parts.push(bodyHtml);
@@ -83,7 +105,7 @@ function render(source, options = {}) {
     parts.push(renderSchema(doc.frontmatter, { pageType: doc.pageType, sections: doc.sections }));
   }
   if (settings.script) {
-    parts.push(`<script>\n${SCRIPT}\n</script>`);
+    parts.push(`<script>\n${behaviourScript(config.pageClass)}\n</script>`);
   }
 
   const wrapped = `<div class="${config.pageClass}" data-page-type="${escapeText(doc.pageType)}">\n${indent(lines(parts))}\n</div>`;
@@ -170,4 +192,4 @@ function previewDocument(result) {
   ].join('\n');
 }
 
-module.exports = { render, renderFile, parseDocument, previewDocument, ValidationError, STYLES, SCRIPT };
+module.exports = { render, renderFile, parseDocument, previewDocument, ValidationError, stylesheet, behaviourScript };

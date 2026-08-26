@@ -5,11 +5,22 @@
  * in one place rather than in every Markdown file.
  */
 
+/**
+ * The placeholder `styles.css` and `script.js` carry wherever the wrapper class
+ * belongs. Both assets are scoped to a class that is configurable, so neither
+ * may spell it out; the renderer substitutes `pageClass` for every occurrence of
+ * this token before emitting them. See `stylesheet()` in `index.js`.
+ */
+const PAGE_CLASS_TOKEN = '__page_class__';
+
 module.exports = {
   rendererVersion: require('../package.json').version,
 
-  // The wrapper class the stylesheet is scoped to.
-  pageClass: 'hg-geo-page',
+  PAGE_CLASS_TOKEN,
+
+  // The wrapper class the stylesheet and behaviour script are scoped to. This is
+  // the only place the class name is written: the assets carry PAGE_CLASS_TOKEN.
+  pageClass: 'render-page',
 
   organization: {
     name: 'HG Insights',

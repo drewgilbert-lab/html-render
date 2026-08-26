@@ -2,8 +2,11 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const { render } = require('../src/index');
+const config = require('../src/config');
 const { pillar, cluster, spoke, bandedSpoke, body, HERO_WITH_THESIS } = require('./helpers');
 
 test('valid Pillar Markdown renders the Pillar layout', () => {
@@ -115,7 +118,7 @@ test('optional page slots appear only when supplied', () => {
 test('render options control the emitted wrapper assets', () => {
   const plain = render(pillar(), { styles: false, script: false, schema: false }).html;
   assert.doesNotMatch(plain, /<style>|<script/);
-  assert.match(plain, /<div class="hg-geo-page" data-page-type="pillar">/);
+  assert.match(plain, new RegExp(`<div class="${config.pageClass}" data-page-type="pillar">`));
 
   const withFont = render(pillar()).html;
   assert.match(withFont, /@import url\('https:\/\/fonts\.googleapis\.com/);
@@ -128,4 +131,20 @@ test('the comment header carries the values WordPress needs', () => {
   assert.match(html, /Canonical URL {4}https:\/\/hginsights\.com\/geo\/test-page\//);
   assert.equal(meta.sections, 2);
   assert.ok(meta.words > 0);
+});
+
+test('the wrapper class is written in exactly one place', () => {
+  // Neither asset may spell the class out; both carry the placeholder instead.
+  for (const asset of ['styles.css', 'script.js']) {
+    const text = fs.readFileSync(path.join(__dirname, '..', 'src', 'assets', asset), 'utf8');
+    assert.ok(text.includes(config.PAGE_CLASS_TOKEN), `${asset} lost its ${config.PAGE_CLASS_TOKEN} placeholder`);
+    assert.ok(!text.includes(`.${config.pageClass}`), `${asset} hardcodes .${config.pageClass} instead of the placeholder`);
+  }
+
+  // And nothing reaches the output still holding one.
+  const html = render(pillar()).html;
+  assert.ok(!html.includes(config.PAGE_CLASS_TOKEN), 'an unsubstituted placeholder reached the output');
+  const scoped = (html.match(new RegExp(`\\.${config.pageClass}\\b`, 'g')) || []).length;
+  assert.ok(scoped > 300, `stylesheet is not scoped to .${config.pageClass} — found ${scoped} selectors`);
+  assert.match(html, new RegExp(`querySelector\\('\\.${config.pageClass}'\\)`));
 });

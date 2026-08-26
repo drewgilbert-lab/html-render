@@ -151,7 +151,7 @@ the page. It is a label, not a layout.
 ## Shared rules
 
 - **Body only.** No `<html>`, `<head>`, site navigation, WordPress theme markup,
-  or site footer. The output is one `<div class="hg-geo-page">` plus the scoped
+  or site footer. The output is one `<div class="render-page">` plus the scoped
   stylesheet, JSON-LD, and behaviour script it contains.
 - **Anchors.** `hero`, `overview`, `resource-index`, `methodology`, `faq`,
   `citations`, `related`, and `cta` are reserved for the page slots. Body

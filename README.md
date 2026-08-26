@@ -98,7 +98,7 @@ followed by a single `<div>`:
      Paste this whole block into the WordPress page container. It contains no
      <html>, <head>, site navigation, or footer - page body only.
      ========================================================================== -->
-<div class="hg-geo-page" data-page-type="spoke">
+<div class="render-page" data-page-type="spoke">
   <style> /* the scoped HG design system stylesheet */ </style>
   <nav class="breadcrumb-bar"> ... </nav>
   ...
@@ -112,7 +112,7 @@ WordPress theme markup, CMS wrappers, or a site footer.
 
 Notes for the web team:
 
-- The stylesheet is scoped to `.hg-geo-page`, so it cannot touch theme styles.
+- The stylesheet is scoped to `.render-page`, so it cannot touch theme styles.
   If the HG design system CSS is already loaded site-wide, render with
   `--no-styles`.
 - The Nunito Sans webfont comes in as an `@import` at the top of that stylesheet.

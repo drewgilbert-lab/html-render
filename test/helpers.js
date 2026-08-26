@@ -119,8 +119,9 @@ function editLine(source, prefix, to) {
  */
 function body(source) {
   const { render } = require('../src/index');
+  const config = require('../src/config');
   const result = render(source, { styles: false, script: false, schema: false, font: false });
-  return { ...result, html: result.html.slice(result.html.indexOf('<div class="hg-geo-page')) };
+  return { ...result, html: result.html.slice(result.html.indexOf(`<div class="${config.pageClass}`)) };
 }
 
 module.exports = {
