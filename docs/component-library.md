@@ -14,9 +14,10 @@ Run `html-render --components` for the same list from the live registry.
 
 These are the ones you invoke, inside a page section, with a fenced block.
 
-### `callout` — 46-callout-box
+### `callout` — Callout
 
-A labelled note box: "Why It Matters", "Watch Out", "Coverage Note".
+A note box: "Why It Matters", "Watch Out", "Coverage Note" — or an unlabelled
+aside when `label` is omitted.
 
 ````markdown
 ```callout
@@ -28,7 +29,7 @@ tone: note
 
 | Key | | Notes |
 |---|---|---|
-| `label` | required | The uppercase kicker |
+| `label` | | The uppercase kicker; omit for an unlabelled note |
 | `body` | required | Multi-paragraph allowed |
 | `tone` | `note` \| `warn` | `warn` is the melon variant |
 

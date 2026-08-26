@@ -305,10 +305,10 @@
 /* ---- Section rule (45) ---------------------------------- */
 .__page_class__ hr.section-rule { border: none; border-top: 1px solid var(--hg-border); margin: 8px 0 32px; }
 
-/* ---- Callout box (46) ----------------------------------- */
+/* ---- Callout box ----------------------------------------- */
 .__page_class__ .callout-box { background: var(--grad-subtle); border-left: 4px solid var(--hg-dark-blue); border-radius: 0 var(--hg-radius) var(--hg-radius) 0; padding: 18px 22px; margin: 20px 0; }
 .__page_class__ .callout-box-label { font-size: var(--fs-small); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--hg-dark-blue); margin-bottom: 8px; }
-.__page_class__ .callout-box-body { font-size: var(--fs-body); font-weight: 500; line-height: 1.55; color: var(--hg-text-dark); margin: 0 0 10px; }
+.__page_class__ .callout-box-body { font-size: var(--fs-body); font-weight: 500; line-height: var(--lh-body); color: var(--hg-text-dark); margin: 0 0 10px; }
 .__page_class__ .callout-box-body:last-child { margin-bottom: 0; }
 .__page_class__ .callout-box--melon { background: rgba(201,25,74,0.06); border-left-color: var(--hg-melon); }
 .__page_class__ .callout-box--melon .callout-box-label { color: var(--hg-melon); }

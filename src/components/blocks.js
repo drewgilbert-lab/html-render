@@ -21,10 +21,10 @@ function paras(list, className) {
 
 const callout = {
   name: 'callout',
-  summary: 'A labelled note box: "Why It Matters", "Watch Out", "Coverage Note".',
-  source: '46-callout-box',
+  summary: 'A note box: "Why It Matters", "Watch Out", "Coverage Note" — or an unlabelled aside.',
+  source: 'Callout',
   fields: {
-    label: { type: 'text', required: true, hint: 'the uppercase kicker, e.g. "Why It Matters"' },
+    label: { type: 'text', hint: 'the uppercase kicker, e.g. "Why It Matters"; omit for an unlabelled note' },
     body: { type: 'richtext', required: true },
     tone: { type: 'enum', values: ['note', 'warn'], default: 'note' },
   },
@@ -33,7 +33,9 @@ const callout = {
     return el(
       'div',
       { class: cls },
-      `\n${indent(lines(el('div', { class: 'callout-box-label' }, value.label), paras(value.body, 'callout-box-body')))}\n`,
+      `\n${indent(
+        lines(value.label ? el('div', { class: 'callout-box-label' }, value.label) : '', paras(value.body, 'callout-box-body')),
+      )}\n`,
     );
   },
 };

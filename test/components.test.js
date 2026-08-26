@@ -25,6 +25,12 @@ test('callout renders both tones', () => {
   assert.match(block('callout', { label: 'Watch Out', body: 'Careful.', tone: 'warn' }), /callout-box callout-box--melon/);
 });
 
+test('callout label is optional — omitting it renders an unlabelled note', () => {
+  const html = block('callout', { body: 'Always check the freshness date.' });
+  assert.doesNotMatch(html, /callout-box-label/);
+  assert.match(html, /<p class="callout-box-body">Always check the freshness date\.<\/p>/);
+});
+
 test('concept-cards renders one card per item', () => {
   const html = block('concept-cards', {
     items: [
