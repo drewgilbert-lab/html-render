@@ -1,9 +1,17 @@
 'use strict';
 
+const path = require('node:path');
+
 /**
  * Minimal valid documents per page class. Tests start from these and remove or
  * corrupt one thing at a time, so each failure case is isolated.
  */
+
+/**
+ * The renderer has no built-in organization, so every render needs a config.
+ * Tests use the same one the examples do — this repo's own consumer config.
+ */
+const EXAMPLE_CONFIG = path.join(__dirname, '..', 'examples', 'html-render.config.json');
 
 const SHARED = `title: A Test Page About AI Visibility
 eyebrow: GEO Measurement Guide
@@ -119,12 +127,12 @@ function editLine(source, prefix, to) {
  */
 function body(source) {
   const { render } = require('../src/index');
-  const config = require('../src/config');
-  const result = render(source, { styles: false, script: false, schema: false, font: false });
-  return { ...result, html: result.html.slice(result.html.indexOf(`<div class="${config.pageClass}`)) };
+  const result = render(source, { config: EXAMPLE_CONFIG, styles: false, script: false, schema: false, font: false });
+  return { ...result, html: result.html.slice(result.html.indexOf(`<div class="${result.config.pageClass}`)) };
 }
 
 module.exports = {
+  EXAMPLE_CONFIG,
   pillar,
   cluster,
   spoke,

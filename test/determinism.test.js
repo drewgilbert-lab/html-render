@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const { render, renderFile } = require('../src/index');
-const { pillar, cluster, spoke, bandedSpoke } = require('./helpers');
+const { pillar, cluster, spoke, bandedSpoke, EXAMPLE_CONFIG } = require('./helpers');
 
 const EXAMPLES = path.join(__dirname, '..', 'examples');
 
@@ -17,9 +17,9 @@ test('the same Markdown renders byte-identical HTML every time', () => {
     ['spoke', spoke()],
     ['banded spoke', bandedSpoke()],
   ]) {
-    const first = render(source).html;
-    const second = render(source).html;
-    const third = render(source).html;
+    const first = render(source, { config: EXAMPLE_CONFIG }).html;
+    const second = render(source, { config: EXAMPLE_CONFIG }).html;
+    const third = render(source, { config: EXAMPLE_CONFIG }).html;
     assert.equal(first, second, `${name} differed between runs`);
     assert.equal(second, third, `${name} differed between runs`);
   }
@@ -28,8 +28,8 @@ test('the same Markdown renders byte-identical HTML every time', () => {
 test('the example files render byte-identical HTML across processes', () => {
   for (const file of ['pillar.md', 'cluster.md', 'spoke.md', 'spoke-banded.md']) {
     const target = path.join(EXAMPLES, file);
-    const a = renderFile(target).html;
-    const b = renderFile(target).html;
+    const a = renderFile(target, { config: EXAMPLE_CONFIG }).html;
+    const b = renderFile(target, { config: EXAMPLE_CONFIG }).html;
     assert.equal(a, b, `${file} differed between runs`);
   }
 });
@@ -54,9 +54,9 @@ test('rendering does not read the clock or any random source', () => {
     }
   };
   try {
-    render(pillar());
-    render(cluster());
-    render(spoke());
+    render(pillar(), { config: EXAMPLE_CONFIG });
+    render(cluster(), { config: EXAMPLE_CONFIG });
+    render(spoke(), { config: EXAMPLE_CONFIG });
   } finally {
     Date.now = realNow;
     Math.random = realRandom;
@@ -71,7 +71,7 @@ test('the committed example output matches a fresh render', () => {
     const htmlPath = path.join(outputDir, `${file}.html`);
     assert.ok(fs.existsSync(htmlPath), `${file}.html is missing — run: npm run render:examples`);
     const committed = fs.readFileSync(htmlPath, 'utf8');
-    const fresh = renderFile(path.join(EXAMPLES, `${file}.md`)).html;
+    const fresh = renderFile(path.join(EXAMPLES, `${file}.md`), { config: EXAMPLE_CONFIG }).html;
     assert.equal(committed, fresh, `output/${file}.html is stale — run: npm run render:examples`);
   }
 });

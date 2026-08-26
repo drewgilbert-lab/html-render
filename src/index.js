@@ -23,31 +23,31 @@ const { plainText } = require('./validate/fields');
 const { layoutFor } = require('./layouts');
 const { renderSchema } = require('./schema');
 const { escapeText, indent, lines } = require('./html');
-const config = require('./config');
+const { resolveConfig, requireOrganization, rendererVersion, PAGE_CLASS_TOKEN, DEFAULTS } = require('./config');
 
 const STYLES_TEMPLATE = fs.readFileSync(path.join(__dirname, 'assets', 'styles.css'), 'utf8').trimEnd();
 const SCRIPT_TEMPLATE = fs.readFileSync(path.join(__dirname, 'assets', 'script.js'), 'utf8').trimEnd();
 
-const DEFAULTS = { styles: true, script: true, schema: true, font: true };
+const RENDER_DEFAULTS = { styles: true, script: true, schema: true, font: true };
 
 /**
  * Both assets are scoped to the page wrapper class, and that class is
  * configurable, so neither may contain it literally: each carries
- * `config.PAGE_CLASS_TOKEN` where the class name belongs and is substituted
+ * `PAGE_CLASS_TOKEN` where the class name belongs and is substituted
  * here. A build step is the usual answer to this; the repo deliberately has
  * none, and a literal string swap needs no toolchain to stay true.
  */
 function withPageClass(template, pageClass) {
-  return template.split(config.PAGE_CLASS_TOKEN).join(pageClass);
+  return template.split(PAGE_CLASS_TOKEN).join(pageClass);
 }
 
 /** The scoped stylesheet, ready to emit. */
-function stylesheet(pageClass = config.pageClass) {
+function stylesheet(pageClass = DEFAULTS.pageClass) {
   return withPageClass(STYLES_TEMPLATE, pageClass);
 }
 
 /** The scoped behaviour script, ready to emit. */
-function behaviourScript(pageClass = config.pageClass) {
+function behaviourScript(pageClass = DEFAULTS.pageClass) {
   return withPageClass(SCRIPT_TEMPLATE, pageClass);
 }
 
@@ -87,9 +87,17 @@ function parseDocument(source, { file } = {}) {
   return { frontmatter, pageType, layout, sections, preamble: body.preamble };
 }
 
-/** Render renderer-ready Markdown to a finished page body. */
+/**
+ * Render renderer-ready Markdown to a finished page body.
+ *
+ * `options.config` is a config object or a path to one; without it the working
+ * directory's config file is used. See `config.js` for the precedence rules.
+ */
 function render(source, options = {}) {
-  const settings = { ...DEFAULTS, ...options };
+  const settings = { ...RENDER_DEFAULTS, ...options };
+  const config = resolveConfig(settings.config);
+  // Fail on missing identity before doing the work, not once the graph is reached.
+  if (settings.schema) requireOrganization(config);
   const doc = parseDocument(source, settings);
   const layout = layoutFor(doc.pageType);
   const bodyHtml = layout.render(doc);
@@ -97,12 +105,12 @@ function render(source, options = {}) {
   const parts = [];
   if (settings.styles) {
     const styles = stylesheet(config.pageClass);
-    const css = settings.font ? `@import url('${config.fontHref}');\n\n${styles}` : styles;
+    const css = settings.font && config.fontHref ? `@import url('${config.fontHref}');\n\n${styles}` : styles;
     parts.push(`<style>\n${css}\n</style>`);
   }
   parts.push(bodyHtml);
   if (settings.schema) {
-    parts.push(renderSchema(doc.frontmatter, { pageType: doc.pageType, sections: doc.sections }));
+    parts.push(renderSchema(doc.frontmatter, { pageType: doc.pageType, sections: doc.sections, config }));
   }
   if (settings.script) {
     parts.push(`<script>\n${behaviourScript(config.pageClass)}\n</script>`);
@@ -110,7 +118,7 @@ function render(source, options = {}) {
 
   const wrapped = `<div class="${config.pageClass}" data-page-type="${escapeText(doc.pageType)}">\n${indent(lines(parts))}\n</div>`;
   const meta = buildMeta(doc, bodyHtml);
-  return { html: `${header(meta)}\n${wrapped}\n`, meta, pageType: doc.pageType, layout: doc.layout };
+  return { html: `${header(meta, config)}\n${wrapped}\n`, meta, config, pageType: doc.pageType, layout: doc.layout };
 }
 
 function buildMeta(doc, bodyHtml) {
@@ -139,8 +147,10 @@ function buildMeta(doc, bodyHtml) {
  * A comment header carrying the values WordPress needs in its own fields
  * (title, meta description, canonical URL) plus a QA line for the web team.
  */
-function header(meta) {
+function header(meta, config) {
   const rule = '='.repeat(76);
+  // A hyphen pair would close the comment; the rows are sanitized the same way.
+  const owner = config.organization ? `${config.organization.name.replace(/--/g, '-')} ` : '';
   const rows = [
     `Page type        ${meta.pageType}${meta.layout ? ` (${meta.layout} layout)` : ''}`,
     `Title            ${meta.title}`,
@@ -151,7 +161,7 @@ function header(meta) {
   ];
   return [
     `<!-- ${rule}`,
-    `     HG Insights GEO page body - html-render v${config.rendererVersion}`,
+    `     ${owner}page body - html-render v${rendererVersion}`,
     '',
     ...rows.map((row) => `     ${row.replace(/--/g, '-')}`),
     '',
@@ -173,13 +183,15 @@ function renderFile(file, options = {}) {
  * a review aid — it is never what the web team receives.
  */
 function previewDocument(result) {
+  const config = result.config || resolveConfig(null);
+  const siteName = config.organization ? ` | ${escapeText(config.organization.name)}` : '';
   return [
     '<!DOCTYPE html>',
-    `<html lang="${config.language}">`,
+    `<html lang="${escapeText(config.language)}">`,
     '<head>',
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
-    `<title>${escapeText(result.meta.title)} | HG Insights</title>`,
+    `<title>${escapeText(result.meta.title)}${siteName}</title>`,
     `<meta name="description" content="${escapeText(result.meta.description).replace(/"/g, '&quot;')}">`,
     '<style>body{margin:0}.preview-note{font:600 12px/1.4 system-ui,sans-serif;background:#212121;color:#fff;padding:10px 16px;letter-spacing:.04em}</style>',
     '</head>',

@@ -6,8 +6,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const { render } = require('../src/index');
-const config = require('../src/config');
-const { pillar, cluster, spoke, bandedSpoke, body, HERO_WITH_THESIS } = require('./helpers');
+const { DEFAULTS, PAGE_CLASS_TOKEN } = require('../src/config');
+const { pillar, cluster, spoke, bandedSpoke, body, EXAMPLE_CONFIG, HERO_WITH_THESIS } = require('./helpers');
 
 test('valid Pillar Markdown renders the Pillar layout', () => {
   const { html, pageType } = body(pillar());
@@ -116,17 +116,17 @@ test('optional page slots appear only when supplied', () => {
 });
 
 test('render options control the emitted wrapper assets', () => {
-  const plain = render(pillar(), { styles: false, script: false, schema: false }).html;
+  const plain = render(pillar(), { config: EXAMPLE_CONFIG, styles: false, script: false, schema: false }).html;
   assert.doesNotMatch(plain, /<style>|<script/);
-  assert.match(plain, new RegExp(`<div class="${config.pageClass}" data-page-type="pillar">`));
+  assert.match(plain, new RegExp(`<div class="${DEFAULTS.pageClass}" data-page-type="pillar">`));
 
-  const withFont = render(pillar()).html;
+  const withFont = render(pillar(), { config: EXAMPLE_CONFIG }).html;
   assert.match(withFont, /@import url\('https:\/\/fonts\.googleapis\.com/);
-  assert.doesNotMatch(render(pillar(), { font: false }).html, /@import/);
+  assert.doesNotMatch(render(pillar(), { config: EXAMPLE_CONFIG, font: false }).html, /@import/);
 });
 
 test('the comment header carries the values WordPress needs', () => {
-  const { html, meta } = render(pillar());
+  const { html, meta } = render(pillar(), { config: EXAMPLE_CONFIG });
   assert.match(html, /Page type {8}pillar/);
   assert.match(html, /Canonical URL {4}https:\/\/hginsights\.com\/geo\/test-page\//);
   assert.equal(meta.sections, 2);
@@ -137,14 +137,14 @@ test('the wrapper class is written in exactly one place', () => {
   // Neither asset may spell the class out; both carry the placeholder instead.
   for (const asset of ['styles.css', 'script.js']) {
     const text = fs.readFileSync(path.join(__dirname, '..', 'src', 'assets', asset), 'utf8');
-    assert.ok(text.includes(config.PAGE_CLASS_TOKEN), `${asset} lost its ${config.PAGE_CLASS_TOKEN} placeholder`);
-    assert.ok(!text.includes(`.${config.pageClass}`), `${asset} hardcodes .${config.pageClass} instead of the placeholder`);
+    assert.ok(text.includes(PAGE_CLASS_TOKEN), `${asset} lost its ${PAGE_CLASS_TOKEN} placeholder`);
+    assert.ok(!text.includes(`.${DEFAULTS.pageClass}`), `${asset} hardcodes .${DEFAULTS.pageClass} instead of the placeholder`);
   }
 
   // And nothing reaches the output still holding one.
-  const html = render(pillar()).html;
-  assert.ok(!html.includes(config.PAGE_CLASS_TOKEN), 'an unsubstituted placeholder reached the output');
-  const scoped = (html.match(new RegExp(`\\.${config.pageClass}\\b`, 'g')) || []).length;
-  assert.ok(scoped > 300, `stylesheet is not scoped to .${config.pageClass} — found ${scoped} selectors`);
-  assert.match(html, new RegExp(`querySelector\\('\\.${config.pageClass}'\\)`));
+  const html = render(pillar(), { config: EXAMPLE_CONFIG }).html;
+  assert.ok(!html.includes(PAGE_CLASS_TOKEN), 'an unsubstituted placeholder reached the output');
+  const scoped = (html.match(new RegExp(`\\.${DEFAULTS.pageClass}\\b`, 'g')) || []).length;
+  assert.ok(scoped > 300, `stylesheet is not scoped to .${DEFAULTS.pageClass} — found ${scoped} selectors`);
+  assert.match(html, new RegExp(`querySelector\\('\\.${DEFAULTS.pageClass}'\\)`));
 });

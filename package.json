@@ -18,9 +18,9 @@
     "syncedAt": "2026-08-25"
   },
   "scripts": {
-    "render:examples": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md --out-dir output --preview",
+    "render:examples": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md --config examples/html-render.config.json --out-dir output --preview",
     "test": "node --test test/*.test.js",
-    "check": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md --check"
+    "check": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md --config examples/html-render.config.json --check"
   },
   "dependencies": {},
   "devDependencies": {}

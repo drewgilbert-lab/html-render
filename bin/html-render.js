@@ -6,6 +6,7 @@
  *
  *   html-render <input.md> [more.md ...] [options]
  *
+ *       --config <file>    organization and renderer settings (JSON)
  *   -o, --out <file>       write a single input to this file
  *       --out-dir <dir>    write each input to <dir>/<name>.html
  *       --check            validate only; write nothing
@@ -25,6 +26,7 @@ const fs = require('fs');
 const path = require('path');
 
 const { renderFile, parseDocument, previewDocument, ValidationError } = require('../src/index');
+const { resolveConfig, ConfigError, CONFIG_FILENAME } = require('../src/config');
 const { layouts, layoutFor } = require('../src/layouts');
 const { blocks } = require('../src/components');
 const { contractFor, PAGE_TYPES } = require('../src/validate/document-contract');
@@ -32,13 +34,16 @@ const { describeContract } = require('../src/describe');
 const { auditCatalog, formatAudit } = require('../src/audit');
 
 function parseArgs(argv) {
-  const options = { inputs: [], out: null, outDir: null, check: false, stdout: false, preview: false, styles: true, script: true, schema: true, font: true, help: false, contract: null, components: false, audit: null };
+  const options = { inputs: [], config: null, out: null, outDir: null, check: false, stdout: false, preview: false, styles: true, script: true, schema: true, font: true, help: false, contract: null, components: false, audit: null };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     switch (arg) {
       case '-h':
       case '--help':
         options.help = true;
+        break;
+      case '--config':
+        options.config = argv[++i];
         break;
       case '-o':
       case '--out':
@@ -101,6 +106,7 @@ function usage() {
       '  html-render <input.md> [more.md ...] [options]',
       '',
       'Options:',
+      `      --config <file>   organization and renderer settings (default: ./${CONFIG_FILENAME})`,
       '  -o, --out <file>      write a single input to this file',
       '      --out-dir <dir>   write each input to <dir>/<name>.html',
       '      --check           validate only; write nothing',
@@ -171,6 +177,15 @@ function main() {
     fail('--out takes a single input file; use --out-dir for several');
   }
 
+  // Resolved once, up front: a missing or malformed config is one error, not one per input.
+  let config;
+  try {
+    config = resolveConfig(options.config);
+  } catch (error) {
+    if (error instanceof ConfigError) fail(error.message);
+    throw error;
+  }
+
   let failures = 0;
   for (const input of options.inputs) {
     const resolved = path.resolve(input);
@@ -187,6 +202,7 @@ function main() {
       }
 
       const result = renderFile(resolved, {
+        config,
         styles: options.styles,
         script: options.script,
         schema: options.schema,
@@ -214,6 +230,8 @@ function main() {
       failures += 1;
       if (error instanceof ValidationError) {
         process.stderr.write(`\n${error.message}\n\nFix the Markdown and run again.\n`);
+      } else if (error instanceof ConfigError) {
+        process.stderr.write(`\nhtml-render: ${error.message}\n`);
       } else {
         process.stderr.write(`\nhtml-render: ${input}: ${error.message}\n`);
         if (process.env.HTML_RENDER_DEBUG) process.stderr.write(`${error.stack}\n`);
