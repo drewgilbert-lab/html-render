@@ -132,6 +132,7 @@ Notes for the web team:
 | [docs/component-library.md](docs/component-library.md) | Every component, its inputs, and the design-system component it implements |
 | [docs/github-process.md](docs/github-process.md) | Branch/PR rules, commit conventions, and the tag/release sequence for this repo |
 | [docs/component-sync.md](docs/component-sync.md) | How a tagged release ships the contract to `geo-spoke-builder`, and how to test it |
+| [docs/open-items.md](docs/open-items.md) | What is outstanding, why, and what unblocks it |
 | [CHANGELOG.md](CHANGELOG.md) | What changed in component coverage, and why, per catalog refresh |
 
 `examples/pillar.md`, `examples/cluster.md`, and `examples/spoke.md` are the
