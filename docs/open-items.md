@@ -31,6 +31,13 @@ The pipeline is built and merged; it has never performed a real write.
 | No-op run, proving Step 3.5 | **Blocked** | The real run's PR being merged downstream. Until `references/html-render-contract.md` exists on `geo-spoke-builder`'s `main`, every run legitimately sees a new file |
 | Dry run | ✅ Passed 2026-08-26 | — |
 
+**`SYNC_TARGET_REPO` and `SYNC_TARGET_PATH` must be set as Actions variables** on `html-render`
+before the next tag. The workflow reads its destination from them instead of hardcoded literals now,
+and stops at its first step if either is missing rather than checking out the wrong repository. The
+values and the two `gh variable set` commands are in
+[component-sync.md](component-sync.md#the-sync-target). The *token* stays a literal secret name —
+that is the PAT decision below, deliberately unchanged.
+
 **The sync token expires 2026-11-24** and nothing owns renewing it. When it lapses the workflow
 fails on `Check out geo-spoke-builder` — loudly in Actions, but nobody watches Actions on a repo
 that only builds on tags. Rotation steps and the dates are in

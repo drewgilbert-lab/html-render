@@ -17,6 +17,32 @@ The destination is a single file: **`geo-spoke-builder/references/html-render-co
 
 ---
 
+## The sync target
+
+The destination repository and path are repository variables on `html-render`, not literals in the
+workflow file, so retargeting the sync at a different consumer takes no commit:
+
+| Variable | Value today |
+|---|---|
+| `SYNC_TARGET_REPO` | `drewgilbert-lab/geo-spoke-builder` |
+| `SYNC_TARGET_PATH` | `references/html-render-contract.md` |
+
+```bash
+gh variable set SYNC_TARGET_REPO --repo drewgilbert-lab/html-render --body drewgilbert-lab/geo-spoke-builder
+gh variable set SYNC_TARGET_PATH --repo drewgilbert-lab/html-render --body references/html-render-contract.md
+```
+
+**Both must be set for the workflow to run at all.** An unset variable expands to an empty string,
+and `actions/checkout` with an empty `repository` quietly checks out `html-render` itself — so the
+first step asserts both are present and fails the run with the variable's name if either is not.
+
+The *token* is still named literally in the workflow (`GEO_SPOKE_BUILDER_SYNC_TOKEN`), because
+replacing the PAT mechanism is deliberately deferred until a second consumer repo exists — see
+[open-items.md](open-items.md#1-cross-repo-sync). Retargeting today therefore means setting these
+two variables *and* putting the new consumer's token in that secret.
+
+---
+
 ## What triggers it
 
 | Trigger | `dry_run` | What happens |
