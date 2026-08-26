@@ -65,6 +65,7 @@ html-render <input.md> [more.md ...] [options]
       --no-font          omit the Nunito Sans @import
       --contract <type>  print the Markdown contract for pillar|cluster|spoke
       --components       list every available component
+      --audit <dir>      classify a design-web-components catalog against the registry
   -h, --help
 ```
 
@@ -129,11 +130,50 @@ Notes for the web team:
 | [docs/markdown-contract.md](docs/markdown-contract.md) | The full input contract: frontmatter keys, body syntax, and every validation error |
 | [docs/page-layouts.md](docs/page-layouts.md) | What each of the three layouts composes, in order, and the two Spoke variants |
 | [docs/component-library.md](docs/component-library.md) | Every component, its inputs, and the design-system component it implements |
+| [CHANGELOG.md](CHANGELOG.md) | What changed in component coverage, and why, per catalog refresh |
 
 `examples/pillar.md`, `examples/cluster.md`, and `examples/spoke.md` are the
 working reference for valid input. `output/` holds their rendered HTML plus a
 `.preview.html` wrapper for each, for visual review against the design. A test
 asserts the committed output still matches a fresh render, so it cannot go stale.
+
+---
+
+## Keeping up with the design system
+
+Every component here implements one component from the `design-web-components`
+catalog, and names it in a `source` field. When that catalog is refreshed, ask
+what this renderer is now missing:
+
+```bash
+node bin/html-render.js --audit /path/to/design-web-components
+```
+
+That classifies all 52 catalogued components against the live registry:
+
+- **New** — catalogued, not implemented here.
+- **Removed** — implemented here, gone from the catalog.
+- **Out of scope by design** — site chrome and print/PDF chrome, which this
+  renderer does not emit. Not gaps; the reasons live in `OUT_OF_SCOPE` in
+  `src/audit.js`.
+- **Covered, but the catalog says something moved** — the review queue.
+- **Covered** — everything else.
+
+Coverage is read from live state, not a hand-kept list: it joins each registry
+entry's `source` against the numbered CSS block headers in `styles.css`. That is
+why a new CSS block must carry its component number —
+`/* ---- Figure block (53) ---- */`.
+
+**Changed is deliberately not classified automatically.** Deciding it needs a
+semantic comparison of HTML, CSS, and field contracts, so the audit surfaces
+candidates from the catalog's own refresh notes and leaves the judgment to you.
+
+The full procedure — confirm the source, diff, resolve ambiguity *before*
+implementing, one component at a time, cross-check the consumer manifests,
+record, verify — is
+[.claude/skills/sync-design-components](.claude/skills/sync-design-components/SKILL.md),
+runnable as `/sync-design-components`. Each run appends to
+[CHANGELOG.md](CHANGELOG.md), which is what the next run diffs against.
 
 ---
 
@@ -161,6 +201,7 @@ src/
   html.js                  escaping and element primitives
   schema.js                the JSON-LD graph
   describe.js              --contract output, generated from the live contracts
+  audit.js                 --audit output: catalog coverage, from the live registry
   parse/
     yaml.js                the frontmatter YAML subset, with line tracking
     markdown.js            the renderer's Markdown dialect
@@ -181,8 +222,10 @@ src/
     script.js              FAQ disclosure + scroll spy
 examples/                  pillar.md, cluster.md, spoke.md
 output/                    rendered examples + preview wrappers
-test/                      61 tests
+test/                      73 tests
 docs/                      the contracts
+CHANGELOG.md               component coverage, per catalog refresh
+.claude/skills/            the design-system sync procedure
 ```
 
 Two rules hold the architecture together:
