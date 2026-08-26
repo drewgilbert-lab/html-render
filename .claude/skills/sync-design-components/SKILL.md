@@ -130,11 +130,30 @@ skip the check silently.
 
 ## Step 6 — Record it
 
-Append one entry to `CHANGELOG.md` for this run: the date, the version, and one line per component
-touched, tagged New / Changed / Removed / Deprecated with a short reason. Reference the Step 3
-decision if one applied. **Append only — never rewrite a prior entry.**
+Two records, both required.
 
-That file plus the release tag is the durable record the next run diffs against.
+**1. The changelog.** Append one entry to `CHANGELOG.md` for this run: the date, the version, and
+one line per component touched, tagged New / Changed / Removed / Deprecated with a short reason.
+Reference the Step 3 decision if one applied. **Append only — never rewrite a prior entry.**
+
+**2. The provenance field.** Update `designCatalog` in `package.json` to the catalog state you just
+synced against — this is the machine-readable half, and it is what stamps the contract file the
+sync workflow ships to `geo-spoke-builder` (see [docs/component-sync.md](../../../docs/component-sync.md)).
+Overwrite it in place; unlike the changelog, it records current state, not history.
+
+```bash
+git -C <catalog-dir> log -1 --format='%H'   # -> designCatalog.commit
+```
+
+- `catalog` — the catalog repo/directory name. Only changes if the catalog moves.
+- `refresh` — the catalog's own refresh label, from the `## Refresh history` heading in its
+  `SKILL.md` (e.g. `2026-07-17`). This is the design pass you synced against, **not** today's date,
+  and it only moves when the catalog itself records a new refresh.
+- `commit` — the full catalog commit SHA from the command above. Step 1 already confirmed the
+  checkout is clean and current; if it wasn't, you stopped there and never reached this step.
+- `syncedAt` — today's date, ISO. When this renderer last reconciled against that commit.
+
+Both records plus the release tag are the durable record the next run diffs against.
 
 ## Step 7 — Verify before reporting done
 

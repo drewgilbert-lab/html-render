@@ -131,6 +131,7 @@ Notes for the web team:
 | [docs/page-layouts.md](docs/page-layouts.md) | What each of the three layouts composes, in order, and the two Spoke variants |
 | [docs/component-library.md](docs/component-library.md) | Every component, its inputs, and the design-system component it implements |
 | [docs/github-process.md](docs/github-process.md) | Branch/PR rules, commit conventions, and the tag/release sequence for this repo |
+| [docs/component-sync.md](docs/component-sync.md) | How a tagged release ships the contract to `geo-spoke-builder`, and how to test it |
 | [CHANGELOG.md](CHANGELOG.md) | What changed in component coverage, and why, per catalog refresh |
 
 `examples/pillar.md`, `examples/cluster.md`, and `examples/spoke.md` are the
@@ -257,9 +258,13 @@ HTML, CMS or WordPress publishing, and deployment. The long-term shape is:
 GEO content-generation skills → renderer-ready Markdown → html-render → HTML → WordPress
 ```
 
-`html-render` is the third box only. It has no dependency on, and makes no
-changes to, the `geo-spoke-builder` repository; that repo was read as context for
-terminology and page purposes and nothing more.
+`html-render` is the third box only. It renders; it does not generate, orchestrate,
+or publish.
+
+Its one outbound dependency is the contract sync: a tagged release opens a pull
+request into `geo-spoke-builder` updating a single generated reference file. It
+writes nothing else there, and never merges — see
+[docs/component-sync.md](docs/component-sync.md).
 
 The design comes from the HG Insights Claude Design component library — the
 `--hg-*` token set and the catalogued components it defines. Each CSS block in

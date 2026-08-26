@@ -11,6 +11,12 @@
   "engines": {
     "node": ">=18"
   },
+  "designCatalog": {
+    "catalog": "design-web-components",
+    "refresh": "2026-07-17",
+    "commit": "26337fc5ab0573d3bc998f617b10bb1d94f2e401",
+    "syncedAt": "2026-08-25"
+  },
   "scripts": {
     "render:examples": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md --out-dir output --preview",
     "test": "node --test test/*.test.js",

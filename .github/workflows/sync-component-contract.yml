@@ -1,0 +1,207 @@
+name: Sync component contract to geo-spoke-builder
+
+# Ships html-render's component + Markdown contract to geo-spoke-builder as
+# references/html-render-contract.md, as a pull request for a human to review.
+#
+# What this workflow deliberately does NOT do:
+#   - It does not edit any skill content in geo-spoke-builder. It writes exactly one file.
+#   - It does not enable auto-merge. Every PR it opens is merged by hand.
+#   - It does not open a PR when the generated file matches what is already committed.
+#
+# See docs/component-sync.md for the maintainer's guide.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Generate and diff, but do not push a branch or open a PR'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-component-contract
+  cancel-in-progress: false
+
+env:
+  TARGET_REPO: drewgilbert-lab/geo-spoke-builder
+  TARGET_PATH: references/html-render-contract.md
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. html-render at the tag (or the dispatched ref).
+      #    fetch-depth: 0 — the PR body is built by reading CHANGELOG.md as it stood at the
+      #    commit stamped in the previous contract file, which needs real history.
+      - name: Check out html-render
+        uses: actions/checkout@v4
+        with:
+          path: html-render
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Resolve version and commit
+        id: source
+        working-directory: html-render
+        run: |
+          echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+          echo "commit=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          echo "dry_run=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' }}" >> "$GITHUB_OUTPUT"
+
+      # 2. Generate the contract from the live CLI.
+      - name: Generate contract
+        working-directory: html-render
+        run: |
+          node scripts/generate-contract.js --out "$GITHUB_WORKSPACE/contract.md"
+          echo "--- generated header ---"
+          head -20 "$GITHUB_WORKSPACE/contract.md"
+
+      # 3. geo-spoke-builder's default branch, using the fine-grained PAT.
+      - name: Check out geo-spoke-builder
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.TARGET_REPO }}
+          token: ${{ secrets.GEO_SPOKE_BUILDER_SYNC_TOKEN }}
+          path: geo-spoke-builder
+
+      # Read the stamp out of the file we are about to overwrite, BEFORE overwriting it.
+      # That hash is what "which changelog entries are new" is measured from.
+      - name: Read previous stamp
+        id: previous
+        working-directory: geo-spoke-builder
+        run: |
+          if [ -f "$TARGET_PATH" ]; then
+            stamp=$(head -1 "$TARGET_PATH" | sed -n 's/.*html-render:contract .*commit=\([0-9a-f]\{7,40\}\).*/\1/p')
+            echo "Previous contract stamped at commit: ${stamp:-<unparseable>}"
+          else
+            stamp=""
+            echo "No previous contract file at $TARGET_PATH — first sync."
+          fi
+          echo "commit=$stamp" >> "$GITHUB_OUTPUT"
+
+      # 4 + 5. Overwrite, then diff. No difference is the common case and the whole point:
+      #        a release that did not move the contract must not create review work downstream.
+      - name: Overwrite and diff
+        id: diff
+        working-directory: geo-spoke-builder
+        run: |
+          mkdir -p "$(dirname "$TARGET_PATH")"
+          cp "$GITHUB_WORKSPACE/contract.md" "$TARGET_PATH"
+          if git diff --quiet -- "$TARGET_PATH" && [ -z "$(git status --porcelain -- "$TARGET_PATH")" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git --no-pager diff --stat -- "$TARGET_PATH" || true
+            git --no-pager diff -- "$TARGET_PATH" > "$GITHUB_WORKSPACE/contract.diff" || true
+            # A brand-new file shows up as untracked, not as a diff.
+            if [ ! -s "$GITHUB_WORKSPACE/contract.diff" ]; then
+              printf 'New file: %s (%s lines)\n' "$TARGET_PATH" "$(wc -l < "$TARGET_PATH" | tr -d " ")" > "$GITHUB_WORKSPACE/contract.diff"
+            fi
+          fi
+
+      - name: No change, nothing to sync
+        if: steps.diff.outputs.changed == 'false'
+        run: |
+          echo "no change, nothing to sync"
+          echo "The contract generated from v${{ steps.source.outputs.version }} (${{ steps.source.outputs.commit }}) is byte-identical to what is already committed at \`$TARGET_PATH\`. No pull request opened." >> "$GITHUB_STEP_SUMMARY"
+
+      # 6. Build the PR body: what we are syncing from, plus every changelog entry newer than the
+      #    stamp we read in step 3, pasted verbatim (with the breaking-change flag prefixed).
+      - name: Build pull request body
+        if: steps.diff.outputs.changed == 'true'
+        working-directory: html-render
+        run: |
+          {
+            echo "Syncs \`$TARGET_PATH\` from **html-render v${{ steps.source.outputs.version }}** (commit \`${{ steps.source.outputs.commit }}\`)."
+            echo
+            echo "Generated by \`scripts/generate-contract.js\` from the live renderer CLI. One file changed; no skill content touched. Not set to auto-merge — review and merge by hand."
+            echo
+            echo "## Changelog since the last synced contract"
+            echo
+            node scripts/generate-contract.js --changelog-since "${{ steps.previous.outputs.commit }}"
+          } > "$GITHUB_WORKSPACE/pr-body.md"
+          cat "$GITHUB_WORKSPACE/pr-body.md"
+
+      # 7. Dry run stops here, having shown exactly what it would have done.
+      - name: Dry run — report and stop
+        if: steps.diff.outputs.changed == 'true' && steps.source.outputs.dry_run == 'true'
+        run: |
+          echo "::notice::DRY RUN — no branch pushed, no pull request opened."
+          {
+            echo "# Dry run — nothing was pushed"
+            echo
+            echo "Would have opened a pull request into \`$TARGET_REPO\` from branch \`sync/html-render-v${{ steps.source.outputs.version }}\`."
+            echo
+            echo "## Pull request body would have been"
+            echo
+            cat "$GITHUB_WORKSPACE/pr-body.md"
+            echo
+            echo "## Diff would have been"
+            echo
+            echo '<details><summary>Show diff</summary>'
+            echo
+            # Five backticks: the contract file contains fences of its own (up to four,
+            # since --components prints fenced block syntax), and a three-backtick wrapper
+            # would be closed by the diff's own content.
+            echo '`````diff'
+            head -c 60000 "$GITHUB_WORKSPACE/contract.diff"
+            echo '`````'
+            echo
+            echo '</details>'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "--- pull request body ---"
+          cat "$GITHUB_WORKSPACE/pr-body.md"
+          echo "--- diff ---"
+          cat "$GITHUB_WORKSPACE/contract.diff"
+
+      # 6 (continued). Real run: branch, commit, push, open the PR.
+      - name: Open pull request
+        if: steps.diff.outputs.changed == 'true' && steps.source.outputs.dry_run != 'true'
+        working-directory: geo-spoke-builder
+        env:
+          GH_TOKEN: ${{ secrets.GEO_SPOKE_BUILDER_SYNC_TOKEN }}
+          VERSION: v${{ steps.source.outputs.version }}
+        run: |
+          set -euo pipefail
+          BASE=$(git rev-parse --abbrev-ref HEAD)
+          BRANCH="sync/html-render-$VERSION"
+
+          git config user.name  "html-render sync"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Fetch the sync branch explicitly if it already exists. checkout@v4 only tracks the
+          # default branch, so without this --force-with-lease has no lease to check against and
+          # refuses with "stale info" on any re-run of the same tag.
+          git fetch origin "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH" 2>/dev/null || true
+
+          git checkout -b "$BRANCH"
+          git add "$TARGET_PATH"
+          git commit -m "docs: sync html-render contract to $VERSION"
+          # --force-with-lease, not --force: this branch is machine-owned and fully regenerated,
+          # but the lease still refuses to clobber anything that arrived since we fetched.
+          git push --force-with-lease origin "$BRANCH"
+
+          # Re-running the same tag updates the existing PR rather than opening a duplicate.
+          EXISTING=$(gh pr list --repo "$TARGET_REPO" --head "$BRANCH" --state open --json url --jq '.[0].url // ""')
+          if [ -n "$EXISTING" ]; then
+            echo "::notice::Updated existing pull request $EXISTING"
+            echo "Updated existing pull request: $EXISTING" >> "$GITHUB_STEP_SUMMARY"
+          else
+            # No --auto / gh pr merge here, by design: Drew reviews and merges every sync PR.
+            URL=$(gh pr create \
+              --repo "$TARGET_REPO" \
+              --base "$BASE" \
+              --head "$BRANCH" \
+              --title "Sync html-render contract to $VERSION" \
+              --body-file "$GITHUB_WORKSPACE/pr-body.md")
+            echo "::notice::Opened $URL"
+            echo "Opened pull request: $URL" >> "$GITHUB_STEP_SUMMARY"
+          fi
