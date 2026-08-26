@@ -176,18 +176,18 @@
 .__page_class__ .hub-toc ul li a:hover { color: var(--hg-dark-blue); }
 .__page_class__ .hub-toc-dot { display: inline-block; width: 4px; height: 4px; background: var(--hg-blue); border-radius: 50%; flex-shrink: 0; }
 
-/* ---- Comparison table (11) -------------------------------- */
+/* ---- Comparison table ------------------------------------- */
 .__page_class__ .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid var(--hg-border); margin: 20px 0; }
 .__page_class__ table.comparison-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .__page_class__ .comparison-table thead tr { background: var(--grad-dark-blue-purple); }
 .__page_class__ .comparison-table thead th { color: var(--hg-white); padding: 14px 18px; text-align: left; font-weight: 800; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
 .__page_class__ .comparison-table thead th:first-child { border-radius: 12px 0 0 0; }
 .__page_class__ .comparison-table thead th:last-child { border-radius: 0 12px 0 0; }
-.__page_class__ .comparison-table tbody tr { background: var(--hg-white); border-top: 1px solid var(--hg-border); }
+.__page_class__ .comparison-table tbody tr { background: var(--hg-white); border-top: 1px solid var(--hg-border); transition: background 0.15s; }
 .__page_class__ .comparison-table tbody tr:first-child { border-top: none; }
 .__page_class__ .comparison-table tbody tr:hover { background: rgba(0,88,163,0.03); }
 .__page_class__ .comparison-table td { padding: 14px 18px; text-align: left; color: var(--hg-text-mid); vertical-align: middle; }
-.__page_class__ .comparison-table td.vendor-name { font-weight: 800; color: var(--hg-dark-blue); }
+.__page_class__ .comparison-table td.vendor-name { font-weight: 800; color: var(--hg-dark-blue); white-space: nowrap; }
 .__page_class__ .table-caption { font-size: 12px; color: var(--hg-text-light); margin-top: 14px; font-weight: 600; }
 
 /* ---- Expert quote card (12) ------------------------------- */

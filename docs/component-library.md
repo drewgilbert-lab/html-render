@@ -241,6 +241,41 @@ value: 38.2%
 | `emphasis` | `default` \| `primary` \| `accent` \| `dim` | Gradient for leaders, blue ramp for mid-tier, gray for trailing |
 | `no_track` | `true` \| `false` | Drop the track so the bar's pixel length itself encodes magnitude |
 
+### `comparison-table` — ComparisonTable
+
+A vendor comparison table with a gradient header row and per-column alignment.
+It renders structure only: a share cell composes the `share-bar` component
+rather than inlining its markup. A plain Markdown pipe table renders the same
+table chrome; reach for this block when a cell needs a share bar or a column
+needs explicit alignment.
+
+````markdown
+```comparison-table
+columns:
+  - label: Vendor
+  - label: Install Share
+  - label: YoY Change
+    align: center
+rows:
+  - cells:
+      - Salesforce
+      - share:
+          width: 38.2
+          value: 38.2%
+      - +3.1pp
+caption: "Source: HG Insights &middot; Q2 2026 &middot; Enterprise segment (500+ employees)"
+```
+````
+
+| Key | | Notes |
+|---|---|---|
+| `columns` | required, 1+ | Each needs `label`; `align` is `left`/`center`/`right` |
+| `rows` | required, 1+ | Each row's `cells` line up with the columns in order |
+| `cells` | required, 1+ | A bare string is a text cell; `share:` composes a share-bar |
+| `caption` | | The source and definition line below the table |
+
+The first cell of each row is styled as the row identity (bold, dark blue).
+
 ---
 
 ## Page-level components

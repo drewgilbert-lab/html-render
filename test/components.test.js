@@ -186,6 +186,35 @@ test('share-bar no_track drops the track and sizes the bar in pixels', () => {
   );
 });
 
+test('comparison-table renders structure and composes share-bar inside a cell', () => {
+  const html = block('comparison-table', {
+    columns: [{ label: 'Vendor' }, { label: 'Install Share' }, { label: 'YoY Change', align: 'center' }],
+    rows: [
+      { cells: ['Salesforce', { share: { width: 38.2, value: '38.2%' } }, '+3.1pp'] },
+      { cells: ['SAP CRM', { share: { width: 11.8, value: '11.8%', emphasis: 'dim' } }, '-1.4pp'] },
+    ],
+    caption: 'Source: HG Insights &middot; Q2 2026 &middot; Enterprise segment (500+ employees)',
+  });
+  assert.match(html, /^<div class="table-wrapper">/);
+  assert.match(html, /<table class="comparison-table">/);
+  assert.match(html, /<th style="text-align:center">YoY Change<\/th>/);
+  assert.match(html, /<td class="vendor-name">Salesforce<\/td>/);
+  assert.match(html, /<td><span class="share-bar"><span class="share-bar-track"><span class="share-bar-fill" style="width:38.2%">/);
+  assert.match(html, /share-bar-fill dim/);
+  assert.match(html, /<td style="text-align:center">\+3\.1pp<\/td>/);
+  assert.match(html, /<p class="table-caption">Source: HG Insights &middot; Q2 2026/);
+  // Only the first column carries the row identity class.
+  assert.equal((html.match(/class="vendor-name"/g) || []).length, 2);
+});
+
+test('a comparison-table row shorter than its columns pads with empty cells', () => {
+  const html = block('comparison-table', {
+    columns: [{ label: 'Vendor' }, { label: 'Share' }],
+    rows: [{ cells: ['Salesforce'] }],
+  });
+  assert.match(html, /<td class="vendor-name">Salesforce<\/td>\n\s*<td><\/td>/);
+});
+
 test('a table in the body renders as the canonical comparison table', () => {
   const source = pillar().replace(
     'A body paragraph in the first section.',

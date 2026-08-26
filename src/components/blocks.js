@@ -523,8 +523,90 @@ const shareBar = {
   },
 };
 
+const comparisonTable = {
+  name: 'comparison-table',
+  summary: 'A vendor comparison table with a gradient header row and per-column alignment. Renders structure only; a share cell composes the share-bar component.',
+  source: 'ComparisonTable',
+  fields: {
+    columns: {
+      type: 'list',
+      required: true,
+      min: 1,
+      fields: {
+        label: { type: 'text', required: true },
+        align: { type: 'enum', values: ['left', 'center', 'right'] },
+      },
+    },
+    rows: {
+      type: 'list',
+      required: true,
+      min: 1,
+      fields: {
+        cells: {
+          type: 'list',
+          required: true,
+          min: 1,
+          primaryKey: 'text',
+          fields: {
+            text: { type: 'text' },
+            share: { type: 'object', fields: SHARE_BAR_FIELDS },
+          },
+        },
+      },
+    },
+    caption: { type: 'text', hint: 'the source and definition line below the table' },
+  },
+  render(value) {
+    const head = el(
+      'thead',
+      null,
+      `\n${indent(
+        el(
+          'tr',
+          null,
+          `\n${indent(
+            lines(value.columns.map((column) => el('th', column.align ? { style: `text-align:${column.align}` } : null, column.label))),
+          )}\n`,
+        ),
+      )}\n`,
+    );
+    const body = el(
+      'tbody',
+      null,
+      `\n${indent(
+        lines(
+          value.rows.map((row) =>
+            el(
+              'tr',
+              null,
+              `\n${indent(
+                lines(
+                  value.columns.map((column, index) => {
+                    const cell = row.cells[index];
+                    const attrs = {};
+                    if (index === 0) attrs.class = 'vendor-name';
+                    if (column.align) attrs.style = `text-align:${column.align}`;
+                    const content = cell ? (cell.share ? renderShareBar(cell.share) : cell.text || '') : '';
+                    return el('td', Object.keys(attrs).length ? attrs : null, content);
+                  }),
+                ),
+              )}\n`,
+            ),
+          ),
+        ),
+      )}\n`,
+    );
+    const table = el(
+      'div',
+      { class: 'table-wrapper' },
+      `\n${indent(el('table', { class: 'comparison-table' }, `\n${indent(lines(head, body))}\n`))}\n`,
+    );
+    return lines(table, value.caption ? el('p', { class: 'table-caption' }, value.caption) : '');
+  },
+};
+
 module.exports = {
-  blocks: [callout, conceptCards, quote, processSteps, beforeAfter, formula, bars, benchmarkFigure, linkCard, relatedCards, figure, shareBar],
+  blocks: [callout, conceptCards, quote, processSteps, beforeAfter, formula, bars, benchmarkFigure, linkCard, relatedCards, figure, shareBar, comparisonTable],
   renderRelatedGrid,
   renderShareBar,
   paras,
