@@ -1,0 +1,12 @@
+/* HG Insights chart + data-display CSS — bar charts, supporting charts, share bars,
+   trend indicators, benchmark figure. */
+
+/* --- Share bar --- */
+.share-bar{display:inline-flex;align-items:center;gap:8px}
+.share-bar-track{display:inline-block;width:70px;height:8px;background:var(--hg-off-white);border-radius:4px;overflow:hidden;flex-shrink:0}
+.share-bar-fill{display:block;height:100%;border-radius:4px;background:var(--grad-dark-blue-purple)}
+.share-bar-fill.primary{background:var(--grad-dark-blue-purple)}
+.share-bar-fill.accent{background:linear-gradient(90deg,var(--hg-blue) 0%,var(--hg-light-blue) 100%)}
+.share-bar-fill.dim{background:linear-gradient(90deg,var(--hg-gray) 0%,var(--hg-gray-light) 100%)}
+.share-bar-value{font-weight:700;color:var(--hg-dark-blue)}
+.share-bar.no-track .share-bar-fill{height:8px;min-width:4px;flex-shrink:0}

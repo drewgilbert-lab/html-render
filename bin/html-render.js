@@ -18,7 +18,7 @@
  *       --no-font          omit the configured webfont @import
  *       --contract <type>  print the Markdown contract for pillar|cluster|spoke
  *       --components       list every available component
- *       --audit <dir>      classify a design-web-components catalog against this registry
+ *       --audit <dir>      classify a Claude Design export against this registry
  *   -h, --help
  */
 
@@ -118,7 +118,7 @@ function usage() {
       '      --no-font         omit the configured webfont @import',
       `      --contract <type> print the Markdown contract (${PAGE_TYPES.join('|')})`,
       '      --components      list every available component',
-      '      --audit <dir>     classify a design-web-components catalog against this registry',
+      '      --audit <dir>     classify a Claude Design export against this registry',
       '  -h, --help            show this message',
       '',
       `Page classes: ${[...layouts.keys()].join(', ')}`,

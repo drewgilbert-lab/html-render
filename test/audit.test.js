@@ -2,20 +2,24 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const path = require('path');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 
-const { auditCatalog, formatAudit, componentNumber } = require('../src/audit');
+const { auditCatalog, formatAudit, headerCovers, isLegacyNumbered, OUT_OF_SCOPE } = require('../src/audit');
 
-const FIXTURE = path.join(__dirname, 'fixtures', 'catalog');
+const FIXTURE = path.join(__dirname, 'fixtures', 'design-export-sample');
 
 /** A stand-in registry and stylesheet, so the join is tested without the live repo. */
 const COMPONENTS = [
-  { kind: 'block', name: 'thesis', source: '31-thesis-block (formula variant)' },
-  { kind: 'page', name: 'gone', source: '99-retired-component' },
+  { kind: 'block', name: 'figure', source: 'Figure' },
+  { kind: 'block', name: 'quote', source: '12-expert-quote-card' },
+  { kind: 'page', name: 'gone', source: 'RetiredComponent' },
 ];
 const CSS = [
-  '/* ---- Comparison table (11) -------------------------------- */',
-  '/* ---- Bars and freshness (10, 04) -------------------------- */',
+  '/* ---- Share bar ------------------------------------------- */',
+  '/* ---- Comparison table ------------------------------------- */',
+  '/* ---- Callout box (46) ------------------------------------- */',
   '/* ---- Page composition ------------------------------------- */',
 ].join('\n');
 
@@ -23,95 +27,98 @@ function fixture() {
   return auditCatalog(FIXTURE, { components: COMPONENTS, css: CSS });
 }
 
-function entry(result, number) {
-  return result.entries.find((row) => row.number === number);
+function entry(result, name) {
+  return result.entries.find((row) => row.name === name);
 }
 
-test('componentNumber ignores a trailing variant note', () => {
-  assert.equal(componentNumber('46-callout-box'), '46');
-  assert.equal(componentNumber('31-thesis-block (formula variant)'), '31');
-  assert.equal(componentNumber('10-supporting-charts (mini bar)'), '10');
-  assert.equal(componentNumber('not-a-component'), null);
+test('headerCovers joins a header label to a component name', () => {
+  assert.ok(headerCovers('Figure block', 'Figure'));
+  assert.ok(headerCovers('Comparison table', 'ComparisonTable'));
+  assert.ok(headerCovers('Share bar', 'ShareBar'));
+  assert.ok(!headerCovers('Page composition', 'ComparisonTable'));
+  assert.ok(!headerCovers('Share bar', 'Figure'));
 });
 
-test('a catalogued component nothing implements is new', () => {
-  const widget = entry(fixture(), '77');
-  assert.equal(widget.status, 'new');
-  assert.equal(widget.role, 'widget');
-  assert.equal(widget.js, 'yes');
-  assert.equal(widget.context, 'web');
+test('isLegacyNumbered recognises the retired numbered convention', () => {
+  assert.ok(isLegacyNumbered('46-callout-box'));
+  assert.ok(isLegacyNumbered('31-thesis-block (formula variant)'));
+  assert.ok(!isLegacyNumbered('Figure'));
+  assert.ok(!isLegacyNumbered('ComparisonTable'));
 });
 
-test('a parenthetical source still covers its component', () => {
-  const thesis = entry(fixture(), '31');
-  assert.equal(thesis.status, 'covered');
-  assert.deepEqual(thesis.coveredBy, ['block `thesis`']);
+test('a registry source joins on the verbatim export name', () => {
+  const figure = entry(fixture(), 'Figure');
+  assert.equal(figure.status, 'covered');
+  assert.deepEqual(figure.coveredBy, ['block `figure`']);
 });
 
-test('a numbered CSS header covers a component with no registry entry', () => {
-  const table = entry(fixture(), '11');
-  assert.equal(table.status, 'covered');
-  assert.match(table.coveredBy.join(), /^css /);
-});
-
-test('a comma-separated CSS header covers every number it names', () => {
-  const bars = entry(fixture(), '10');
-  assert.equal(bars.status, 'covered');
-  assert.match(bars.coveredBy.join(), /Bars and freshness/);
-  assert.equal(entry(fixture(), '04').status, 'covered');
-});
-
-test('out-of-scope components are not reported as gaps', () => {
+test('an unnumbered CSS header covers a component with no registry entry', () => {
   const result = fixture();
-  for (const number of ['01', '40']) {
-    const row = entry(result, number);
-    assert.equal(row.status, 'out-of-scope');
-    assert.ok(row.reason, `${number} has no stated reason`);
-  }
-  assert.equal(result.counts.new, 1);
-  assert.equal(result.counts.outOfScope, 2);
-  assert.equal(result.counts.covered, 4);
+  assert.equal(entry(result, 'ShareBar').status, 'covered');
+  assert.match(entry(result, 'ShareBar').coveredBy.join(), /^css `Share bar/);
+  assert.equal(entry(result, 'ComparisonTable').status, 'covered');
 });
 
-test('a source naming no catalogued component is reported as removed', () => {
+test('a numbered CSS header is legacy and does not join', () => {
   const result = fixture();
-  assert.deepEqual(result.removed, [{ number: '99', claimedBy: ['page `gone`'] }]);
-});
-
-test('review triggers come from the refresh history and the usage notes only', () => {
-  const bars = entry(fixture(), '10');
-  assert.ok(
-    bars.reviewTriggers.some((trigger) => /Refresh history/.test(trigger)),
-    'the catalog names 10 in its refresh history',
-  );
-  assert.ok(
-    bars.reviewTriggers.some((trigger) => /Refreshed 2099-01-01/.test(trigger)),
-    'the component file has a refresh usage note',
-  );
-  assert.ok(
-    !bars.reviewTriggers.some((trigger) => /refreshed hue/.test(trigger)),
-    'the token list is not a usage note',
+  assert.equal(entry(result, 'Callout').status, 'new');
+  assert.deepEqual(
+    result.legacy.headers.filter((label) => /Callout/.test(label)),
+    ['Callout box (46)'],
   );
 });
 
-test('the catalog refresh date is read from the index', () => {
-  assert.equal(fixture().refreshed, '2099-01-01');
+test('a numbered registry source is legacy, not removed', () => {
+  const result = fixture();
+  assert.deepEqual(result.legacy.sources, [{ source: '12-expert-quote-card', claimedBy: 'block `quote`' }]);
+  assert.ok(!result.removed.some((row) => row.source === '12-expert-quote-card'));
 });
 
-test('a directory with no components/ fails with a usable message', () => {
-  assert.throws(() => auditCatalog(__dirname), /no components\/ directory/);
+test('a named source the export no longer lists is reported as removed', () => {
+  assert.deepEqual(fixture().removed, [{ source: 'RetiredComponent', claimedBy: 'page `gone`' }]);
+});
+
+test('each entry carries its category and its prompt.md role line', () => {
+  const share = entry(fixture(), 'ShareBar');
+  assert.equal(share.category, 'data');
+  assert.match(share.role, /share-visualisation cell/);
+});
+
+test('out-of-scope components are keyed by exact export names', () => {
+  assert.deepEqual(Object.keys(OUT_OF_SCOPE), ['DocCover', 'PageHeaderBand', 'PageFooterBand', 'AboutBlock', 'Logo']);
+
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'audit-'));
+  fs.writeFileSync(
+    path.join(dir, '_ds_manifest.json'),
+    JSON.stringify({
+      namespace: 'Test_000000',
+      components: [{ name: 'DocCover', sourcePath: 'components/document/DocCover.jsx' }],
+    }),
+  );
+  const result = auditCatalog(dir, { components: [], css: '' });
+  assert.equal(result.entries[0].status, 'out-of-scope');
+  assert.match(result.entries[0].reason, /print\/PDF chrome/);
+});
+
+test('the export namespace is read from the manifest', () => {
+  assert.equal(fixture().namespace, 'HGInsightsMarketingDesignSystem_3bf70b');
+});
+
+test('a directory with no manifest fails with a usable message', () => {
+  assert.throws(() => auditCatalog(__dirname), /no _ds_manifest\.json under/);
 });
 
 test('formatAudit reports every classification', () => {
   const printed = formatAudit(fixture());
+  assert.match(printed, /Export namespace: HGInsightsMarketingDesignSystem_3bf70b/);
   assert.match(printed, /## New — not implemented here \(1\)/);
-  assert.match(printed, /## Removed — implemented here, gone from the catalog \(1\)/);
-  assert.match(printed, /## Out of scope by design \(2\)/);
-  assert.match(printed, /## Covered \(4\)/);
+  assert.match(printed, /## Removed — implemented here, gone from the export \(1\)/);
+  assert.match(printed, /## Legacy numbered convention — cannot join on export names \(2\)/);
+  assert.match(printed, /## Covered \(3\)/);
 });
 
-test('the live registry audits without throwing', () => {
+test('the live registry audits the fixture without throwing', () => {
   const result = auditCatalog(FIXTURE);
-  assert.ok(result.counts.catalogued === 7);
+  assert.equal(result.counts.catalogued, 4);
   assert.ok(typeof result.counts.covered === 'number');
 });

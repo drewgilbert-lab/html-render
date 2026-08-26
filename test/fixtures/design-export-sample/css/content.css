@@ -1,0 +1,16 @@
+/* HG Insights shared content blocks CSS — content section, callouts, lists, process steps,
+   before/after, concept cards, figures. */
+
+/* --- Callout box --- */
+.callout-box{background:var(--grad-subtle);border-left:4px solid var(--hg-dark-blue);border-radius:0 var(--hg-radius) var(--hg-radius) 0;padding:18px 22px;margin:20px 0}
+.callout-box-label{font-size:var(--fs-small);font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--hg-dark-blue);margin-bottom:8px}
+.callout-box-body{font-size:var(--fs-body);font-weight:500;line-height:var(--lh-body);color:var(--hg-text-dark);margin:0}
+.callout-box--melon{background:rgba(201,25,74,0.06);border-left-color:var(--hg-melon)}
+.callout-box--melon .callout-box-label{color:var(--hg-melon)}
+
+/* --- Figure block --- */
+.figure-block{margin:22px 0;text-align:center}
+.figure-block img{max-width:100%;height:auto;border-radius:var(--hg-radius);box-shadow:0 2px 12px rgba(0,0,0,0.08)}
+.figure-placeholder{display:flex;align-items:center;justify-content:center;min-height:200px;background:var(--hg-off-white);border:2px dashed var(--hg-border-light);border-radius:var(--hg-radius)}
+.figure-placeholder-label{font-size:var(--fs-small);font-weight:700;color:var(--hg-text-light)}
+.figure-caption{margin-top:10px;font-size:var(--fs-small);font-style:italic;line-height:1.4;color:var(--hg-text-light)}

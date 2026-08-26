@@ -1,0 +1,15 @@
+{
+  "namespace": "HGInsightsMarketingDesignSystem_3bf70b",
+  "components": [
+    { "name": "Figure", "sourcePath": "components/content/Figure.jsx" },
+    { "name": "ShareBar", "sourcePath": "components/data/ShareBar.jsx" },
+    { "name": "Callout", "sourcePath": "components/panels/Callout.jsx" },
+    { "name": "ComparisonTable", "sourcePath": "components/tables/ComparisonTable.jsx" }
+  ],
+  "globalCssPaths": [
+    "css/charts.css",
+    "css/tables.css",
+    "css/content.css"
+  ],
+  "source": "spa"
+}
