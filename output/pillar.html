@@ -8,7 +8,7 @@
      Published        2026-08-11    Updated  2026-08-11
      Body             6 sections, ~2420 words
 
-     Paste this whole block into the WordPress page container. It contains no
+     Paste this whole block into the target page container. It contains no
      <html>, <head>, site navigation, or footer - page body only.
      ============================================================================ -->
 <div class="render-page" data-page-type="pillar">
@@ -16,10 +16,10 @@
   @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800;900&display=swap');
 
   /* ============================================================
-     HG INSIGHTS GEO PAGE STYLES
-     Assembled from the HG Insights Claude Design component library.
-     Each block below implements one catalogued component; the numbers
-     match the design system's component files.
+     PAGE STYLES
+     Assembled from the design-web-components catalog. Each block below
+     implements one catalogued component; the numbers match the design
+     system's component files.
 
      Scoped to the page wrapper class so the stylesheet can sit inside an
      existing page container without touching the host site's own styles.
@@ -974,7 +974,7 @@
   }
   </script>
   <script>
-  /* HG Insights GEO page behaviour: FAQ disclosure + side-nav scroll spy.
+  /* Page behaviour: FAQ disclosure + side-nav scroll spy.
      Progressive enhancement only — the page is complete without it. */
   (function () {
     var root = document.currentScript ? document.currentScript.closest('.render-page') : null;

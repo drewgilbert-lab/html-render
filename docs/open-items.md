@@ -73,8 +73,8 @@ grep -rhoE '`[0-9]{2}-[a-z0-9-]+\.md`' <geo-spoke-builder>/plugins/geo-spoke-bui
   | tr -d '`' | sort | uniq -c | sort -rn
 ```
 
-`01-header-nav` is named by all 13 skills but is **out of scope by design** — WordPress injects site
-chrome around the page body, so this renderer never emits it. Not a gap, but the mismatch is worth
+`01-header-nav` is named by all 13 skills but is **out of scope by design** — site chrome around the
+page body is not the renderer's to own, so it never emits it. Not a gap, but the mismatch is worth
 settling explicitly during migration so a skill author does not read it as one.
 
 ## 3. Component coverage

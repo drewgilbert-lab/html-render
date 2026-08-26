@@ -28,13 +28,13 @@ const STYLES = path.join(__dirname, 'assets', 'styles.css');
 /**
  * Catalogued components this renderer deliberately does not implement.
  *
- * html-render emits a page *body* for an existing WordPress page, so the site
- * chrome around it is not ours to render; and it emits web HTML, so the
- * print-only document chrome has no target. These are not gaps — without this
+ * html-render emits a page *body* for an existing page, so the site chrome
+ * around it is not ours to render; and it emits web HTML, so the print-only
+ * document chrome has no target. These are not gaps — without this
  * list the audit would report the same six false gaps on every future run.
  */
 const OUT_OF_SCOPE = {
-  '01': 'site header — WordPress injects site chrome around the page body',
+  '01': 'site header — site chrome the renderer does not own',
   '40': 'document cover — print/PDF chrome, no web target',
   '41': 'document running header — print/PDF chrome, no web target',
   '42': 'document running footer — print/PDF chrome, no web target',

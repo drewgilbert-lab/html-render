@@ -5,8 +5,8 @@
  *
  * These are the components an author places inside a page section with a
  * fenced ```name block. Each one is the single canonical implementation of a
- * component from the HG Insights Claude Design library; the `source` field
- * names the design-system component it implements.
+ * component from the design-web-components catalog; the `source` field names
+ * the design-system component it implements.
  *
  * A component is: { name, summary, source, fields, render(value, ctx) }.
  * `value` arrives already normalized and escaped by src/validate/fields.js.

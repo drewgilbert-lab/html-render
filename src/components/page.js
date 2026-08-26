@@ -6,7 +6,7 @@
  * These are not author-invokable. Their inputs come from frontmatter slots, so
  * an author cannot reorder or duplicate them — the layout owns composition and
  * these components own implementation. Each is the one canonical build of its
- * HG Insights Claude Design component; `source` names that component.
+ * catalogued design component; `source` names that component.
  */
 
 const { el, lines, indent, container, initials } = require('../html');

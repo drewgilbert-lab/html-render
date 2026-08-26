@@ -1,8 +1,8 @@
 /* ============================================================
-   HG INSIGHTS GEO PAGE STYLES
-   Assembled from the HG Insights Claude Design component library.
-   Each block below implements one catalogued component; the numbers
-   match the design system's component files.
+   PAGE STYLES
+   Assembled from the design-web-components catalog. Each block below
+   implements one catalogued component; the numbers match the design
+   system's component files.
 
    Scoped to the page wrapper class so the stylesheet can sit inside an
    existing page container without touching the host site's own styles.

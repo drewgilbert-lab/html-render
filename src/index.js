@@ -1,8 +1,8 @@
 'use strict';
 
 /**
- * html-render — renderer-ready Markdown in, approved HG Insights Claude Design
- * page body out.
+ * html-render — renderer-ready Markdown in, an approved design-system page
+ * body out.
  *
  * The pipeline, in order:
  *   parse Markdown -> identify page class -> validate against that class's
@@ -144,8 +144,10 @@ function buildMeta(doc, bodyHtml) {
 }
 
 /**
- * A comment header carrying the values WordPress needs in its own fields
- * (title, meta description, canonical URL) plus a QA line for the web team.
+ * A comment header carrying the values the publishing site needs in its own
+ * fields (title, meta description, canonical URL) plus a QA line for whoever
+ * places the page. The organization name comes from config; there is no
+ * default, so a page never carries somebody else's.
  */
 function header(meta, config) {
   const rule = '='.repeat(76);
@@ -165,7 +167,7 @@ function header(meta, config) {
     '',
     ...rows.map((row) => `     ${row.replace(/--/g, '-')}`),
     '',
-    '     Paste this whole block into the WordPress page container. It contains no',
+    '     Paste this whole block into the target page container. It contains no',
     '     <html>, <head>, site navigation, or footer - page body only.',
     `     ${rule} -->`,
   ].join('\n');

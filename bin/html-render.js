@@ -15,7 +15,7 @@
  *       --no-styles        omit the <style> block (CSS loaded site-wide instead)
  *       --no-script        omit the FAQ / side-nav behaviour script
  *       --no-schema        omit the JSON-LD block
- *       --no-font          omit the Nunito Sans @import
+ *       --no-font          omit the configured webfont @import
  *       --contract <type>  print the Markdown contract for pillar|cluster|spoke
  *       --components       list every available component
  *       --audit <dir>      classify a design-web-components catalog against this registry
@@ -100,7 +100,7 @@ function fail(message) {
 function usage() {
   process.stdout.write(
     [
-      'html-render — GEO Markdown to HG Insights Claude Design HTML',
+      'html-render — renderer-ready Markdown to a design-system HTML page body',
       '',
       'Usage:',
       '  html-render <input.md> [more.md ...] [options]',
@@ -115,7 +115,7 @@ function usage() {
       '      --no-styles       omit the <style> block',
       '      --no-script       omit the behaviour script',
       '      --no-schema       omit the JSON-LD block',
-      '      --no-font         omit the Nunito Sans @import',
+      '      --no-font         omit the configured webfont @import',
       `      --contract <type> print the Markdown contract (${PAGE_TYPES.join('|')})`,
       '      --components      list every available component',
       '      --audit <dir>     classify a design-web-components catalog against this registry',

@@ -125,7 +125,7 @@ test('render options control the emitted wrapper assets', () => {
   assert.doesNotMatch(render(pillar(), { config: EXAMPLE_CONFIG, font: false }).html, /@import/);
 });
 
-test('the comment header carries the values WordPress needs', () => {
+test('the comment header carries the values the publishing site needs', () => {
   const { html, meta } = render(pillar(), { config: EXAMPLE_CONFIG });
   assert.match(html, /Page type {8}pillar/);
   assert.match(html, /Canonical URL {4}https:\/\/hginsights\.com\/geo\/test-page\//);

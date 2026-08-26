@@ -1,7 +1,7 @@
 {
   "name": "html-render",
   "version": "1.1.0",
-  "description": "Deterministic GEO Markdown-to-HTML renderer. Renderer-ready Markdown in, approved HG Insights Claude Design page body out.",
+  "description": "Deterministic Markdown-to-HTML page-body renderer. Renderer-ready Markdown in, an approved design-system HTML page body out, for insertion into an existing page container.",
   "type": "commonjs",
   "private": true,
   "bin": {
