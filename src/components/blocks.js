@@ -490,8 +490,42 @@ const figure = {
   },
 };
 
+const SHARE_BAR_FIELDS = {
+  width: { type: 'number', required: true, hint: 'percent of the track, or the bar\'s own pixel length with no_track' },
+  value: { type: 'plain', hint: 'the bold figure beside the bar, e.g. "38.2%"' },
+  emphasis: { type: 'enum', values: ['default', 'primary', 'accent', 'dim'], default: 'default' },
+  no_track: { type: 'bool' },
+};
+
+/** Shared by the `share-bar` block and `comparison-table` share cells. */
+function renderShareBar(value) {
+  const fill = el(
+    'span',
+    {
+      class: value.emphasis !== 'default' ? `share-bar-fill ${value.emphasis}` : 'share-bar-fill',
+      style: `width:${value.width}${value.no_track ? 'px' : '%'}`,
+    },
+    '',
+  );
+  return el('span', { class: value.no_track ? 'share-bar no-track' : 'share-bar' }, [
+    value.no_track ? fill : el('span', { class: 'share-bar-track' }, fill),
+    value.value != null ? el('span', { class: 'share-bar-value' }, value.value) : '',
+  ]);
+}
+
+const shareBar = {
+  name: 'share-bar',
+  summary: 'An inline relative-share bar: a small fill plus an optional bold figure. Track mode fills a 70px track by percent; no_track makes the bar\'s pixel length the magnitude.',
+  source: 'ShareBar',
+  fields: SHARE_BAR_FIELDS,
+  render(value) {
+    return renderShareBar(value);
+  },
+};
+
 module.exports = {
-  blocks: [callout, conceptCards, quote, processSteps, beforeAfter, formula, bars, benchmarkFigure, linkCard, relatedCards, figure],
+  blocks: [callout, conceptCards, quote, processSteps, beforeAfter, formula, bars, benchmarkFigure, linkCard, relatedCards, figure, shareBar],
   renderRelatedGrid,
+  renderShareBar,
   paras,
 };

@@ -391,6 +391,16 @@
 .__page_class__ .bf-definition strong { color: var(--hg-text-dark); font-weight: 700; }
 .__page_class__ .bf-footer { font-size: 12px; font-weight: 600; color: var(--hg-text-light); text-align: center; }
 
+/* ---- Share bar ---------------------------------------- */
+.__page_class__ .share-bar { display: inline-flex; align-items: center; gap: 8px; }
+.__page_class__ .share-bar-track { display: inline-block; width: 70px; height: 8px; background: var(--hg-off-white); border-radius: 4px; overflow: hidden; flex-shrink: 0; }
+.__page_class__ .share-bar-fill { display: block; height: 100%; border-radius: 4px; background: var(--grad-dark-blue-purple); }
+.__page_class__ .share-bar-fill.primary { background: var(--grad-dark-blue-purple); }
+.__page_class__ .share-bar-fill.accent { background: linear-gradient(90deg, var(--hg-blue) 0%, var(--hg-light-blue) 100%); }
+.__page_class__ .share-bar-fill.dim { background: linear-gradient(90deg, var(--hg-gray) 0%, var(--hg-gray-light) 100%); }
+.__page_class__ .share-bar-value { font-weight: 700; color: var(--hg-dark-blue); }
+.__page_class__ .share-bar.no-track .share-bar-fill { height: 8px; min-width: 4px; flex-shrink: 0; }
+
 /* ---- Citations list (60) ----------------------------- */
 .__page_class__ .citations-section { padding: 56px 0; background: var(--hg-white); border-top: 1px solid var(--hg-border); }
 .__page_class__ .citations-list { padding-top: var(--space-4); }

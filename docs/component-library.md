@@ -221,6 +221,26 @@ caption: Figure 1. CRM install share among companies with 500+ employees, Q2 202
 | `caption` | | Rendered italic below the image |
 | `placeholder` | | Placeholder label; defaults to `[IMAGE NEEDED]` |
 
+### `share-bar` — ShareBar
+
+An inline relative-share bar: a small fill bar plus an optional bold figure.
+Its main home is inside a `comparison-table` share cell, where it is composed
+by that component; standalone it renders one inline bar.
+
+````markdown
+```share-bar
+width: 38.2
+value: 38.2%
+```
+````
+
+| Key | | Notes |
+|---|---|---|
+| `width` | required | Percent of the 70px track — or the bar's own pixel length with `no_track` |
+| `value` | | The bold figure beside the bar; omit for a bar-only cell |
+| `emphasis` | `default` \| `primary` \| `accent` \| `dim` | Gradient for leaders, blue ramp for mid-tier, gray for trailing |
+| `no_track` | `true` \| `false` | Drop the track so the bar's pixel length itself encodes magnitude |
+
 ---
 
 ## Page-level components

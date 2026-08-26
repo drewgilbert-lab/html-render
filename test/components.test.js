@@ -164,6 +164,28 @@ test('figure without a src renders the dashed draft placeholder', () => {
   assert.match(labelled, /figure-placeholder-label">\[IMAGE NEEDED\] CRM share chart, Q2 2026</);
 });
 
+test('share-bar fills the track by percent and carries its emphasis class', () => {
+  const html = block('share-bar', { width: 38.2, value: '38.2%' });
+  assert.equal(
+    html,
+    '<span class="share-bar"><span class="share-bar-track"><span class="share-bar-fill" style="width:38.2%"></span></span><span class="share-bar-value">38.2%</span></span>',
+  );
+
+  const accent = block('share-bar', { width: 11.8, value: '11.8%', emphasis: 'accent' });
+  assert.match(accent, /class="share-bar-fill accent"/);
+
+  const bare = block('share-bar', { width: 56 });
+  assert.doesNotMatch(bare, /share-bar-value/);
+});
+
+test('share-bar no_track drops the track and sizes the bar in pixels', () => {
+  const html = block('share-bar', { width: 56, value: '38.2%', no_track: true });
+  assert.equal(
+    html,
+    '<span class="share-bar no-track"><span class="share-bar-fill" style="width:56px"></span><span class="share-bar-value">38.2%</span></span>',
+  );
+});
+
 test('a table in the body renders as the canonical comparison table', () => {
   const source = pillar().replace(
     'A body paragraph in the first section.',
