@@ -17,6 +17,7 @@
  *       --no-font          omit the Nunito Sans @import
  *       --contract <type>  print the Markdown contract for pillar|cluster|spoke
  *       --components       list every available component
+ *       --audit <dir>      classify a design-web-components catalog against this registry
  *   -h, --help
  */
 
@@ -28,9 +29,10 @@ const { layouts, layoutFor } = require('../src/layouts');
 const { blocks } = require('../src/components');
 const { contractFor, PAGE_TYPES } = require('../src/validate/document-contract');
 const { describeContract } = require('../src/describe');
+const { auditCatalog, formatAudit } = require('../src/audit');
 
 function parseArgs(argv) {
-  const options = { inputs: [], out: null, outDir: null, check: false, stdout: false, preview: false, styles: true, script: true, schema: true, font: true, help: false, contract: null, components: false };
+  const options = { inputs: [], out: null, outDir: null, check: false, stdout: false, preview: false, styles: true, script: true, schema: true, font: true, help: false, contract: null, components: false, audit: null };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     switch (arg) {
@@ -72,6 +74,9 @@ function parseArgs(argv) {
       case '--components':
         options.components = true;
         break;
+      case '--audit':
+        options.audit = argv[++i];
+        break;
       default:
         if (arg.startsWith('-')) {
           fail(`Unknown option "${arg}". Run html-render --help.`);
@@ -107,6 +112,7 @@ function usage() {
       '      --no-font         omit the Nunito Sans @import',
       `      --contract <type> print the Markdown contract (${PAGE_TYPES.join('|')})`,
       '      --components      list every available component',
+      '      --audit <dir>     classify a design-web-components catalog against this registry',
       '  -h, --help            show this message',
       '',
       `Page classes: ${[...layouts.keys()].join(', ')}`,
@@ -147,6 +153,14 @@ function main() {
   if (options.contract) {
     if (!PAGE_TYPES.includes(options.contract)) fail(`--contract expects one of: ${PAGE_TYPES.join(', ')}`);
     process.stdout.write(`${describeContract(options.contract, contractFor(options.contract), layoutFor(options.contract))}\n`);
+    return;
+  }
+  if (options.audit) {
+    try {
+      process.stdout.write(`${formatAudit(auditCatalog(path.resolve(options.audit)))}\n`);
+    } catch (error) {
+      fail(`--audit: ${error.message}`);
+    }
     return;
   }
   if (!options.inputs.length) {
