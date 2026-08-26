@@ -130,6 +130,7 @@ Notes for the web team:
 | [docs/markdown-contract.md](docs/markdown-contract.md) | The full input contract: frontmatter keys, body syntax, and every validation error |
 | [docs/page-layouts.md](docs/page-layouts.md) | What each of the three layouts composes, in order, and the two Spoke variants |
 | [docs/component-library.md](docs/component-library.md) | Every component, its inputs, and the design-system component it implements |
+| [docs/github-process.md](docs/github-process.md) | Branch/PR rules, commit conventions, and the tag/release sequence for this repo |
 | [CHANGELOG.md](CHANGELOG.md) | What changed in component coverage, and why, per catalog refresh |
 
 `examples/pillar.md`, `examples/cluster.md`, and `examples/spoke.md` are the
