@@ -4,12 +4,12 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const { render, ValidationError } = require('../src/index');
-const { pillar, cluster, spoke, bandedSpoke, editLine, SHARED, HERO, INTRO, RELATED } = require('./helpers');
+const { pillar, cluster, spoke, bandedSpoke, editLine, EXAMPLE_CONFIG, SHARED, HERO, INTRO, RELATED } = require('./helpers');
 
 /** Render and return the validation errors, asserting that it did fail. */
 function errorsFor(source) {
   try {
-    render(source);
+    render(source, { config: EXAMPLE_CONFIG });
   } catch (error) {
     assert.ok(error instanceof ValidationError, `expected a ValidationError, got ${error.name}: ${error.message}`);
     return error.errors;
@@ -179,7 +179,7 @@ test('a banded spoke still requires hero stats', () => {
 test('the error message lists every problem at once', () => {
   const broken = editLine(editLine(pillar(), 'url:', null), 'description:', null);
   try {
-    render(broken, { file: 'broken.md' });
+    render(broken, { config: EXAMPLE_CONFIG, file: 'broken.md' });
     assert.fail('expected failure');
   } catch (error) {
     assert.match(error.message, /^broken\.md: 2 validation errors/);

@@ -1,8 +1,8 @@
-/* HG Insights GEO page behaviour: FAQ disclosure + side-nav scroll spy.
+/* Page behaviour: FAQ disclosure + side-nav scroll spy.
    Progressive enhancement only — the page is complete without it. */
 (function () {
-  var root = document.currentScript ? document.currentScript.closest('.hg-geo-page') : null;
-  if (!root) root = document.querySelector('.hg-geo-page');
+  var root = document.currentScript ? document.currentScript.closest('.__page_class__') : null;
+  if (!root) root = document.querySelector('.__page_class__');
   if (!root) return;
 
   root.addEventListener('click', function (event) {

@@ -31,6 +31,13 @@ The pipeline is built and merged; it has never performed a real write.
 | No-op run, proving Step 3.5 | **Blocked** | The real run's PR being merged downstream. Until `references/html-render-contract.md` exists on `geo-spoke-builder`'s `main`, every run legitimately sees a new file |
 | Dry run | ✅ Passed 2026-08-26 | — |
 
+**`SYNC_TARGET_REPO` and `SYNC_TARGET_PATH` must be set as Actions variables** on `html-render`
+before the next tag. The workflow reads its destination from them instead of hardcoded literals now,
+and stops at its first step if either is missing rather than checking out the wrong repository. The
+values and the two `gh variable set` commands are in
+[component-sync.md](component-sync.md#the-sync-target). The *token* stays a literal secret name —
+that is the PAT decision below, deliberately unchanged.
+
 **The sync token expires 2026-11-24** and nothing owns renewing it. When it lapses the workflow
 fails on `Check out geo-spoke-builder` — loudly in Actions, but nobody watches Actions on a repo
 that only builds on tags. Rotation steps and the dates are in
@@ -73,8 +80,8 @@ grep -rhoE '`[0-9]{2}-[a-z0-9-]+\.md`' <geo-spoke-builder>/plugins/geo-spoke-bui
   | tr -d '`' | sort | uniq -c | sort -rn
 ```
 
-`01-header-nav` is named by all 13 skills but is **out of scope by design** — WordPress injects site
-chrome around the page body, so this renderer never emits it. Not a gap, but the mismatch is worth
+`01-header-nav` is named by all 13 skills but is **out of scope by design** — site chrome around the
+page body is not the renderer's to own, so it never emits it. Not a gap, but the mismatch is worth
 settling explicitly during migration so a skill author does not read it as one.
 
 ## 3. Component coverage

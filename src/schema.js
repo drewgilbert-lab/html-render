@@ -6,6 +6,8 @@
  * Built entirely from validated frontmatter, with a fixed key order and no
  * clock or randomness, so the same input always serializes to the same bytes.
  *
+ * The publishing organization is configuration, not a constant: see `config.js`.
+ *
  * Graph per page class:
  *   all      Organization, Person, Article, BreadcrumbList, FAQPage
  *   cluster  + ItemList indexing every spoke in the resource index
@@ -13,38 +15,42 @@
  */
 
 const { plainText } = require('./validate/fields');
-const config = require('./config');
+const { requireOrganization } = require('./config');
 
-function authorId(author) {
+function authorId(author, organization) {
   if (author.url) return `${trimSlash(author.url)}/#person`;
   const slug = plainText(author.name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  return `${config.organization.url}authors/${slug}/#person`;
+  return `${organization.url}authors/${slug}/#person`;
 }
 
 function trimSlash(url) {
   return String(url).replace(/\/+$/, '');
 }
 
-function buildGraph(fm, { pageType, sections }) {
+function buildGraph(fm, { pageType, sections, config }) {
+  const organization = requireOrganization(config);
   const pageUrl = fm.url;
   const base = trimSlash(pageUrl);
   const graph = [];
 
-  graph.push({
+  // logo and sameAs are optional config: a consumer who has not supplied one
+  // gets a graph without the key, never a placeholder or an inherited value.
+  const publisher = {
     '@type': 'Organization',
-    '@id': config.organization.id,
-    name: config.organization.name,
-    url: config.organization.url,
-    logo: config.organization.logo,
-    sameAs: config.organization.sameAs,
-  });
+    '@id': organization.id,
+    name: organization.name,
+    url: organization.url,
+  };
+  if (organization.logo) publisher.logo = organization.logo;
+  if (organization.sameAs) publisher.sameAs = organization.sameAs;
+  graph.push(publisher);
 
   const person = {
     '@type': 'Person',
-    '@id': authorId(fm.author),
+    '@id': authorId(fm.author, organization),
     name: plainText(fm.author.name),
     jobTitle: plainText(fm.author.title),
-    worksFor: { '@id': config.organization.id },
+    worksFor: { '@id': organization.id },
   };
   if (fm.author.url) person.url = fm.author.url;
   graph.push(person);
@@ -77,8 +83,8 @@ function buildGraph(fm, { pageType, sections }) {
     '@id': `${base}/#article`,
     headline: plainText(fm.title),
     description: plainText(fm.description),
-    author: { '@id': authorId(fm.author) },
-    publisher: { '@id': config.organization.id },
+    author: { '@id': authorId(fm.author, organization) },
+    publisher: { '@id': organization.id },
     datePublished: String(fm.published),
     dateModified: String(fm.updated || fm.published),
     inLanguage: config.language,

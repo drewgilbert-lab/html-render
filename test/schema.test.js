@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 
 const { renderFile } = require('../src/index');
+const { EXAMPLE_CONFIG } = require('./helpers');
 
 const EXAMPLES = path.join(__dirname, '..', 'examples');
 
@@ -13,7 +14,7 @@ const EXAMPLES = path.join(__dirname, '..', 'examples');
  * wrapper div, so the indentation is stripped before parsing.
  */
 function graphFor(file) {
-  const html = renderFile(path.join(EXAMPLES, file)).html;
+  const html = renderFile(path.join(EXAMPLES, file), { config: EXAMPLE_CONFIG }).html;
   const match = /<script type="application\/ld\+json">\n([\s\S]*?)\n\s*<\/script>/.exec(html);
   assert.ok(match, 'no JSON-LD block found');
   return JSON.parse(match[1]);

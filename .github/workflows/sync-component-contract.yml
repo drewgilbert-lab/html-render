@@ -27,14 +27,25 @@ concurrency:
   group: sync-component-contract
   cancel-in-progress: false
 
+# The destination is repository configuration, not source: retargeting this
+# workflow at a different consumer is a variables change, with no commit here.
+# The token is still a hardcoded secret name — see docs/open-items.md.
 env:
-  TARGET_REPO: drewgilbert-lab/geo-spoke-builder
-  TARGET_PATH: references/html-render-contract.md
+  TARGET_REPO: ${{ vars.SYNC_TARGET_REPO }}
+  TARGET_PATH: ${{ vars.SYNC_TARGET_PATH }}
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
+      # 0. An unset variable would expand to an empty string, and checkout@v7 with an
+      #    empty `repository` silently checks out THIS repo. Stop before that happens.
+      - name: Check the sync target is configured
+        run: |
+          : "${TARGET_REPO:?repository variable SYNC_TARGET_REPO is not set — see docs/component-sync.md}"
+          : "${TARGET_PATH:?repository variable SYNC_TARGET_PATH is not set — see docs/component-sync.md}"
+          echo "Syncing to $TARGET_REPO :: $TARGET_PATH"
+
       # 1. html-render at the tag (or the dispatched ref).
       #    fetch-depth: 0 — the PR body is built by reading CHANGELOG.md as it stood at the
       #    commit stamped in the previous contract file, which needs real history.

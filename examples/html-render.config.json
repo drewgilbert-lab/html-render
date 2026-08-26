@@ -1,0 +1,11 @@
+{
+  "organization": {
+    "name": "HG Insights",
+    "url": "https://hginsights.com/",
+    "id": "https://hginsights.com/#organization",
+    "logo": "https://hginsights.com/assets/hg-insights-logo.png",
+    "sameAs": ["https://www.linkedin.com/company/hg-insights/"]
+  },
+  "language": "en-US",
+  "fontHref": "https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800;900&display=swap"
+}

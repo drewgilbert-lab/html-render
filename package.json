@@ -1,7 +1,7 @@
 {
   "name": "html-render",
   "version": "1.1.0",
-  "description": "Deterministic GEO Markdown-to-HTML renderer. Renderer-ready Markdown in, approved HG Insights Claude Design page body out.",
+  "description": "Deterministic Markdown-to-HTML page-body renderer. Renderer-ready Markdown in, an approved design-system HTML page body out, for insertion into an existing page container.",
   "type": "commonjs",
   "private": true,
   "bin": {
@@ -18,9 +18,9 @@
     "syncedAt": "2026-08-25"
   },
   "scripts": {
-    "render:examples": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md --out-dir output --preview",
+    "render:examples": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md --config examples/html-render.config.json --out-dir output --preview",
     "test": "node --test test/*.test.js",
-    "check": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md --check"
+    "check": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md --config examples/html-render.config.json --check"
   },
   "dependencies": {},
   "devDependencies": {}
