@@ -90,16 +90,21 @@ as the `GEO_SPOKE_BUILDER_SYNC_TOKEN` Actions secret on **`html-render`**.
 |---|---|
 | Scope | The `geo-spoke-builder` repository only |
 | Permissions | `Contents: Read and write`, `Pull requests: Read and write` |
-| Expires | _(fill in when the token is created — fine-grained PATs cannot be non-expiring)_ |
+| Created | 2026-08-26 |
+| **Expires** | **2026-11-24** (90 days) |
 
 Why a PAT and not the alternatives: a deploy key cannot call the pull request API, and a GitHub App
 is not justified while `geo-spoke-builder` is the only consumer. Revisit the App when a second
 consumer repo appears.
 
-**Nothing owns renewing this token.** When it expires the sync fails on the checkout step — it
-fails loudly in Actions, but silently in the sense that nobody is watching Actions on a repo that
-only builds on tags. If a release goes out and no sync PR appears downstream, check the token
-first.
+**Nothing owns renewing this token, and it expires on 2026-11-24.** When it expires the sync fails
+on the `Check out geo-spoke-builder` step — loudly in Actions, but silently in the sense that nobody
+is watching Actions on a repo that only builds on tags. If a release goes out and no sync PR appears
+downstream, check the token first.
+
+Rotating it is two steps: create a replacement with the same scope and permissions, then
+`gh secret set GEO_SPOKE_BUILDER_SYNC_TOKEN --repo drewgilbert-lab/html-render`. Update the dates in
+the table above at the same time — that table is the only record of when it lapses.
 
 ## Testing it safely
 
