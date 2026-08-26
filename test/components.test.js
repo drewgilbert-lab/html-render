@@ -141,6 +141,29 @@ test('related-cards and the related page band share one card implementation', ()
   assert.match(slot, /class="related-hubs-grid"/);
 });
 
+test('figure renders an image with an empty-alt fallback and an optional caption', () => {
+  const html = block('figure', {
+    src: '/assets/chart-crm-share.png',
+    alt: 'CRM install share by vendor, Q2 2026',
+    caption: 'Figure 1. CRM install share among companies with 500+ employees, Q2 2026.',
+  });
+  assert.match(html, /^<figure class="figure-block">/);
+  assert.match(html, /<img src="\/assets\/chart-crm-share\.png" alt="CRM install share by vendor, Q2 2026">/);
+  assert.match(html, /<figcaption class="figure-caption">Figure 1\./);
+
+  const bare = block('figure', { src: '/assets/chart.png' });
+  assert.match(bare, /<img src="\/assets\/chart\.png" alt="">/);
+  assert.doesNotMatch(bare, /figcaption/);
+});
+
+test('figure without a src renders the dashed draft placeholder', () => {
+  const draft = block('figure', { caption: 'Figure 2. Pending.' });
+  assert.match(draft, /<div class="figure-placeholder"><span class="figure-placeholder-label">\[IMAGE NEEDED\]<\/span><\/div>/);
+
+  const labelled = block('figure', { placeholder: '[IMAGE NEEDED] CRM share chart, Q2 2026' });
+  assert.match(labelled, /figure-placeholder-label">\[IMAGE NEEDED\] CRM share chart, Q2 2026</);
+});
+
 test('a table in the body renders as the canonical comparison table', () => {
   const source = pillar().replace(
     'A body paragraph in the first section.',

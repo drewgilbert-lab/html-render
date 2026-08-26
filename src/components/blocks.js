@@ -12,7 +12,7 @@
  * `value` arrives already normalized and escaped by src/validate/fields.js.
  */
 
-const { el, lines, indent } = require('../html');
+const { el, lines, indent, escapeAttr } = require('../html');
 
 /** Paragraph list from a richtext field. */
 function paras(list, className) {
@@ -466,8 +466,32 @@ function renderRelatedGrid(items) {
   return el('div', { class: 'related-hubs-grid' }, `\n${indent(lines(cards))}\n`);
 }
 
+const figure = {
+  name: 'figure',
+  summary: 'An image, diagram, or screenshot with an optional italic caption — or a dashed draft placeholder when the asset is outstanding.',
+  source: 'Figure',
+  fields: {
+    src: { type: 'url' },
+    alt: { type: 'plain' },
+    caption: { type: 'text', hint: 'e.g. "Figure 1. CRM install share, Q2 2026."' },
+    placeholder: { type: 'plain', default: '[IMAGE NEEDED]' },
+  },
+  render(value) {
+    // <img> is a void element and an empty alt must survive serialization;
+    // `el()` closes every tag and drops empty attributes, so it is written out.
+    const media = value.src
+      ? `<img src="${escapeAttr(value.src)}" alt="${escapeAttr(value.alt || '')}">`
+      : el('div', { class: 'figure-placeholder' }, el('span', { class: 'figure-placeholder-label' }, value.placeholder));
+    return el(
+      'figure',
+      { class: 'figure-block' },
+      `\n${indent(lines(media, value.caption ? el('figcaption', { class: 'figure-caption' }, value.caption) : ''))}\n`,
+    );
+  },
+};
+
 module.exports = {
-  blocks: [callout, conceptCards, quote, processSteps, beforeAfter, formula, bars, benchmarkFigure, linkCard, relatedCards],
+  blocks: [callout, conceptCards, quote, processSteps, beforeAfter, formula, bars, benchmarkFigure, linkCard, relatedCards, figure],
   renderRelatedGrid,
   paras,
 };

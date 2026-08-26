@@ -200,6 +200,27 @@ items:
 ```
 ````
 
+### `figure` — Figure
+
+An image, diagram, or screenshot with an optional italic caption. Omit `src`
+to get the dashed draft placeholder — the placeholder is a functional flag
+that an asset is outstanding, so never ship one silently.
+
+````markdown
+```figure
+src: /assets/chart-crm-share.png
+alt: CRM install share by vendor, Q2 2026
+caption: Figure 1. CRM install share among companies with 500+ employees, Q2 2026.
+```
+````
+
+| Key | | Notes |
+|---|---|---|
+| `src` | | Omit for the `[IMAGE NEEDED]` draft placeholder |
+| `alt` | | Empty `alt=""` is emitted when omitted |
+| `caption` | | Rendered italic below the image |
+| `placeholder` | | Placeholder label; defaults to `[IMAGE NEEDED]` |
+
 ---
 
 ## Page-level components
