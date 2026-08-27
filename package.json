@@ -1,6 +1,6 @@
 {
   "name": "html-render",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Deterministic Markdown-to-HTML page-body renderer. Renderer-ready Markdown in, an approved design-system HTML page body out, for insertion into an existing page container.",
   "type": "commonjs",
   "private": true,
@@ -12,10 +12,9 @@
     "node": ">=18"
   },
   "designCatalog": {
-    "catalog": "design-web-components",
-    "refresh": "2026-07-17",
-    "commit": "26337fc5ab0573d3bc998f617b10bb1d94f2e401",
-    "syncedAt": "2026-08-25"
+    "catalog": "HG Insights Marketing Design System (Claude Design export)",
+    "build": "HGInsightsMarketingDesignSystem_3bf70b",
+    "syncedAt": "2026-08-26"
   },
   "scripts": {
     "render:examples": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md --config examples/html-render.config.json --out-dir output --preview",

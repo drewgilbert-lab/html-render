@@ -61,7 +61,7 @@ function header(pkg, commit) {
   return [
     // Machine-readable stamp. The sync workflow parses `commit=` out of the *previous* copy of
     // this file to work out which changelog entries are new. Keep this line's shape stable.
-    `<!-- html-render:contract version=${pkg.version} commit=${commit} catalog=${catalog.commit || 'unknown'} -->`,
+    `<!-- html-render:contract version=${pkg.version} commit=${commit} catalog=${catalog.build || catalog.commit || 'unknown'} -->`,
     '',
     '# html-render — component and Markdown contract',
     '',
@@ -73,8 +73,7 @@ function header(pkg, commit) {
     `| Renderer version | \`v${pkg.version}\` |`,
     `| Renderer commit | \`${commit}\` |`,
     `| Design catalog | \`${catalog.catalog || 'unknown'}\` |`,
-    `| Catalog refresh | ${catalog.refresh || 'unknown'} |`,
-    `| Catalog commit | \`${catalog.commit || 'unknown'}\` |`,
+    `| Catalog build | \`${catalog.build || catalog.commit || 'unknown'}\` |`,
     `| Last reconciled | ${catalog.syncedAt || 'unknown'} |`,
     '',
     'This is the full contract for writing renderer-ready Markdown: the frontmatter each page class',

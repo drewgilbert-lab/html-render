@@ -10,6 +10,45 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
+## v1.2.0 — 2026-08-26, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
+
+First sync against a **Claude Design export** — the compiled folder that replaces the retired
+`design-web-components` catalog. Components are now identified by manifest name, not number.
+
+- **New** `figure` (`Figure`) — image/diagram with optional italic caption, or the dashed
+  `[IMAGE NEEDED]` draft placeholder. Closes the largest consumer gap (10 skills named it).
+- **New** `share-bar` (`ShareBar`) — inline relative-share bar. This resolves the long-standing
+  cell-primitive syntax question for share bars: standalone as a fenced block, and composed inside
+  `comparison-table` share cells. Its CSS lives in the export's `css/charts.css`, not a `data.css`.
+- **New** `comparison-table` (`ComparisonTable`) — fenced block with per-column alignment and a
+  caption; renders structure only, composing `share-bar` in share cells per the export's own
+  guidance. Markdown pipe tables keep emitting the same table chrome; the block adds alignment and
+  share-cell composition. The existing CSS block gained the export's tbody hover transition and
+  `vendor-name` `white-space: nowrap`.
+- **Changed** `callout` (`Callout`) — `label` is now optional (the export's contract), rendering an
+  unlabelled note when omitted; loosening only, nothing existing breaks. Body line-height moved
+  from a literal `1.55` to the export's `var(--lh-body)` (1.4). The multi-paragraph body margins
+  remain a deliberate renderer transformation.
+- **Tooling** `--audit` now reads an export's `_ds_manifest.json` and joins `components[].name`
+  against verbatim registry `source` names and unnumbered named CSS headers. Pre-export entries
+  still carry the retired numbered convention and are reported in a "Legacy" bucket — each
+  migrates when its component is next touched, never in bulk. `OUT_OF_SCOPE` is keyed by exact
+  export names (`DocCover`, `PageHeaderBand`, `PageFooterBand`, `AboutBlock`, `Logo`); the export
+  has no site-header component, so the old `01` exclusion has no counterpart.
+- **Tooling** `designCatalog` in `package.json` now records the export build by its manifest
+  `namespace` (the export has no git commit and no version stamp — decided with Drew, 2026-08-26);
+  the generated contract stamps `build` where it previously stamped a catalog commit.
+- **Fixture** `test/fixtures/design-export-sample/` — a verbatim excerpt of the real export (the
+  four triads plus their CSS attributed to the files it actually lives in), with
+  `test/design-export.test.js` proving ingestion end to end, including that CSS is discovered by
+  searching `globalCssPaths` rather than assumed from a component's category folder.
+
+Step 3 note: the `--hg-bg` contradiction survives in the export (`tokens/colors.css` says
+`#FFFFFF`; `ApproachImplicationTable`'s label column uses it as a tint) — still ask before
+implementing that component.
+
+---
+
 ## v1.1.0 — 2026-08-25
 
 Workflow tooling. **No components were added, changed, or removed**, and no rendered output moved.
