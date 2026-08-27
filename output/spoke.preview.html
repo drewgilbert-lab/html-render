@@ -10,7 +10,7 @@
 <body>
 <div class="preview-note">PREVIEW ONLY — visual review wrapper. The deliverable is the page body inside, page type: spoke.</div>
 <!-- ============================================================================
-     HG Insights page body - html-render v1.1.0
+     HG Insights page body - html-render v1.2.0
 
      Page type        spoke (article layout)
      Title            What Is Share of Voice in AI Search? Definition, Formula & Example
@@ -204,18 +204,18 @@
   .render-page .hub-toc ul li a:hover { color: var(--hg-dark-blue); }
   .render-page .hub-toc-dot { display: inline-block; width: 4px; height: 4px; background: var(--hg-blue); border-radius: 50%; flex-shrink: 0; }
 
-  /* ---- Comparison table (11) -------------------------------- */
+  /* ---- Comparison table ------------------------------------- */
   .render-page .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid var(--hg-border); margin: 20px 0; }
   .render-page table.comparison-table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .render-page .comparison-table thead tr { background: var(--grad-dark-blue-purple); }
   .render-page .comparison-table thead th { color: var(--hg-white); padding: 14px 18px; text-align: left; font-weight: 800; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
   .render-page .comparison-table thead th:first-child { border-radius: 12px 0 0 0; }
   .render-page .comparison-table thead th:last-child { border-radius: 0 12px 0 0; }
-  .render-page .comparison-table tbody tr { background: var(--hg-white); border-top: 1px solid var(--hg-border); }
+  .render-page .comparison-table tbody tr { background: var(--hg-white); border-top: 1px solid var(--hg-border); transition: background 0.15s; }
   .render-page .comparison-table tbody tr:first-child { border-top: none; }
   .render-page .comparison-table tbody tr:hover { background: rgba(0,88,163,0.03); }
   .render-page .comparison-table td { padding: 14px 18px; text-align: left; color: var(--hg-text-mid); vertical-align: middle; }
-  .render-page .comparison-table td.vendor-name { font-weight: 800; color: var(--hg-dark-blue); }
+  .render-page .comparison-table td.vendor-name { font-weight: 800; color: var(--hg-dark-blue); white-space: nowrap; }
   .render-page .table-caption { font-size: 12px; color: var(--hg-text-light); margin-top: 14px; font-weight: 600; }
 
   /* ---- Expert quote card (12) ------------------------------- */
@@ -333,10 +333,10 @@
   /* ---- Section rule (45) ---------------------------------- */
   .render-page hr.section-rule { border: none; border-top: 1px solid var(--hg-border); margin: 8px 0 32px; }
 
-  /* ---- Callout box (46) ----------------------------------- */
+  /* ---- Callout box ----------------------------------------- */
   .render-page .callout-box { background: var(--grad-subtle); border-left: 4px solid var(--hg-dark-blue); border-radius: 0 var(--hg-radius) var(--hg-radius) 0; padding: 18px 22px; margin: 20px 0; }
   .render-page .callout-box-label { font-size: var(--fs-small); font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--hg-dark-blue); margin-bottom: 8px; }
-  .render-page .callout-box-body { font-size: var(--fs-body); font-weight: 500; line-height: 1.55; color: var(--hg-text-dark); margin: 0 0 10px; }
+  .render-page .callout-box-body { font-size: var(--fs-body); font-weight: 500; line-height: var(--lh-body); color: var(--hg-text-dark); margin: 0 0 10px; }
   .render-page .callout-box-body:last-child { margin-bottom: 0; }
   .render-page .callout-box--melon { background: rgba(201,25,74,0.06); border-left-color: var(--hg-melon); }
   .render-page .callout-box--melon .callout-box-label { color: var(--hg-melon); }
@@ -376,6 +376,13 @@
   .render-page .concept-card-title { font-size: var(--fs-h3); font-weight: 800; color: var(--hg-dark-blue); margin-bottom: 8px; }
   .render-page .concept-card-body { font-size: 15px; line-height: 1.55; color: var(--hg-text-mid); margin: 0; }
 
+  /* ---- Figure block ------------------------------------- */
+  .render-page .figure-block { margin: 22px 0; text-align: center; }
+  .render-page .figure-block img { max-width: 100%; height: auto; border-radius: var(--hg-radius); box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .render-page .figure-placeholder { display: flex; align-items: center; justify-content: center; min-height: 200px; background: var(--hg-off-white); border: 2px dashed var(--hg-border-light); border-radius: var(--hg-radius); }
+  .render-page .figure-placeholder-label { font-size: var(--fs-small); font-weight: 700; color: var(--hg-text-light); }
+  .render-page .figure-caption { margin-top: 10px; font-size: var(--fs-small); font-style: italic; line-height: 1.4; color: var(--hg-text-light); }
+
   /* ---- Formula block (thesis variant) ------------------- */
   .render-page .formula-block { background: var(--grad-subtle); border: 1px solid rgba(0,88,163,0.15); border-radius: var(--hg-radius); padding: 24px 28px; margin: 24px 0; font-size: 19px; font-weight: var(--fw-bold); color: var(--hg-dark-blue); line-height: 1.5; }
 
@@ -411,6 +418,16 @@
   .render-page .bf-definition p:last-child { margin-bottom: 0; }
   .render-page .bf-definition strong { color: var(--hg-text-dark); font-weight: 700; }
   .render-page .bf-footer { font-size: 12px; font-weight: 600; color: var(--hg-text-light); text-align: center; }
+
+  /* ---- Share bar ---------------------------------------- */
+  .render-page .share-bar { display: inline-flex; align-items: center; gap: 8px; }
+  .render-page .share-bar-track { display: inline-block; width: 70px; height: 8px; background: var(--hg-off-white); border-radius: 4px; overflow: hidden; flex-shrink: 0; }
+  .render-page .share-bar-fill { display: block; height: 100%; border-radius: 4px; background: var(--grad-dark-blue-purple); }
+  .render-page .share-bar-fill.primary { background: var(--grad-dark-blue-purple); }
+  .render-page .share-bar-fill.accent { background: linear-gradient(90deg, var(--hg-blue) 0%, var(--hg-light-blue) 100%); }
+  .render-page .share-bar-fill.dim { background: linear-gradient(90deg, var(--hg-gray) 0%, var(--hg-gray-light) 100%); }
+  .render-page .share-bar-value { font-weight: 700; color: var(--hg-dark-blue); }
+  .render-page .share-bar.no-track .share-bar-fill { height: 8px; min-width: 4px; flex-shrink: 0; }
 
   /* ---- Citations list (60) ----------------------------- */
   .render-page .citations-section { padding: 56px 0; background: var(--hg-white); border-top: 1px solid var(--hg-border); }

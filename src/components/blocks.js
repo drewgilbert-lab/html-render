@@ -12,7 +12,7 @@
  * `value` arrives already normalized and escaped by src/validate/fields.js.
  */
 
-const { el, lines, indent } = require('../html');
+const { el, lines, indent, escapeAttr } = require('../html');
 
 /** Paragraph list from a richtext field. */
 function paras(list, className) {
@@ -21,10 +21,10 @@ function paras(list, className) {
 
 const callout = {
   name: 'callout',
-  summary: 'A labelled note box: "Why It Matters", "Watch Out", "Coverage Note".',
-  source: '46-callout-box',
+  summary: 'A note box: "Why It Matters", "Watch Out", "Coverage Note" — or an unlabelled aside.',
+  source: 'Callout',
   fields: {
-    label: { type: 'text', required: true, hint: 'the uppercase kicker, e.g. "Why It Matters"' },
+    label: { type: 'text', hint: 'the uppercase kicker, e.g. "Why It Matters"; omit for an unlabelled note' },
     body: { type: 'richtext', required: true },
     tone: { type: 'enum', values: ['note', 'warn'], default: 'note' },
   },
@@ -33,7 +33,9 @@ const callout = {
     return el(
       'div',
       { class: cls },
-      `\n${indent(lines(el('div', { class: 'callout-box-label' }, value.label), paras(value.body, 'callout-box-body')))}\n`,
+      `\n${indent(
+        lines(value.label ? el('div', { class: 'callout-box-label' }, value.label) : '', paras(value.body, 'callout-box-body')),
+      )}\n`,
     );
   },
 };
@@ -466,8 +468,148 @@ function renderRelatedGrid(items) {
   return el('div', { class: 'related-hubs-grid' }, `\n${indent(lines(cards))}\n`);
 }
 
+const figure = {
+  name: 'figure',
+  summary: 'An image, diagram, or screenshot with an optional italic caption — or a dashed draft placeholder when the asset is outstanding.',
+  source: 'Figure',
+  fields: {
+    src: { type: 'url' },
+    alt: { type: 'plain' },
+    caption: { type: 'text', hint: 'e.g. "Figure 1. CRM install share, Q2 2026."' },
+    placeholder: { type: 'plain', default: '[IMAGE NEEDED]' },
+  },
+  render(value) {
+    // <img> is a void element and an empty alt must survive serialization;
+    // `el()` closes every tag and drops empty attributes, so it is written out.
+    const media = value.src
+      ? `<img src="${escapeAttr(value.src)}" alt="${escapeAttr(value.alt || '')}">`
+      : el('div', { class: 'figure-placeholder' }, el('span', { class: 'figure-placeholder-label' }, value.placeholder));
+    return el(
+      'figure',
+      { class: 'figure-block' },
+      `\n${indent(lines(media, value.caption ? el('figcaption', { class: 'figure-caption' }, value.caption) : ''))}\n`,
+    );
+  },
+};
+
+const SHARE_BAR_FIELDS = {
+  width: { type: 'number', required: true, hint: 'percent of the track, or the bar\'s own pixel length with no_track' },
+  value: { type: 'plain', hint: 'the bold figure beside the bar, e.g. "38.2%"' },
+  emphasis: { type: 'enum', values: ['default', 'primary', 'accent', 'dim'], default: 'default' },
+  no_track: { type: 'bool' },
+};
+
+/** Shared by the `share-bar` block and `comparison-table` share cells. */
+function renderShareBar(value) {
+  const fill = el(
+    'span',
+    {
+      class: value.emphasis !== 'default' ? `share-bar-fill ${value.emphasis}` : 'share-bar-fill',
+      style: `width:${value.width}${value.no_track ? 'px' : '%'}`,
+    },
+    '',
+  );
+  return el('span', { class: value.no_track ? 'share-bar no-track' : 'share-bar' }, [
+    value.no_track ? fill : el('span', { class: 'share-bar-track' }, fill),
+    value.value != null ? el('span', { class: 'share-bar-value' }, value.value) : '',
+  ]);
+}
+
+const shareBar = {
+  name: 'share-bar',
+  summary: 'An inline relative-share bar: a small fill plus an optional bold figure. Track mode fills a 70px track by percent; no_track makes the bar\'s pixel length the magnitude.',
+  source: 'ShareBar',
+  fields: SHARE_BAR_FIELDS,
+  render(value) {
+    return renderShareBar(value);
+  },
+};
+
+const comparisonTable = {
+  name: 'comparison-table',
+  summary: 'A vendor comparison table with a gradient header row and per-column alignment. Renders structure only; a share cell composes the share-bar component.',
+  source: 'ComparisonTable',
+  fields: {
+    columns: {
+      type: 'list',
+      required: true,
+      min: 1,
+      fields: {
+        label: { type: 'text', required: true },
+        align: { type: 'enum', values: ['left', 'center', 'right'] },
+      },
+    },
+    rows: {
+      type: 'list',
+      required: true,
+      min: 1,
+      fields: {
+        cells: {
+          type: 'list',
+          required: true,
+          min: 1,
+          primaryKey: 'text',
+          fields: {
+            text: { type: 'text' },
+            share: { type: 'object', fields: SHARE_BAR_FIELDS },
+          },
+        },
+      },
+    },
+    caption: { type: 'text', hint: 'the source and definition line below the table' },
+  },
+  render(value) {
+    const head = el(
+      'thead',
+      null,
+      `\n${indent(
+        el(
+          'tr',
+          null,
+          `\n${indent(
+            lines(value.columns.map((column) => el('th', column.align ? { style: `text-align:${column.align}` } : null, column.label))),
+          )}\n`,
+        ),
+      )}\n`,
+    );
+    const body = el(
+      'tbody',
+      null,
+      `\n${indent(
+        lines(
+          value.rows.map((row) =>
+            el(
+              'tr',
+              null,
+              `\n${indent(
+                lines(
+                  value.columns.map((column, index) => {
+                    const cell = row.cells[index];
+                    const attrs = {};
+                    if (index === 0) attrs.class = 'vendor-name';
+                    if (column.align) attrs.style = `text-align:${column.align}`;
+                    const content = cell ? (cell.share ? renderShareBar(cell.share) : cell.text || '') : '';
+                    return el('td', Object.keys(attrs).length ? attrs : null, content);
+                  }),
+                ),
+              )}\n`,
+            ),
+          ),
+        ),
+      )}\n`,
+    );
+    const table = el(
+      'div',
+      { class: 'table-wrapper' },
+      `\n${indent(el('table', { class: 'comparison-table' }, `\n${indent(lines(head, body))}\n`))}\n`,
+    );
+    return lines(table, value.caption ? el('p', { class: 'table-caption' }, value.caption) : '');
+  },
+};
+
 module.exports = {
-  blocks: [callout, conceptCards, quote, processSteps, beforeAfter, formula, bars, benchmarkFigure, linkCard, relatedCards],
+  blocks: [callout, conceptCards, quote, processSteps, beforeAfter, formula, bars, benchmarkFigure, linkCard, relatedCards, figure, shareBar, comparisonTable],
   renderRelatedGrid,
+  renderShareBar,
   paras,
 };

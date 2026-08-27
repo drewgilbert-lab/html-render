@@ -25,6 +25,12 @@ test('callout renders both tones', () => {
   assert.match(block('callout', { label: 'Watch Out', body: 'Careful.', tone: 'warn' }), /callout-box callout-box--melon/);
 });
 
+test('callout label is optional — omitting it renders an unlabelled note', () => {
+  const html = block('callout', { body: 'Always check the freshness date.' });
+  assert.doesNotMatch(html, /callout-box-label/);
+  assert.match(html, /<p class="callout-box-body">Always check the freshness date\.<\/p>/);
+});
+
 test('concept-cards renders one card per item', () => {
   const html = block('concept-cards', {
     items: [
@@ -139,6 +145,80 @@ test('related-cards and the related page band share one card implementation', ()
   });
   assert.match(slot, /class="related-hubs-section" id="related"/);
   assert.match(slot, /class="related-hubs-grid"/);
+});
+
+test('figure renders an image with an empty-alt fallback and an optional caption', () => {
+  const html = block('figure', {
+    src: '/assets/chart-crm-share.png',
+    alt: 'CRM install share by vendor, Q2 2026',
+    caption: 'Figure 1. CRM install share among companies with 500+ employees, Q2 2026.',
+  });
+  assert.match(html, /^<figure class="figure-block">/);
+  assert.match(html, /<img src="\/assets\/chart-crm-share\.png" alt="CRM install share by vendor, Q2 2026">/);
+  assert.match(html, /<figcaption class="figure-caption">Figure 1\./);
+
+  const bare = block('figure', { src: '/assets/chart.png' });
+  assert.match(bare, /<img src="\/assets\/chart\.png" alt="">/);
+  assert.doesNotMatch(bare, /figcaption/);
+});
+
+test('figure without a src renders the dashed draft placeholder', () => {
+  const draft = block('figure', { caption: 'Figure 2. Pending.' });
+  assert.match(draft, /<div class="figure-placeholder"><span class="figure-placeholder-label">\[IMAGE NEEDED\]<\/span><\/div>/);
+
+  const labelled = block('figure', { placeholder: '[IMAGE NEEDED] CRM share chart, Q2 2026' });
+  assert.match(labelled, /figure-placeholder-label">\[IMAGE NEEDED\] CRM share chart, Q2 2026</);
+});
+
+test('share-bar fills the track by percent and carries its emphasis class', () => {
+  const html = block('share-bar', { width: 38.2, value: '38.2%' });
+  assert.equal(
+    html,
+    '<span class="share-bar"><span class="share-bar-track"><span class="share-bar-fill" style="width:38.2%"></span></span><span class="share-bar-value">38.2%</span></span>',
+  );
+
+  const accent = block('share-bar', { width: 11.8, value: '11.8%', emphasis: 'accent' });
+  assert.match(accent, /class="share-bar-fill accent"/);
+
+  const bare = block('share-bar', { width: 56 });
+  assert.doesNotMatch(bare, /share-bar-value/);
+});
+
+test('share-bar no_track drops the track and sizes the bar in pixels', () => {
+  const html = block('share-bar', { width: 56, value: '38.2%', no_track: true });
+  assert.equal(
+    html,
+    '<span class="share-bar no-track"><span class="share-bar-fill" style="width:56px"></span><span class="share-bar-value">38.2%</span></span>',
+  );
+});
+
+test('comparison-table renders structure and composes share-bar inside a cell', () => {
+  const html = block('comparison-table', {
+    columns: [{ label: 'Vendor' }, { label: 'Install Share' }, { label: 'YoY Change', align: 'center' }],
+    rows: [
+      { cells: ['Salesforce', { share: { width: 38.2, value: '38.2%' } }, '+3.1pp'] },
+      { cells: ['SAP CRM', { share: { width: 11.8, value: '11.8%', emphasis: 'dim' } }, '-1.4pp'] },
+    ],
+    caption: 'Source: HG Insights &middot; Q2 2026 &middot; Enterprise segment (500+ employees)',
+  });
+  assert.match(html, /^<div class="table-wrapper">/);
+  assert.match(html, /<table class="comparison-table">/);
+  assert.match(html, /<th style="text-align:center">YoY Change<\/th>/);
+  assert.match(html, /<td class="vendor-name">Salesforce<\/td>/);
+  assert.match(html, /<td><span class="share-bar"><span class="share-bar-track"><span class="share-bar-fill" style="width:38.2%">/);
+  assert.match(html, /share-bar-fill dim/);
+  assert.match(html, /<td style="text-align:center">\+3\.1pp<\/td>/);
+  assert.match(html, /<p class="table-caption">Source: HG Insights &middot; Q2 2026/);
+  // Only the first column carries the row identity class.
+  assert.equal((html.match(/class="vendor-name"/g) || []).length, 2);
+});
+
+test('a comparison-table row shorter than its columns pads with empty cells', () => {
+  const html = block('comparison-table', {
+    columns: [{ label: 'Vendor' }, { label: 'Share' }],
+    rows: [{ cells: ['Salesforce'] }],
+  });
+  assert.match(html, /<td class="vendor-name">Salesforce<\/td>\n\s*<td><\/td>/);
 });
 
 test('a table in the body renders as the canonical comparison table', () => {

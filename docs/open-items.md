@@ -13,11 +13,12 @@ it cannot drift. A list like this one can and will drift. Two rules keep it hone
   work is done is worse than no list.
 
 ```bash
-node bin/html-render.js --audit /path/to/design-web-components   # coverage vs. the catalog
-node bin/html-render.js --components                             # what is implemented now
+node bin/html-render.js --audit /path/to/claude-design-export   # coverage vs. the export
+node bin/html-render.js --components                            # what is implemented now
 ```
 
-Last reviewed: **2026-08-26**, against catalog commit `26337fc` and `html-render` v1.1.0.
+Last reviewed: **2026-08-26**, against Claude Design export build
+`HGInsightsMarketingDesignSystem_3bf70b` and `html-render` v1.2.0.
 
 ---
 
@@ -61,17 +62,19 @@ Rewriting each skill's "Design Components" section happens skill-by-skill as it 
 
 Cross-checking those manifests against this registry (the procedure is
 [Step 5 of the sync skill](../.claude/skills/sync-design-components/SKILL.md)) surfaces components
-skills already name that this renderer does not implement. As of 2026-08-26:
+skills already name that this renderer does not implement. The skills still reference the retired
+numbered filenames; the export name each maps to is given where known. As of 2026-08-26:
 
-| Component | Skills naming it | Note |
-|---|---|---|
-| `53-figure-block` | **10** | The largest single gap. No blocking ambiguity — it is deferred, not stuck |
-| `33-limitations-cards` | 5 | |
-| `32-approach-implication-table` | 4 | **Blocked** — see the token ambiguity in §3 |
-| `57-share-bar` | 3 | Needs the inline-primitive syntax decision in §3 |
-| `58-trend-indicator` | 3 | Same |
-| `08`, `18`, `19` | 2 each | |
-| `07`, `20`, `21`, `22`, `54`, `55` | 1 each | |
+| Component (skill manifests) | Export name | Skills naming it | Note |
+|---|---|---|---|
+| `53-figure-block` | `Figure` | **10** | ✅ Implemented 2026-08-26 (`figure`) |
+| `33-limitations-cards` | `LimitationsCards` | 5 | |
+| `32-approach-implication-table` | `ApproachImplicationTable` | 4 | **Blocked** — see the token ambiguity in §3 |
+| `57-share-bar` | `ShareBar` | 3 | ✅ Implemented 2026-08-26 (`share-bar`, composed in `comparison-table` cells) |
+| `58-trend-indicator` | `TrendIndicator` | 3 | Cell-level primitive; can follow `share-bar`'s composition pattern |
+| `08`, `18`, `19` | not yet mapped | 2 each | Reconcile against the export manifest by name |
+| `07`, `20`, `21`, `22`, `55` | not yet mapped | 1 each | Same |
+| `54-inline-highlight` | `NameHighlight` | 1 | Needs the inline-syntax decision in §3 |
 
 Regenerate that ranking rather than trusting the table:
 
@@ -81,41 +84,49 @@ grep -rhoE '`[0-9]{2}-[a-z0-9-]+\.md`' <geo-spoke-builder>/plugins/geo-spoke-bui
 ```
 
 `01-header-nav` is named by all 13 skills but is **out of scope by design** — site chrome around the
-page body is not the renderer's to own, so it never emits it. Not a gap, but the mismatch is worth
+page body is not the renderer's to own, so it never emits it. The Claude Design export has no
+site-header component at all, so there is nothing to reconcile it against; the mismatch is worth
 settling explicitly during migration so a skill author does not read it as one.
 
 ## 3. Component coverage
 
-**18 catalogued components are not implemented.** Deferred by decision at the v1.0.0 baseline, not
-oversight. Run `--audit` for the live list.
+**Most of the 63 exported components are not implemented** (run `--audit <export-dir>` for the
+live list — it also shows which existing implementations still carry the retired numbered `source`
+convention and cannot yet join on export names). Deferred by decision, not oversight.
 
-Two of them are blocked on a decision rather than on effort:
+**The numbered→named `source` migration is transitional and deliberate.** The 2026-08-26 pass
+moved the audit join to export component names, but only the four components it touched (`Figure`,
+`ShareBar`, `ComparisonTable`, `Callout`) adopted the new convention. Every other registry entry
+and CSS header still carries the retired numbered form and is reported by `--audit` in its
+"Legacy" bucket. Each migrates when its component is next touched — never in bulk. One carries a
+known debt into that migration: `bars` (`10-supporting-charts (mini bar)`) was built against a
+pre-refresh design the retired catalog never fully caught up with, so its reconciliation against
+the export's `MiniBarChart` needs a real comparison, not just a `source` rename.
 
-**Component 32 — an unresolved catalog contradiction.** `32-approach-implication-table.md` states
-`--hg-bg` is `#f6f8fa`, "a barely-there off-white tint to distinguish the label column."
-`00-design-tokens.md` defines `--hg-bg: #FFFFFF`. Copying the CSS verbatim renders the intended tint
-invisible. **Ask before implementing 32** — this is on record in `CHANGELOG.md` and in Step 3 of the
-sync skill, and four skills already reference the component.
+Two components remain blocked on a decision rather than on effort:
 
-**Components 54, 57, 58 need a Markdown-syntax decision first.** `inline-highlight`, `share-bar`,
-and `trend-indicator` are inline- and cell-level primitives. They do not fit the fenced-block
-registry model every other component uses, so there is no way for an author to invoke them until
-someone decides what the Markdown looks like. That decision gates all three.
+**`ApproachImplicationTable` — the token contradiction survives in the export.** The export's
+`tokens/colors.css` defines `--hg-bg: #FFFFFF`, yet the component's label column
+(`.approach-cell:first-child` in `css/editorial.css`) uses `background: var(--hg-bg)` where a
+distinguishing tint is clearly intended — copied verbatim, the tint is invisible, exactly as in the
+retired catalog. **Ask before implementing it**, and note its CSS lives in `css/editorial.css`,
+not `css/tables.css` — a live example of why CSS is found by searching `globalCssPaths`.
 
-**`10-supporting-charts` is still on the pre-refresh design.** The catalog's own refresh history
-records that it was not part of the 2026-07-17 pass — no source component existed for it yet — and
-it received only a token-alignment pass. It will need real work whenever the catalog gains one.
+**`NameHighlight` (and inline use of `TrendIndicator`) need an inline-syntax decision.** They are
+inline primitives that do not fit the fenced-block registry model. `ShareBar` was unblocked on
+2026-08-26 by composing it inside `comparison-table` share cells; `TrendIndicator` can take the
+same cell-composition route, but a true inline-in-prose syntax is still undecided and gates
+`NameHighlight`.
 
 ## 4. Provenance
 
-**`designCatalog.commit` in `package.json` is inferred, not recorded.** `CHANGELOG.md` documents the
-baseline only as the date `2026-07-17`, and no catalog commit exists on that date. The value on
-record, `26337fc`, is the catalog HEAD the local checkout is clean and current at, and is consistent
-with the v1.0.0 audit — it covers `59-author-byline` and `60-citations-list`, which that commit
-introduced. Worth confirming if anyone can reconstruct which checkout v1.0.0 was actually built
-against; every future entry is exact, since
-[Step 6 of the sync skill](../.claude/skills/sync-design-components/SKILL.md) now reads the hash
-from git.
+**Resolved for the export era, recorded here for the paper trail.** `designCatalog` in
+`package.json` now records the Claude Design export build by its manifest `namespace`
+(`HGInsightsMarketingDesignSystem_3bf70b`) — the export has no git commit and no version stamp, so
+the namespace suffix, which changes when the export is recompiled, is the build identity (decided
+with Drew, 2026-08-26). The retired catalog's inferred-commit caveat for the v1.0.0 baseline
+(`26337fc`, reconstructed rather than recorded) stays true of that historical entry but no longer
+affects anything current.
 
 ## 5. Repository process
 
@@ -133,6 +144,11 @@ eventually.
 
 ## Recently closed
 
+- **2026-08-26** — First Claude Design export ingested (build
+  `HGInsightsMarketingDesignSystem_3bf70b`): `--audit` rewritten to join on manifest component
+  names, `figure` and `share-bar` implemented (closing the two largest §2 gaps), `comparison-table`
+  gained a fenced block composing `share-bar` in cells, `callout` synced (label now optional), the
+  sync skill rewritten for the export format, and `designCatalog` re-pointed at the export build.
 - **2026-08-26** — Contract sync built and merged: `designCatalog` provenance in `package.json`,
   `scripts/generate-contract.js`, `.github/workflows/sync-component-contract.yml`,
   [component-sync.md](component-sync.md). Dry run verified. (#2)

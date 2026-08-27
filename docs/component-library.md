@@ -1,10 +1,12 @@
 # Component library
 
 Every component is one canonical implementation of a component from the HG
-Insights Claude Design library. The `design source` column names the design
-system file it implements. A component appears once in the codebase and is
-composed by the layouts, so changing an implementation changes every page that
-uses it.
+Insights Claude Design library. The `design source` names the component it
+implements — the export's component name verbatim (`Figure`) for entries
+synced against a Claude Design export, or a retired numbered filename
+(`02-breadcrumb`) for entries that predate it and migrate when next touched.
+A component appears once in the codebase and is composed by the layouts, so
+changing an implementation changes every page that uses it.
 
 Run `html-render --components` for the same list from the live registry.
 
@@ -14,9 +16,10 @@ Run `html-render --components` for the same list from the live registry.
 
 These are the ones you invoke, inside a page section, with a fenced block.
 
-### `callout` — 46-callout-box
+### `callout` — Callout
 
-A labelled note box: "Why It Matters", "Watch Out", "Coverage Note".
+A note box: "Why It Matters", "Watch Out", "Coverage Note" — or an unlabelled
+aside when `label` is omitted.
 
 ````markdown
 ```callout
@@ -28,7 +31,7 @@ tone: note
 
 | Key | | Notes |
 |---|---|---|
-| `label` | required | The uppercase kicker |
+| `label` | | The uppercase kicker; omit for an unlabelled note |
 | `body` | required | Multi-paragraph allowed |
 | `tone` | `note` \| `warn` | `warn` is the melon variant |
 
@@ -200,6 +203,82 @@ items:
 ```
 ````
 
+### `figure` — Figure
+
+An image, diagram, or screenshot with an optional italic caption. Omit `src`
+to get the dashed draft placeholder — the placeholder is a functional flag
+that an asset is outstanding, so never ship one silently.
+
+````markdown
+```figure
+src: /assets/chart-crm-share.png
+alt: CRM install share by vendor, Q2 2026
+caption: Figure 1. CRM install share among companies with 500+ employees, Q2 2026.
+```
+````
+
+| Key | | Notes |
+|---|---|---|
+| `src` | | Omit for the `[IMAGE NEEDED]` draft placeholder |
+| `alt` | | Empty `alt=""` is emitted when omitted |
+| `caption` | | Rendered italic below the image |
+| `placeholder` | | Placeholder label; defaults to `[IMAGE NEEDED]` |
+
+### `share-bar` — ShareBar
+
+An inline relative-share bar: a small fill bar plus an optional bold figure.
+Its main home is inside a `comparison-table` share cell, where it is composed
+by that component; standalone it renders one inline bar.
+
+````markdown
+```share-bar
+width: 38.2
+value: 38.2%
+```
+````
+
+| Key | | Notes |
+|---|---|---|
+| `width` | required | Percent of the 70px track — or the bar's own pixel length with `no_track` |
+| `value` | | The bold figure beside the bar; omit for a bar-only cell |
+| `emphasis` | `default` \| `primary` \| `accent` \| `dim` | Gradient for leaders, blue ramp for mid-tier, gray for trailing |
+| `no_track` | `true` \| `false` | Drop the track so the bar's pixel length itself encodes magnitude |
+
+### `comparison-table` — ComparisonTable
+
+A vendor comparison table with a gradient header row and per-column alignment.
+It renders structure only: a share cell composes the `share-bar` component
+rather than inlining its markup. A plain Markdown pipe table renders the same
+table chrome; reach for this block when a cell needs a share bar or a column
+needs explicit alignment.
+
+````markdown
+```comparison-table
+columns:
+  - label: Vendor
+  - label: Install Share
+  - label: YoY Change
+    align: center
+rows:
+  - cells:
+      - Salesforce
+      - share:
+          width: 38.2
+          value: 38.2%
+      - +3.1pp
+caption: "Source: HG Insights &middot; Q2 2026 &middot; Enterprise segment (500+ employees)"
+```
+````
+
+| Key | | Notes |
+|---|---|---|
+| `columns` | required, 1+ | Each needs `label`; `align` is `left`/`center`/`right` |
+| `rows` | required, 1+ | Each row's `cells` line up with the columns in order |
+| `cells` | required, 1+ | A bare string is a text cell; `share:` composes a share-bar |
+| `caption` | | The source and definition line below the table |
+
+The first cell of each row is styled as the row identity (bold, dark blue).
+
 ---
 
 ## Page-level components
@@ -239,14 +318,15 @@ in `src/components/page.js`.
 4. If it is page-level, give it a slot in the relevant layout and a key in
    `src/validate/document-contract.js`.
 
-Name the CSS block for the design-system component it implements and include its
-number — `/* ---- Figure block (53) ---- */`. That number is how
-`html-render --audit <catalog-dir>` recognises the component as implemented.
+Set `source` to the export's component name verbatim, and name the CSS block
+for the component with **no** number — `/* ---- Figure block ---- */`. Those
+two signals are how `html-render --audit <export-dir>` recognises the
+component as implemented.
 
 When the change comes from a design-system refresh rather than a one-off need,
 start from `--audit` and follow
 `.claude/skills/sync-design-components/SKILL.md`, which classifies the whole
-catalog against this registry before anything is written.
+export against this registry before anything is written.
 
 `fields` is the input contract. Validation, normalization, escaping, defaults,
 and the `--contract` and `--components` output all come from it, so a component
