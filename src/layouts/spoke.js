@@ -34,7 +34,7 @@ const describe = () => ({
   summary: 'One conversation inside a cluster, in one of two approved variants.',
   variants: {
     article: [
-      'breadcrumb',
+      'breadcrumb (omitted when standalone: true)',
       'article-hero',
       'article body (thesis + sections)',
       'methodology (optional)',
@@ -44,7 +44,7 @@ const describe = () => ({
       'cta',
     ],
     banded: [
-      'breadcrumb',
+      'breadcrumb (omitted when standalone: true)',
       'hero',
       'intro-toc (optional)',
       'section bands',
@@ -106,7 +106,7 @@ function renderArticle(doc) {
   });
 
   return lines(
-    renderSlot('breadcrumb', assemble.breadcrumbInput(fm)),
+    fm.standalone ? '' : renderSlot('breadcrumb', assemble.breadcrumbInput(fm)),
     renderSlot('article-hero', assemble.articleHeroInput(fm)),
     el('div', { class: 'container article-body' }, `\n${indent(lines(blocks))}\n`),
     fm.methodology ? renderSlot('methodology', fm.methodology) : '',
@@ -121,7 +121,7 @@ function renderBanded(doc) {
   const fm = doc.frontmatter;
   const sections = doc.sections;
   return lines(
-    renderSlot('breadcrumb', assemble.breadcrumbInput(fm)),
+    fm.standalone ? '' : renderSlot('breadcrumb', assemble.breadcrumbInput(fm)),
     renderSlot('hero', assemble.heroInput(fm)),
     fm.freshness ? renderSlot('freshness-bar', fm.freshness) : '',
     fm.intro ? renderSlot('intro-toc', assemble.introTocInput(fm, sections)) : '',

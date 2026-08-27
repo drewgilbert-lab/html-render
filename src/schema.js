@@ -9,9 +9,13 @@
  * The publishing organization is configuration, not a constant: see `config.js`.
  *
  * Graph per page class:
- *   all      Organization, Person, Article, BreadcrumbList, FAQPage
+ *   all      Organization, Person, Article, FAQPage
+ *   all      + BreadcrumbList when frontmatter carries `breadcrumbs`
+ *            (a standalone spoke has none, and emits neither BreadcrumbList
+ *            nor Article.isPartOf)
  *   cluster  + ItemList indexing every spoke in the resource index
  *   any      + DefinedTerm when frontmatter declares `term`
+ *   Person   + knowsAbout when the author declares `knows_about`
  */
 
 const { plainText } = require('./validate/fields');
@@ -52,6 +56,11 @@ function buildGraph(fm, { pageType, sections, config }) {
     jobTitle: plainText(fm.author.title),
     worksFor: { '@id': organization.id },
   };
+  if (Array.isArray(fm.author.knows_about) && fm.author.knows_about.length) {
+    person.knowsAbout = fm.author.knows_about.map((topic) =>
+      plainText(topic && typeof topic === 'object' ? topic.topic : topic),
+    );
+  }
   if (fm.author.url) person.url = fm.author.url;
   graph.push(person);
 
@@ -97,24 +106,28 @@ function buildGraph(fm, { pageType, sections, config }) {
   }
   graph.push(article);
 
-  graph.push({
-    '@type': 'BreadcrumbList',
-    '@id': `${base}/#breadcrumb`,
-    itemListElement: [
-      ...fm.breadcrumbs.map((crumb, index) => ({
-        '@type': 'ListItem',
-        position: index + 1,
-        name: plainText(crumb.label),
-        item: crumb.url,
-      })),
-      {
-        '@type': 'ListItem',
-        position: fm.breadcrumbs.length + 1,
-        name: plainText(fm.breadcrumb_label || fm.title),
-        item: pageUrl,
-      },
-    ],
-  });
+  // A standalone spoke carries no breadcrumbs, so it emits no BreadcrumbList
+  // (and, above, no isPartOf) — the trail is never invented.
+  if (Array.isArray(fm.breadcrumbs) && fm.breadcrumbs.length) {
+    graph.push({
+      '@type': 'BreadcrumbList',
+      '@id': `${base}/#breadcrumb`,
+      itemListElement: [
+        ...fm.breadcrumbs.map((crumb, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: plainText(crumb.label),
+          item: crumb.url,
+        })),
+        {
+          '@type': 'ListItem',
+          position: fm.breadcrumbs.length + 1,
+          name: plainText(fm.breadcrumb_label || fm.title),
+          item: pageUrl,
+        },
+      ],
+    });
+  }
 
   if (pageType === 'cluster' && fm.resource_index && Array.isArray(fm.resource_index.items)) {
     graph.push({

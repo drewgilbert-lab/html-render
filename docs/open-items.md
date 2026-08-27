@@ -18,7 +18,7 @@ node bin/html-render.js --components                            # what is implem
 ```
 
 Last reviewed: **2026-08-26**, against Claude Design export build
-`HGInsightsMarketingDesignSystem_3bf70b` and `html-render` v1.2.0.
+`HGInsightsMarketingDesignSystem_3bf70b` and `html-render` v1.3.0.
 
 ---
 
@@ -56,14 +56,14 @@ the fix is something that reads the field contracts, not a narrower regex.
 
 ## 2. Consumer migration
 
-**All 13 page-building skills in `geo-spoke-builder` still carry hand-written component manifests.**
-None of them read `references/html-render-contract.md` — and until 2026-08-27 that file did not
-exist downstream at all. This section previously called it "delivered but unconsumed"; the first
-half was wrong. The 2026-08-27 sync run read the target path directly before writing ("No previous
-contract file at `references/html-render-contract.md` — first sync") — delivery was
-[geo-spoke-builder#23](https://github.com/drewgilbert-lab/geo-spoke-builder/pull/23), reviewed and
-merged 2026-08-27. Rewriting each skill's "Design Components" section happens skill-by-skill
-as it migrates to the `html-render` pipeline, not in one pass.
+**12 of the 13 page-building skills in `geo-spoke-builder` still carry hand-written component
+manifests.** The first migration landed: `create-glossary-spoke` reads the synced contract, renders
+through this CLI, and authors no JSON-LD (geo-spoke-builder#24, plugin 0.24.0; its migration
+checklist is that repo's `docs/HTML-RENDER-MIGRATION.md`). Its gap report drove the v1.3.0 contract
+extensions (`standalone`, `knows_about`, provenance keys, citations separator). Contract delivery
+history: first sync was [geo-spoke-builder#23](https://github.com/drewgilbert-lab/geo-spoke-builder/pull/23),
+merged 2026-08-27. Rewriting each remaining skill's "Design Components" section happens
+skill-by-skill as it migrates, not in one pass.
 
 Cross-checking those manifests against this registry (the procedure is
 [Step 5 of the sync skill](../.claude/skills/sync-design-components/SKILL.md)) surfaces components
@@ -149,6 +149,12 @@ eventually.
 
 ## Recently closed
 
+- **2026-08-26** — v1.3.0: first consumer-reported release, driven by the
+  `create-glossary-spoke` migration's gap report. `standalone: true` on spokes (no breadcrumb
+  bar / `BreadcrumbList` / `isPartOf`), `author.knows_about` → `Person.knowsAbout`,
+  `page_skill_version` / `component_library_version` provenance keys echoed in the output
+  header, citations separator `&mdash;` → `:` (and the script-comment em dash removed) — the
+  rendered output now carries no dash of its own.
 - **2026-08-26** — First Claude Design export ingested (build
   `HGInsightsMarketingDesignSystem_3bf70b`): `--audit` rewritten to join on manifest component
   names, `figure` and `share-bar` implemented (closing the two largest §2 gaps), `comparison-table`
