@@ -24,12 +24,13 @@ Last reviewed: **2026-08-26**, against Claude Design export build
 
 ## 1. Cross-repo sync
 
-The pipeline is built, merged, and — as of 2026-08-27 — has performed its first real write.
+The pipeline is built, merged, and — as of 2026-08-27 — has performed its first real write,
+with idempotency proven the same day. Every row below is closed.
 
 | Item | Status | What unblocks it |
 |---|---|---|
-| Real sync run (`dry_run=false`) | ✅ Ran 2026-08-27, triggered by the `v1.2.0` tag — opened [geo-spoke-builder#23](https://github.com/drewgilbert-lab/geo-spoke-builder/pull/23) (first sync; no previous contract file downstream) | — |
-| No-op run, proving Step 3.5 | **Blocked** on geo-spoke-builder#23 merging downstream. Then: `gh workflow run sync-component-contract.yml --ref v1.2.0 -f dry_run=true` — expect "no change, nothing to sync". Must dispatch at the `v1.2.0` ref, not `main`: the contract stamps `commit=<short HEAD>`, so a moved `main` generates a legitimately different file and proves nothing about idempotency | Drew merging #23 |
+| Real sync run (`dry_run=false`) | ✅ Ran 2026-08-27, triggered by the `v1.2.0` tag — opened [geo-spoke-builder#23](https://github.com/drewgilbert-lab/geo-spoke-builder/pull/23) (first sync; no previous contract file downstream), merged the same day | — |
+| No-op run, proving Step 3.5 | ✅ Passed 2026-08-27, after #23 merged — dispatched at the `v1.2.0` ref (not `main`, which had moved and would stamp a different `commit=`), read back `Previous contract stamped at commit: e73b8e6` and reported `no change, nothing to sync` | — |
 | Dry run | ✅ Passed 2026-08-26 (hardcoded targets) and re-proven 2026-08-27 against the variables below | — |
 
 **`SYNC_TARGET_REPO` and `SYNC_TARGET_PATH` were set as Actions variables on 2026-08-27**, to
@@ -59,9 +60,9 @@ the fix is something that reads the field contracts, not a narrower regex.
 None of them read `references/html-render-contract.md` — and until 2026-08-27 that file did not
 exist downstream at all. This section previously called it "delivered but unconsumed"; the first
 half was wrong. The 2026-08-27 sync run read the target path directly before writing ("No previous
-contract file at `references/html-render-contract.md` — first sync") — delivery is
-[geo-spoke-builder#23](https://github.com/drewgilbert-lab/geo-spoke-builder/pull/23), unmerged
-until Drew reviews it. Rewriting each skill's "Design Components" section happens skill-by-skill
+contract file at `references/html-render-contract.md` — first sync") — delivery was
+[geo-spoke-builder#23](https://github.com/drewgilbert-lab/geo-spoke-builder/pull/23), reviewed and
+merged 2026-08-27. Rewriting each skill's "Design Components" section happens skill-by-skill
 as it migrates to the `html-render` pipeline, not in one pass.
 
 Cross-checking those manifests against this registry (the procedure is
