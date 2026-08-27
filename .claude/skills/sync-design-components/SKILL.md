@@ -1,13 +1,14 @@
 ---
 name: sync-design-components
-description: Bring html-render's component registry back into agreement with the design-web-components catalog after a Claude Design refresh. Use when the catalog has been updated, when asked to sync, audit, or diff html-render against the design system, or when a component is reported missing or out of date. Works one component at a time; never batch-migrates the catalog.
+description: Bring html-render's component registry back into agreement with a Claude Design export of the HG Insights Marketing Design System. Use when a new export has been staged, when asked to sync, audit, or diff html-render against the design system, or when a component is reported missing or out of date. Works one component at a time; never batch-migrates the export.
 ---
 
-# Sync html-render against design-web-components
+# Sync html-render against a Claude Design export
 
-`design-web-components` is the canonical execution-time source for the HG Insights design system:
-a static HTML/CSS catalog of numbered component files plus an `INDEX.md`. This renderer implements
-a subset of it. When the catalog refreshes, this skill brings the two back into agreement.
+The design system arrives as a **Claude Design export** — a compiled folder, not a git checkout.
+The retired `design-web-components` catalog (numbered `NN-name.md` files, `INDEX.md`) is gone; do
+not look for it. This renderer implements a subset of the export's components. When a new export is
+staged, this skill brings the two back into agreement.
 
 ## The rule that governs the whole run
 
@@ -23,69 +24,113 @@ edit.
 Components classified Unchanged are off limits entirely — including for whitespace, comment style,
 or formatting.
 
-## Step 1 — Confirm the catalog
+## What an export looks like
 
-Ask the user for the path to the current `design-web-components` checkout unless you already have
-it. Do not guess, and do not proceed against a stale or partial copy.
+Top level:
 
-Last known location:
-`~/Documents/marketing-skills/plugins/mktg-skills/skills/design-web-components`
+| Path | What it is |
+|---|---|
+| `_ds_manifest.json` | The machine-readable inventory. Start here. |
+| `readme.md` | The design system's own documentation — voice, tokens, layout, **deliberate inconsistencies**. Read its "Web vs document context" and "Deliberate inconsistencies" sections before implementing anything. |
+| `styles.css` | The CSS entry point — `@import` lines only. |
+| `tokens/` | `fonts.css`, `colors.css`, `typography.css`, `spacing.css`, `base.css`. |
+| `css/` | Component CSS, grouped by *concern* (`content.css`, `charts.css`, `tables.css`, …). **These groupings do not match the component category folders** — see the discovery algorithm below. |
+| `components/<category>/` | Per component: `Name.jsx` (source of truth for markup), `Name.d.ts` (props contract), `Name.prompt.md` (usage note), plus shared `*.card.html` files. |
+| `_ds_bundle.js`, `guidelines/`, `assets/`, `thumbnail.html` | Compiled bundle, specimen pages, logos/illustrations. Reference only. |
 
-Before trusting it, confirm the checkout is clean and current:
+The manifest's shape:
 
-```bash
-git -C <catalog-repo> status --short && git -C <catalog-repo> log -1 --date=iso --format='%h %ad %s'
+```json
+{
+  "namespace": "HGInsightsMarketingDesignSystem_3bf70b",
+  "components": [{ "name": "Figure", "sourcePath": "components/content/Figure.jsx" }],
+  "globalCssPaths": ["tokens/fonts.css", "css/charts.css", "..."],
+  "tokens": ["..."], "cards": ["..."], "source": "spa"
+}
 ```
 
-A dirty tree or a branch behind `origin` means you are about to sync against something that is not
-the real catalog. Say so and stop.
+Components are identified by `name`, unique per manifest — there are no numbers. The manifest has
+**no version stamp** (`version`/`generatedAt` do not exist); the `namespace` suffix is the closest
+thing to a build identifier, and it is what `designCatalog` records (Step 6).
+
+**The `.card.html` caveat.** Card files are live browser harnesses: they load React from a CDN plus
+the compiled `_ds_bundle.js` and render components out of that bundle at view time. They are demos,
+not source — a stale bundle can render a component differently from its `.jsx`, or not at all. Read
+the `.jsx` / `.d.ts` / `.prompt.md` triad as the source of truth; never transcribe markup from a
+card file.
+
+## Finding a component's CSS — search, never assume
+
+**A component's category folder does not name its CSS file.** This mismatch is real and verified
+against the 63-component export: `Callout` lives in `components/panels/` but its rules are in
+`css/content.css`; `ShareBar` lives in `components/data/` and its rules are in `css/charts.css` —
+there is no `data.css` at all. Assuming `panels/` → `panels.css` silently ports nothing.
+
+The algorithm:
+
+1. Read the component's `.jsx` and collect every class name it writes (`className=` literals,
+   including conditionally appended ones like `callout-box--melon` and `no-track`).
+2. Grep each class name across **every file in the manifest's `globalCssPaths`** — tokens files,
+   every `css/*.css`, and `styles.css` itself.
+3. The file(s) that define those selectors are the component's CSS. Port those rules and only
+   those rules.
+
+`test/design-export.test.js` encodes this against the fixture in
+`test/fixtures/design-export-sample/` — if you port CSS from the wrong file, that test is the
+tripwire.
+
+## Step 1 — Confirm the export
+
+Ask the user for the path to the staged export unless you already have it. Do not guess, and do not
+proceed against a partial copy — `_ds_manifest.json` must exist and parse, and every
+`components[].sourcePath` it names must be present. There is no git state to check; the export is a
+compiled artifact. Record its `namespace` — that is the identity you will stamp in Step 6.
 
 ## Step 2 — Diff at the component level
 
 ```bash
-node bin/html-render.js --audit <catalog-dir>
+node bin/html-render.js --audit <export-dir>
 ```
 
-This classifies every catalogued component against the live registry, joining on two signals the
-repo already maintains: each registry entry's `source` field, and the numbered CSS block headers in
-`src/assets/styles.css`. It reports:
+This classifies every exported component against the live registry, joining on two signals the
+repo maintains:
 
-- **New** — catalogued, not implemented here.
-- **Removed** — implemented here, no longer in the catalog.
-- **Out of scope by design** — catalogued but deliberately not ours (site chrome, print/PDF chrome).
-  These are not gaps. The list and its reasons live in `OUT_OF_SCOPE` in `src/audit.js`.
-- **Covered, but the catalog says something moved** — the audit's review queue.
+- each registry entry's `source` field, which stores the export's component **name verbatim**
+  (`source: 'Figure'`);
+- the **unnumbered, named** CSS block headers in `src/assets/styles.css`
+  (`/* ---- Figure block ---- */` covers `Figure`; a header covers a component when, ignoring case
+  and punctuation, it equals or begins with the name).
+
+It reports:
+
+- **New** — exported, not implemented here.
+- **Removed** — implemented here under a named source, no longer in the manifest.
+- **Legacy numbered convention** — registry sources and CSS headers still written against the
+  retired numbered catalog (`46-callout-box`, `(46)`). These cannot join on export names. Each
+  migrates to the named convention **when its component is next touched — never in bulk.**
+- **Out of scope by design** — exported but deliberately not ours (site chrome, print/PDF document
+  chrome). Not gaps. The list and its reasons live in `OUT_OF_SCOPE` in `src/audit.js`, keyed by
+  exact export names.
 - **Covered** — everything else.
 
-**Changed is not auto-classified**, and should not be. Deciding it needs a semantic comparison of
-HTML, CSS, and field contracts. The audit surfaces candidates; you make the call. For each entry in
-the review queue, open the component file and compare its `## HTML` and `## CSS` against this
-repo's implementation and CSS block. Classify it Changed only if the structure, CSS, fields, or
-usage rules actually differ.
+**Changed is not auto-classified**, and should not be. The export carries no refresh history, so
+deciding Changed needs a semantic comparison: for each Covered component you have reason to doubt,
+open its `.jsx` / `.d.ts` / `.prompt.md` and compare markup, CSS (found via the search algorithm
+above), and field contract against this repo's implementation. Classify it Changed only if
+structure, CSS, fields, or usage rules actually differ.
 
-Report the classification to the user as a table — number, name, classification, one-line reason —
+Report the classification to the user as a table — name, classification, one-line reason —
 **before writing any code**. If more than a handful are New or Changed, stop and ask which to take
-this pass. This workflow moves deliberately; it does not batch-migrate the catalog.
+this pass. This workflow moves deliberately; it does not batch-migrate the export.
 
 ## Step 3 — Resolve ambiguity, do not guess
 
-For each New or Changed component, read the catalog's own notes: the component file's
-`## Usage notes`, and the `## Refresh history` in the catalog `SKILL.md`. If anything is
-unresolved, contradictory, or unclear, **stop and ask the user**. Do not pick an interpretation.
-
-The shapes this takes, all of which have occurred in this catalog:
-
-- **A spec disagreeing with shipped code.** `30-sticky-side-nav.md` notes that the JSX source's own
-  comment claims a melon active-link accent while the shipped code uses light-blue.
-- **A token whose value moved without every caller updating.**
-  `32-approach-implication-table.md` states `--hg-bg` is `#f6f8fa`, "a barely-there off-white tint
-  to distinguish the label column." `00-design-tokens.md` defines `--hg-bg: #FFFFFF`. Copying that
-  CSS verbatim renders the intended tint invisible. **Unresolved as of the 2026-07-17 catalog — ask
-  before implementing component 32.**
-- **A calculation model that changed.** `11-comparison-table.md`'s share-bar width moved from
-  calibrated pixel widths to percent-of-track, shifting existing bar proportions.
-- **A default that flipped.** `54-inline-highlight.md`'s melon name styling became opt-in, so
-  content relying on the old default renders as plain text.
+For each New or Changed component, read the export's own notes: the component's `.prompt.md`, its
+`.d.ts` doc comments, and the `readme.md` — especially "Deliberate inconsistencies", which lists
+things that look like mistakes and are not (the misnamed `--hg-border-light` is the *heavier*
+border; badge eyebrow tracking differs from section eyebrows on purpose; `NameHighlight` is
+bold-only by default). If anything is unresolved, contradictory, or unclear after that,
+**stop and ask the user**. Do not pick an interpretation.
 
 ## Step 4 — Implement each change on its own
 
@@ -98,35 +143,37 @@ Per classification:
 
 - **New** — add it as a self-contained addition. Choose `blocks.js` or `page.js` by usage pattern:
   in-flow components an author invokes with a fenced block go in `blocks.js`; components a layout
-  composes from frontmatter go in `page.js`. Add a test in `test/` following the existing files.
-  Name the CSS block for the design-system component it implements, and **include its number** —
-  `/* ---- Figure block (53) ---- */`. The audit joins on that number; an unnumbered header makes
-  the component invisible to future runs.
+  composes from frontmatter go in `page.js`. Set `source` to the manifest name **verbatim**. Add a
+  test in `test/` following the existing files. Name the CSS block for the component with **no
+  number** — `/* ---- Figure block ---- */` — so the audit's header join sees it.
 - **Changed** — edit only that component's existing `render`, `fields`, CSS rules, doc entry, and
-  test, in place. Do not touch a neighbouring component while you are in the file.
+  test, in place. A touched component also adopts the named convention: migrate its `source` and
+  CSS header in the same change. Do not touch a neighbouring component while you are in the file.
 - **Removed** — **do not delete the implementation.** Pages already using it must keep rendering.
   Mark it deprecated in `docs/component-library.md` with a status and a replacement if one exists,
   and add `deprecated: true` to its registry entry. Actual removal is a separate, later decision.
 
-Copy HTML and CSS from the catalog verbatim. Keep the `--hg-*` / `--grad-*` / `--fs-*` / `--space-*`
-/ `--fw-*` tokens and class names; never re-derive a color, spacing, or type value. Scope all CSS
-under `.hg-geo-page`.
+Translate the `.jsx` markup and conditional logic directly into `render()` using the `el`/`lines`/
+`indent` helpers; derive `fields` from the `.d.ts` props contract. Copy CSS values verbatim — keep
+the `--hg-*` / `--grad-*` / `--fs-*` / `--space-*` / `--fw-*` tokens and class names; never
+re-derive a color, spacing, or type value. The export's CSS is unscoped; scope every ported
+selector under the `.__page_class__` token (the renderer substitutes the configured page class).
 
 ## Step 5 — Cross-check the consumers
 
 `geo-spoke-builder`'s page-building skills each carry a fixed component manifest. A component named
-in a manifest but missing here is a gap that will surface as a broken build.
+in a manifest but missing here is a gap that will surface as a broken build. Those manifests still
+reference the retired numbered filenames, so the ranking is still generated with:
 
 ```bash
 grep -rhoE '`[0-9]{2}-[a-z0-9-]+\.md`' <geo-spoke-builder>/plugins/geo-spoke-builder/skills/*/SKILL.md \
   | tr -d '`' | sort | uniq -c | sort -rn
 ```
 
-The count ranks demand — how many skills reference each component. Compare that list against the
-audit's New rows.
-
-If you cannot read that repository in this session, **say so explicitly in your report**. Do not
-skip the check silently.
+Map the numbered names to export names by hand as skills migrate (the known mappings are tracked in
+[docs/open-items.md](../../../docs/open-items.md) §2). Compare that list against the audit's New
+rows. If you cannot read that repository in this session, **say so explicitly in your report**. Do
+not skip the check silently.
 
 ## Step 6 — Record it
 
@@ -136,22 +183,16 @@ Two records, both required.
 one line per component touched, tagged New / Changed / Removed / Deprecated with a short reason.
 Reference the Step 3 decision if one applied. **Append only — never rewrite a prior entry.**
 
-**2. The provenance field.** Update `designCatalog` in `package.json` to the catalog state you just
-synced against — this is the machine-readable half, and it is what stamps the contract file the
-sync workflow ships to `geo-spoke-builder` (see [docs/component-sync.md](../../../docs/component-sync.md)).
+**2. The provenance field.** Update `designCatalog` in `package.json` to the export you just synced
+against — this is the machine-readable half, and it is what stamps the contract file the sync
+workflow ships to `geo-spoke-builder` (see [docs/component-sync.md](../../../docs/component-sync.md)).
 Overwrite it in place; unlike the changelog, it records current state, not history.
 
-```bash
-git -C <catalog-dir> log -1 --format='%H'   # -> designCatalog.commit
-```
-
-- `catalog` — the catalog repo/directory name. Only changes if the catalog moves.
-- `refresh` — the catalog's own refresh label, from the `## Refresh history` heading in its
-  `SKILL.md` (e.g. `2026-07-17`). This is the design pass you synced against, **not** today's date,
-  and it only moves when the catalog itself records a new refresh.
-- `commit` — the full catalog commit SHA from the command above. Step 1 already confirmed the
-  checkout is clean and current; if it wasn't, you stopped there and never reached this step.
-- `syncedAt` — today's date, ISO. When this renderer last reconciled against that commit.
+- `catalog` — `HG Insights Marketing Design System (Claude Design export)`.
+- `build` — the manifest's `namespace` verbatim (e.g.
+  `HGInsightsMarketingDesignSystem_3bf70b`). The suffix changes when the export is recompiled;
+  there is no other version stamp.
+- `syncedAt` — today's date, ISO. When this renderer last reconciled against that build.
 
 Both records plus the release tag are the durable record the next run diffs against.
 
@@ -167,20 +208,23 @@ npm run check
 
 Then confirm each of these, and report only what you actually ran:
 
-- Every existing test passes, not just the new ones.
+- Every existing test passes, not just the new ones — including `test/design-export.test.js`, the
+  fixture-backed ingestion proof.
 - All examples still validate, and `npm run render:examples` leaves `output/` byte-identical —
   unless a Changed component should legitimately alter it, in which case say which example changed
-  and why.
+  and why. (Any CSS addition alters every page's inline stylesheet; that counts and must be named.)
 - `node bin/html-render.js --components` and `--contract pillar|cluster|spoke` match what you wrote
   in the docs.
-- Re-run `--audit` and confirm the components you implemented have moved out of New.
+- Re-run `--audit <export-dir>` and confirm the components you implemented have moved out of New.
 - Bump `package.json`: patch for doc/test-only, minor for additive New components. A Changed
   component with incompatible fields, or a Removed one, is **breaking** — call it out explicitly in
   the report; it needs the Step 4 deprecation handling, not just a version bump.
-- Tag the commit with that version, e.g. `v1.1.0`.
+- Tag the commit with that version, e.g. `v1.2.0` — after the PR merges, per
+  [docs/github-process.md](../../../docs/github-process.md).
 
 ## Reporting back
 
-Organize by component: number, name, classification, files changed, and confirmation that the diff
-for that component is scoped to only that component. Flag anything you stopped and asked about in
-Step 3, and give the Step 5 result. Do not report success on anything you did not verify.
+Organize by component: name, classification, files changed, and confirmation that the diff for
+that component is scoped to only that component. State which CSS file each component's rules were
+found in (proving the search, not the folder assumption). Flag anything you stopped and asked
+about in Step 3, and give the Step 5 result. Do not report success on anything you did not verify.

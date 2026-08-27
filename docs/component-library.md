@@ -1,10 +1,12 @@
 # Component library
 
 Every component is one canonical implementation of a component from the HG
-Insights Claude Design library. The `design source` column names the design
-system file it implements. A component appears once in the codebase and is
-composed by the layouts, so changing an implementation changes every page that
-uses it.
+Insights Claude Design library. The `design source` names the component it
+implements — the export's component name verbatim (`Figure`) for entries
+synced against a Claude Design export, or a retired numbered filename
+(`02-breadcrumb`) for entries that predate it and migrate when next touched.
+A component appears once in the codebase and is composed by the layouts, so
+changing an implementation changes every page that uses it.
 
 Run `html-render --components` for the same list from the live registry.
 
@@ -316,14 +318,15 @@ in `src/components/page.js`.
 4. If it is page-level, give it a slot in the relevant layout and a key in
    `src/validate/document-contract.js`.
 
-Name the CSS block for the design-system component it implements and include its
-number — `/* ---- Figure block (53) ---- */`. That number is how
-`html-render --audit <catalog-dir>` recognises the component as implemented.
+Set `source` to the export's component name verbatim, and name the CSS block
+for the component with **no** number — `/* ---- Figure block ---- */`. Those
+two signals are how `html-render --audit <export-dir>` recognises the
+component as implemented.
 
 When the change comes from a design-system refresh rather than a one-off need,
 start from `--audit` and follow
 `.claude/skills/sync-design-components/SKILL.md`, which classifies the whole
-catalog against this registry before anything is written.
+export against this registry before anything is written.
 
 `fields` is the input contract. Validation, normalization, escaping, defaults,
 and the `--contract` and `--components` output all come from it, so a component
