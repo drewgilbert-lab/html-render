@@ -13,7 +13,11 @@ tag v1.2.0 → generate contract from the live CLI → diff against geo-spoke-bu
            → open a PR if it moved → Drew reviews and merges
 ```
 
-The destination is a single file: **`geo-spoke-builder/references/html-render-contract.md`**.
+The destination is a single file:
+**`geo-spoke-builder/plugins/geo-spoke-builder/references/html-render-contract.md`** — inside the
+plugin's shared references, so installed sessions reach it via `${CLAUDE_PLUGIN_ROOT}`.
+(Until 2026-08-26 it was the repo-root `references/html-render-contract.md`; re-pointed when the
+first migrated skill needed the contract to ship with the plugin.)
 
 ---
 
@@ -25,11 +29,11 @@ workflow file, so retargeting the sync at a different consumer takes no commit:
 | Variable | Value today |
 |---|---|
 | `SYNC_TARGET_REPO` | `drewgilbert-lab/geo-spoke-builder` |
-| `SYNC_TARGET_PATH` | `references/html-render-contract.md` |
+| `SYNC_TARGET_PATH` | `plugins/geo-spoke-builder/references/html-render-contract.md` |
 
 ```bash
 gh variable set SYNC_TARGET_REPO --repo drewgilbert-lab/html-render --body drewgilbert-lab/geo-spoke-builder
-gh variable set SYNC_TARGET_PATH --repo drewgilbert-lab/html-render --body references/html-render-contract.md
+gh variable set SYNC_TARGET_PATH --repo drewgilbert-lab/html-render --body plugins/geo-spoke-builder/references/html-render-contract.md
 ```
 
 **Both must be set for the workflow to run at all.** An unset variable expands to an empty string,
