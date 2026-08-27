@@ -10,6 +10,34 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
+## v1.3.0 — 2026-08-26, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
+
+Contract extensions and one component change, all driven by the gap report from
+`geo-spoke-builder`'s first skill migration (`create-glossary-spoke`, its PR #24) — the first
+consumer-reported release. No catalog refresh; the export build is unchanged from v1.2.0.
+
+- **New** `standalone: true` (spoke frontmatter) — a page with no parent hub. Renders no
+  breadcrumb bar; emits no `BreadcrumbList` and no `Article.isPartOf`. `breadcrumbs` and
+  `breadcrumb_label` must then be absent (each is rejected with its own error). Unblocks the
+  consumer's standalone and rebuild-existing run modes, which its `geo-standards.md` §1.4
+  forbids from carrying an invented trail.
+- **New** `author.knows_about` (list) — feeds `Person.knowsAbout` in the schema graph; never
+  rendered visibly. Restores parity with the consumer's pre-pipeline hand-built pages.
+- **New** `page_skill_version` / `component_library_version` (optional top-level frontmatter) —
+  provenance carried into the rendered output's comment header as `Skill version` /
+  `Library version` rows, so a page traces back to exactly what produced it.
+- **Changed** `citations` — the source–title separator is now `: ` instead of a visible
+  `&mdash;`. The consumer's `geo-standards.md` §3.6 bans em/en dashes in rendered output, and
+  its pre-pipeline pages used a colon here. The behaviour script's header comment also lost
+  its em dash. Rendered output now contains no dash characters or entities of its own.
+
+**Consumer note (breaking: no; changed output: yes).** Every citations entry's visible
+separator changes, and previously-rejected keys (`standalone`, `knows_about`,
+`page_skill_version`, `component_library_version`) now validate. Pages that passed `--check`
+under v1.2.0 still pass unchanged.
+
+---
+
 ## v1.2.0 — 2026-08-26, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
 
 First sync against a **Claude Design export** — the compiled folder that replaces the retired

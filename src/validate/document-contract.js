@@ -47,6 +47,8 @@ function baseFields() {
     eyebrow: { type: 'text' },
     published: { type: 'plain', required: true, hint: 'an ISO date, e.g. 2026-08-11' },
     updated: { type: 'plain' },
+    page_skill_version: { type: 'plain', hint: 'provenance: the skill and version that authored this page; echoed in the output header' },
+    component_library_version: { type: 'plain', hint: 'provenance: the contract stamp this page was authored against; echoed in the output header' },
     breadcrumbs: {
       type: 'list',
       required: true,
@@ -97,6 +99,11 @@ function contractFor(pageType) {
   if (pageType === 'spoke') {
     fields.layout = { type: 'enum', values: SPOKE_LAYOUTS, default: 'article' };
     fields.related.required = true;
+    fields.standalone = {
+      type: 'bool',
+      default: false,
+      hint: 'a page with no parent hub: omits the breadcrumb bar and BreadcrumbList; `breadcrumbs` must then be absent',
+    };
     return fields;
   }
 
@@ -114,4 +121,16 @@ function tightenSpoke(fields, layout) {
   return fields;
 }
 
-module.exports = { PAGE_TYPES, SPOKE_LAYOUTS, contractFor, tightenSpoke, HERO_FIELDS, SIDE_NAV_FIELDS, TERM_FIELDS };
+/**
+ * A standalone spoke owns no ancestor trail, so `breadcrumbs` stops being
+ * required. Presence of a trail on a standalone page is rejected separately,
+ * with a message naming both keys — see validate.js.
+ */
+function applyStandalone(fields, standalone) {
+  if (standalone) {
+    fields.breadcrumbs = { ...fields.breadcrumbs, required: false };
+  }
+  return fields;
+}
+
+module.exports = { PAGE_TYPES, SPOKE_LAYOUTS, contractFor, tightenSpoke, applyStandalone, HERO_FIELDS, SIDE_NAV_FIELDS, TERM_FIELDS };

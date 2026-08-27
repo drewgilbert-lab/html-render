@@ -89,7 +89,7 @@ Light article hero, then one flowing narrow column. Used by definition,
 glossary, comparison, and decision-tree spokes.
 
 ```
-breadcrumb
+breadcrumb                  (omitted when standalone: true)
 article-hero                H1 + byline + pills on white
 article-body
   thesis block              (optional) from hero.thesis
@@ -105,13 +105,19 @@ cta
 This variant has no gradient hero, no stat grid, and no side nav. Supplying
 `hero.stats` is an error that points you at `layout: banded`.
 
+A spoke in either variant may declare `standalone: true` — a page with no
+parent hub. It renders no breadcrumb bar and emits no `BreadcrumbList` and no
+`Article.isPartOf`. `breadcrumbs` (and `breadcrumb_label`) must then be absent;
+supplying them alongside `standalone: true` is an error. The trail is never
+invented.
+
 ### `layout: banded`
 
 Gradient stat hero, then full-width alternating section bands. Used by
 methodology, benchmark-report, and reporting-framework spokes.
 
 ```
-breadcrumb
+breadcrumb                  (omitted when standalone: true)
 hero                        gradient band with the stat grid
 freshness-bar               (optional)
 intro-toc                   (optional)

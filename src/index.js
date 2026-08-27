@@ -138,6 +138,8 @@ function buildMeta(doc, bodyHtml) {
     url: fm.url,
     published: String(fm.published),
     updated: String(fm.updated || fm.published),
+    skillVersion: fm.page_skill_version ? plainText(fm.page_skill_version) : null,
+    libraryVersion: fm.component_library_version ? plainText(fm.component_library_version) : null,
     sections: doc.sections.length,
     words: text ? text.split(' ').length : 0,
   };
@@ -159,6 +161,10 @@ function header(meta, config) {
     `Meta description ${meta.description}`,
     `Canonical URL    ${meta.url}`,
     `Published        ${meta.published}    Updated  ${meta.updated}`,
+    // Provenance, when the authoring pipeline supplies it: which skill wrote
+    // the page and which contract stamp it was written against.
+    ...(meta.skillVersion ? [`Skill version    ${meta.skillVersion}`] : []),
+    ...(meta.libraryVersion ? [`Library version  ${meta.libraryVersion}`] : []),
     `Body             ${meta.sections} sections, ~${meta.words} words`,
   ];
   return [

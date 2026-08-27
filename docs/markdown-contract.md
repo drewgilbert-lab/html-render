@@ -50,6 +50,8 @@ breadcrumbs:                          # ancestors only; this page is appended
 author:
   name: Jordan Lee
   title: Principal Analyst, HG Insights
+  # optional: feeds Person.knowsAbout in the schema graph
+  # knows_about: [Generative Engine Optimization, AI Share of Voice]
 faq:
   title: Common questions about ...
   items:
@@ -73,6 +75,8 @@ additionally require `hero.stats` and `intro`; Cluster requires
 updated: 2026-08-11            # defaults to `published`
 eyebrow: GEO Measurement Guide # uppercase kicker above the H1
 breadcrumb_label: A shorter label for the current page in the trail
+page_skill_version: 0.24.0 (create-glossary-spoke)   # provenance; echoed in the output header
+component_library_version: html-render v1.3.0        # provenance; echoed in the output header
 pills:                         # small status pills under the lead
   - Ungated & citable
   - label: Last reviewed: August 2026
@@ -142,6 +146,7 @@ term:                          # adds DefinedTerm schema; for glossary pages
 | `resource_index` | cluster | yes | The card grid indexing every spoke in the cluster |
 | `related` | spoke | yes | The closing cross-link band |
 | `layout` | spoke | no | `article` (default) or `banded` — see [page-layouts.md](page-layouts.md) |
+| `standalone` | spoke | no | `true` = no parent hub: omits the breadcrumb bar, `BreadcrumbList`, and `isPartOf`; `breadcrumbs` must then be absent |
 
 ### Frontmatter rules
 
@@ -255,6 +260,7 @@ inputs, or run `html-render --components`.
 | A `toc` anchor pointing nowhere | The anchors that exist on the page |
 | An unusable link target | What forms are accepted |
 | Hero stats on an `article` spoke | A pointer to `layout: banded` |
+| `breadcrumbs` on a `standalone: true` spoke | Remove the trail or remove the flag — it is never invented |
 | Body copy before the first `##` on a Pillar or Cluster | The line it starts on |
 
 Every problem in the file is reported at once, so one pass gets you a clean run.

@@ -18,6 +18,8 @@ const AUTHOR_FIELDS = {
   initials: { type: 'plain' },
   bio: { type: 'plain' },
   url: { type: 'url' },
+  // Feeds Person.knowsAbout in the schema graph; never rendered visibly.
+  knows_about: { type: 'list', primaryKey: 'topic', fields: { topic: { type: 'plain', required: true } } },
 };
 
 const PILL_FIELDS = {
@@ -524,7 +526,7 @@ const citations = {
             'span',
             { class: 'citation-body' },
             lines(
-              `${el('span', { class: 'citation-source' }, item.source)} &mdash; ${el(
+              `${el('span', { class: 'citation-source' }, item.source)}: ${el(
                 'a',
                 { class: 'citation-link', href: item.url, target: '_blank', rel: 'noopener' },
                 item.title,

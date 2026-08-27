@@ -9,7 +9,7 @@
  */
 
 const { Report, validateFields, collectCitationRefs, isBlank } = require('./fields');
-const { contractFor, tightenSpoke, PAGE_TYPES, SPOKE_LAYOUTS } = require('./document-contract');
+const { contractFor, tightenSpoke, applyStandalone, PAGE_TYPES, SPOKE_LAYOUTS } = require('./document-contract');
 const { SECTION_FIELDS } = require('../layouts/section-body');
 const { validateBlock } = require('../components');
 const { locOf } = require('../parse/yaml');
@@ -53,8 +53,10 @@ function validateDocument(parsed) {
     report.add('layout', `"${layout}" is not a supported spoke layout. Use one of: ${SPOKE_LAYOUTS.join(', ')}`, locOf(frontmatter, 'layout'));
   }
 
+  const standalone = pageType === 'spoke' && frontmatter.standalone === true;
   let contract = contractFor(pageType);
   if (pageType === 'spoke' && SPOKE_LAYOUTS.includes(layout)) contract = tightenSpoke(contract, layout);
+  if (pageType === 'spoke') contract = applyStandalone(contract, standalone);
 
   validateFields(contract, frontmatter, '', report, 1);
 
@@ -76,6 +78,20 @@ function validateDocument(parsed) {
   }
 
   // ---- layout-specific body expectations --------------------------------
+  if (standalone && !isBlank(frontmatter.breadcrumbs)) {
+    report.add(
+      'breadcrumbs',
+      'a standalone spoke owns no ancestor trail. Remove `breadcrumbs`, or remove `standalone: true`',
+      locOf(frontmatter, 'breadcrumbs'),
+    );
+  }
+  if (standalone && !isBlank(frontmatter.breadcrumb_label)) {
+    report.add(
+      'breadcrumb_label',
+      'a standalone spoke renders no breadcrumb trail, so `breadcrumb_label` has nothing to label. Remove it, or remove `standalone: true`',
+      locOf(frontmatter, 'breadcrumb_label'),
+    );
+  }
   if (pageType === 'spoke' && layout === 'article' && frontmatter.hero && !isBlank(frontmatter.hero.stats)) {
     report.add(
       'hero.stats',
