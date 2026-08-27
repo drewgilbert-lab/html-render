@@ -24,19 +24,20 @@ Last reviewed: **2026-08-26**, against Claude Design export build
 
 ## 1. Cross-repo sync
 
-The pipeline is built and merged; it has never performed a real write.
+The pipeline is built, merged, and — as of 2026-08-27 — has performed its first real write,
+with idempotency proven the same day. Every row below is closed.
 
 | Item | Status | What unblocks it |
 |---|---|---|
-| Real sync run (`dry_run=false`) | **Awaiting go-ahead** | Drew's explicit approval — it opens a real PR in `geo-spoke-builder` |
-| No-op run, proving Step 3.5 | **Blocked** | The real run's PR being merged downstream. Until `references/html-render-contract.md` exists on `geo-spoke-builder`'s `main`, every run legitimately sees a new file |
-| Dry run | ✅ Passed 2026-08-26 | — |
+| Real sync run (`dry_run=false`) | ✅ Ran 2026-08-27, triggered by the `v1.2.0` tag — opened [geo-spoke-builder#23](https://github.com/drewgilbert-lab/geo-spoke-builder/pull/23) (first sync; no previous contract file downstream), merged the same day | — |
+| No-op run, proving Step 3.5 | ✅ Passed 2026-08-27, after #23 merged — dispatched at the `v1.2.0` ref (not `main`, which had moved and would stamp a different `commit=`), read back `Previous contract stamped at commit: e73b8e6` and reported `no change, nothing to sync` | — |
+| Dry run | ✅ Passed 2026-08-26 (hardcoded targets) and re-proven 2026-08-27 against the variables below | — |
 
-**`SYNC_TARGET_REPO` and `SYNC_TARGET_PATH` must be set as Actions variables** on `html-render`
-before the next tag. The workflow reads its destination from them instead of hardcoded literals now,
-and stops at its first step if either is missing rather than checking out the wrong repository. The
-values and the two `gh variable set` commands are in
-[component-sync.md](component-sync.md#the-sync-target). The *token* stays a literal secret name —
+**`SYNC_TARGET_REPO` and `SYNC_TARGET_PATH` were set as Actions variables on 2026-08-27**, to
+`drewgilbert-lab/geo-spoke-builder` and `references/html-render-contract.md` — the values recorded
+in [component-sync.md](component-sync.md#the-sync-target). A fresh dry run the same day confirmed
+the workflow reads them (`Syncing to drewgilbert-lab/geo-spoke-builder ::
+references/html-render-contract.md`). The *token* stays a literal secret name —
 that is the PAT decision below, deliberately unchanged.
 
 **The sync token expires 2026-11-24** and nothing owns renewing it. When it lapses the workflow
@@ -56,9 +57,13 @@ the fix is something that reads the field contracts, not a narrower regex.
 ## 2. Consumer migration
 
 **All 13 page-building skills in `geo-spoke-builder` still carry hand-written component manifests.**
-None of them read `references/html-render-contract.md` yet — that file is delivered but unconsumed.
-Rewriting each skill's "Design Components" section happens skill-by-skill as it migrates to the
-`html-render` pipeline, not in one pass.
+None of them read `references/html-render-contract.md` — and until 2026-08-27 that file did not
+exist downstream at all. This section previously called it "delivered but unconsumed"; the first
+half was wrong. The 2026-08-27 sync run read the target path directly before writing ("No previous
+contract file at `references/html-render-contract.md` — first sync") — delivery was
+[geo-spoke-builder#23](https://github.com/drewgilbert-lab/geo-spoke-builder/pull/23), reviewed and
+merged 2026-08-27. Rewriting each skill's "Design Components" section happens skill-by-skill
+as it migrates to the `html-render` pipeline, not in one pass.
 
 Cross-checking those manifests against this registry (the procedure is
 [Step 5 of the sync skill](../.claude/skills/sync-design-components/SKILL.md)) surfaces components
