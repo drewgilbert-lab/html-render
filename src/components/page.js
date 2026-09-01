@@ -449,8 +449,8 @@ const methodology = {
 
 const faq = {
   name: 'faq',
-  summary: 'Expand/collapse FAQ stack with a label column.',
-  source: '15-faq-accordion',
+  summary: 'Static two-column Q&A list with a label column; every answer renders expanded.',
+  source: 'Faq',
   fields: {
     eyebrow: { type: 'text', default: 'FAQ' },
     title: { type: 'text', required: true },
@@ -474,17 +474,13 @@ const faq = {
         ),
       )}\n`,
     );
-    const items = value.items.map((item, index) =>
+    const items = value.items.map((item) =>
       el(
         'div',
-        { class: index === 0 ? 'faq-item open' : 'faq-item' },
+        { class: 'faq-item' },
         `\n${indent(
           lines(
-            el(
-              'button',
-              { class: 'faq-question', type: 'button', 'aria-expanded': index === 0 ? 'true' : 'false' },
-              `\n${indent(lines(item.q, el('span', { class: 'faq-icon' }, '+')))}\n`,
-            ),
+            el('h3', { class: 'faq-question' }, item.q),
             el('div', { class: 'faq-answer' }, item.a.length > 1 ? `\n${indent(paras(item.a))}\n` : item.a[0] || ''),
           ),
         )}\n`,

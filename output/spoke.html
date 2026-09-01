@@ -6,7 +6,7 @@
      Meta description AI Share of Voice is the percentage of tracked brand mentions a brand and its named competitors hold across AI answer engines. Definition, formula, and a worked example.
      Canonical URL    https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/share-of-voice/
      Published        2026-08-11    Updated  2026-08-11
-     Body             3 sections, ~1327 words
+     Body             3 sections, ~1323 words
 
      Paste this whole block into the target page container. It contains no
      <html>, <head>, site navigation, or footer - page body only.
@@ -245,7 +245,7 @@
   .render-page .related-hub-card p { font-size: 13.5px; color: var(--hg-text-mid); line-height: 1.55; margin-bottom: 8px; }
   .render-page .related-hub-link { font-size: 12.5px; font-weight: var(--fw-bold); color: var(--hg-dark-blue); }
 
-  /* ---- FAQ accordion (15) ---------------------------------- */
+  /* ---- Faq section ----------------------------------------- */
   .render-page .faq-section { padding: var(--section-pad); background: var(--hg-off-white); border-top: 1px solid var(--hg-border); }
   .render-page .faq-section .container { display: grid; grid-template-columns: 260px 1fr; gap: 64px; align-items: start; }
   .render-page .faq-label-col .section-eyebrow { margin-bottom: 8px; }
@@ -254,16 +254,11 @@
   .render-page .faq-list { display: flex; flex-direction: column; }
   .render-page .faq-item { border-bottom: 1px solid var(--hg-border); }
   .render-page .faq-item:first-child { border-top: 1px solid var(--hg-border); }
-  .render-page .faq-question { width: 100%; background: none; border: none; padding: 28px 0; text-align: left; font-family: var(--font); font-size: 16px; font-weight: 700; color: var(--hg-text-dark); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: color 0.2s; }
-  .render-page .faq-question:hover { color: var(--hg-dark-blue); }
-  .render-page .faq-question .faq-icon { font-size: 20px; color: var(--hg-blue); flex-shrink: 0; font-weight: 400; transition: transform 0.2s; }
-  .render-page .faq-answer { display: none; padding: 0 0 28px; font-size: 15px; color: var(--hg-text-mid); line-height: 1.75; }
+  .render-page .faq-question { width: 100%; padding: 28px 0 12px; text-align: left; font-family: var(--font); font-size: 16px; font-weight: 700; color: var(--hg-text-dark); display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: color 0.2s; }
+  .render-page .faq-answer { display: block; padding: 0 0 28px; font-size: 15px; color: var(--hg-text-mid); line-height: 1.75; }
   .render-page .faq-answer p { margin-bottom: 12px; }
   .render-page .faq-answer p:last-child { margin-bottom: 0; }
   .render-page .faq-answer strong { color: var(--hg-text-dark); font-weight: 700; }
-  .render-page .faq-item.open .faq-answer { display: block; }
-  .render-page .faq-item.open .faq-icon { transform: rotate(45deg); }
-  .render-page .faq-item.open .faq-question { color: var(--hg-dark-blue); }
 
   /* ---- Methodology section (16) ---------------------------- */
   .render-page .methodology-section { padding: 56px 0; background: var(--hg-off-white); border-top: 1px solid var(--hg-border); border-bottom: 1px solid var(--hg-border); }
@@ -638,32 +633,20 @@
       </div>
       <div>
         <div class="faq-list">
-          <div class="faq-item open">
-            <button class="faq-question" type="button" aria-expanded="true">
-              What is a typical AI Share of Voice range for a mid-market B2B SaaS brand?
-              <span class="faq-icon">+</span>
-            </button>
+          <div class="faq-item">
+            <h3 class="faq-question">What is a typical AI Share of Voice range for a mid-market B2B SaaS brand?</h3>
             <div class="faq-answer">Brands with no established GEO program typically hold single-digit AI Share of Voice against category leaders as of Q3 2026, since mention volume compounds for brands that already have dense, citable third-party content. A brand reaching 15% or higher against three or more named competitors is generally a strong position for a first-year GEO measurement program.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              How often should AI Share of Voice be measured?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">How often should AI Share of Voice be measured?</h3>
             <div class="faq-answer">Monthly measurement is the practical minimum, because AI answer engines regenerate responses on independent refresh cycles and a single snapshot cannot show whether a brand's share is rising or falling. Some GEO teams add a lighter weekly check on the highest-priority tracked prompts between full monthly reporting cycles.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              Does AI Share of Voice include prompts where no brand is named?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">Does AI Share of Voice include prompts where no brand is named?</h3>
             <div class="faq-answer">No. AI Share of Voice only counts tracked prompts and answer sources where at least one brand, the tracked brand or a named competitor, actually appears in the generated text. Prompts returning zero brand mentions are excluded from the share calculation but are worth tracking separately as unbranded-answer gaps.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              Why does AI Share of Voice change month over month even without new content?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">Why does AI Share of Voice change month over month even without new content?</h3>
             <div class="faq-answer">AI answer engines regenerate responses continuously as automated recrawling updates each engine's underlying source set, so the same tracked prompt can return a different mix of brand mentions from one month to the next even when no brand in the set has published anything new.</div>
           </div>
         </div>
@@ -883,20 +866,12 @@
   }
   </script>
   <script>
-  /* Page behaviour: FAQ disclosure + side-nav scroll spy.
+  /* Page behaviour: side-nav scroll spy.
      Progressive enhancement only; the page is complete without it. */
   (function () {
     var root = document.currentScript ? document.currentScript.closest('.render-page') : null;
     if (!root) root = document.querySelector('.render-page');
     if (!root) return;
-
-    root.addEventListener('click', function (event) {
-      var button = event.target.closest ? event.target.closest('.faq-question') : null;
-      if (!button || !root.contains(button)) return;
-      var item = button.parentElement;
-      var open = item.classList.toggle('open');
-      button.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
 
     var links = Array.prototype.slice.call(root.querySelectorAll('.sidenav .nav-card a[href^="#"]'));
     if (!links.length || typeof IntersectionObserver !== 'function') return;

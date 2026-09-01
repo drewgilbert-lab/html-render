@@ -17,7 +17,7 @@
      Meta description AI Search Visibility Measurement gives marketing and search teams a repeatable way to track how often generative engines surface, mention, and cite a brand across ChatGPT, Perplexity, Google AI Overviews, Gemini, and Microsoft Copilot answers.
      Canonical URL    https://hginsights.com/geo/how-to-measure-ai-search-visibility/
      Published        2026-08-11    Updated  2026-08-11
-     Body             6 sections, ~2425 words
+     Body             6 sections, ~2419 words
 
      Paste this whole block into the target page container. It contains no
      <html>, <head>, site navigation, or footer - page body only.
@@ -256,7 +256,7 @@
   .render-page .related-hub-card p { font-size: 13.5px; color: var(--hg-text-mid); line-height: 1.55; margin-bottom: 8px; }
   .render-page .related-hub-link { font-size: 12.5px; font-weight: var(--fw-bold); color: var(--hg-dark-blue); }
 
-  /* ---- FAQ accordion (15) ---------------------------------- */
+  /* ---- Faq section ----------------------------------------- */
   .render-page .faq-section { padding: var(--section-pad); background: var(--hg-off-white); border-top: 1px solid var(--hg-border); }
   .render-page .faq-section .container { display: grid; grid-template-columns: 260px 1fr; gap: 64px; align-items: start; }
   .render-page .faq-label-col .section-eyebrow { margin-bottom: 8px; }
@@ -265,16 +265,11 @@
   .render-page .faq-list { display: flex; flex-direction: column; }
   .render-page .faq-item { border-bottom: 1px solid var(--hg-border); }
   .render-page .faq-item:first-child { border-top: 1px solid var(--hg-border); }
-  .render-page .faq-question { width: 100%; background: none; border: none; padding: 28px 0; text-align: left; font-family: var(--font); font-size: 16px; font-weight: 700; color: var(--hg-text-dark); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: color 0.2s; }
-  .render-page .faq-question:hover { color: var(--hg-dark-blue); }
-  .render-page .faq-question .faq-icon { font-size: 20px; color: var(--hg-blue); flex-shrink: 0; font-weight: 400; transition: transform 0.2s; }
-  .render-page .faq-answer { display: none; padding: 0 0 28px; font-size: 15px; color: var(--hg-text-mid); line-height: 1.75; }
+  .render-page .faq-question { width: 100%; padding: 28px 0 12px; text-align: left; font-family: var(--font); font-size: 16px; font-weight: 700; color: var(--hg-text-dark); display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: color 0.2s; }
+  .render-page .faq-answer { display: block; padding: 0 0 28px; font-size: 15px; color: var(--hg-text-mid); line-height: 1.75; }
   .render-page .faq-answer p { margin-bottom: 12px; }
   .render-page .faq-answer p:last-child { margin-bottom: 0; }
   .render-page .faq-answer strong { color: var(--hg-text-dark); font-weight: 700; }
-  .render-page .faq-item.open .faq-answer { display: block; }
-  .render-page .faq-item.open .faq-icon { transform: rotate(45deg); }
-  .render-page .faq-item.open .faq-question { color: var(--hg-dark-blue); }
 
   /* ---- Methodology section (16) ---------------------------- */
   .render-page .methodology-section { padding: 56px 0; background: var(--hg-off-white); border-top: 1px solid var(--hg-border); border-bottom: 1px solid var(--hg-border); }
@@ -787,46 +782,28 @@
       </div>
       <div>
         <div class="faq-list">
-          <div class="faq-item open">
-            <button class="faq-question" type="button" aria-expanded="true">
-              How do I measure my brand's visibility in AI search results?
-              <span class="faq-icon">+</span>
-            </button>
+          <div class="faq-item">
+            <h3 class="faq-question">How do I measure my brand's visibility in AI search results?</h3>
             <div class="faq-answer">Measure AI Search Visibility by running a fixed set of buyer questions against ChatGPT, Google AI Overviews, Perplexity, and Microsoft Copilot on a repeatable cadence, then tracking four metrics: <strong>Mention Rate, Citation Rate, Share of Voice, and Share of Model</strong> against named competitors. Weekly to biweekly tracking is necessary because cited content sets can turn over in as little as five weeks.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              What is AI visibility, and why does it differ from SEO visibility?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">What is AI visibility, and why does it differ from SEO visibility?</h3>
             <div class="faq-answer">AI visibility describes whether a brand is mentioned or cited inside a generative engine's answer, while SEO visibility describes whether a page ranks in a traditional results list. The two frequently diverge because generative engines retrieve and weight sources differently than classic search ranking algorithms, so a page can rank well and still go unmentioned.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              Which metrics belong in an AI visibility measurement program?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">Which metrics belong in an AI visibility measurement program?</h3>
             <div class="faq-answer">Four metrics anchor the discipline. Mention Rate and Citation Rate measure absolute presence, while Share of Voice and Share of Model measure competitive position. A first-year program that reports all four against a fixed competitor set is ahead of most B2B software vendors as of 2026.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              How often should AI search visibility be measured?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">How often should AI search visibility be measured?</h3>
             <div class="faq-answer">Weekly to biweekly. Industry citation decay research puts the median citation half life at roughly 13 weeks, with ChatGPT's cited set churning in as little as 3.4 weeks, so a quarterly check is already measuring a stale answer set.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              Who should own AI visibility measurement inside a marketing team?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">Who should own AI visibility measurement inside a marketing team?</h3>
             <div class="faq-answer">One named owner, usually a GEO or AI Visibility Specialist working next to whoever already owns SEO and content performance reporting. Splitting ownership across SEO, content, and demand generation without naming one accountable owner is the most common reason programs stall.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              How do I start an AI visibility measurement program from zero?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">How do I start an AI visibility measurement program from zero?</h3>
             <div class="faq-answer">Start with a one time AI visibility audit against a fixed set of ten to twenty real buyer questions across ChatGPT, Google AI Overviews, and Perplexity. Establish a baseline Mention Rate and Citation Rate against two or three named competitors, then convert that audit into a recurring weekly to biweekly measurement cycle with one named owner.</div>
           </div>
         </div>
@@ -1002,20 +979,12 @@
   }
   </script>
   <script>
-  /* Page behaviour: FAQ disclosure + side-nav scroll spy.
+  /* Page behaviour: side-nav scroll spy.
      Progressive enhancement only; the page is complete without it. */
   (function () {
     var root = document.currentScript ? document.currentScript.closest('.render-page') : null;
     if (!root) root = document.querySelector('.render-page');
     if (!root) return;
-
-    root.addEventListener('click', function (event) {
-      var button = event.target.closest ? event.target.closest('.faq-question') : null;
-      if (!button || !root.contains(button)) return;
-      var item = button.parentElement;
-      var open = item.classList.toggle('open');
-      button.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
 
     var links = Array.prototype.slice.call(root.querySelectorAll('.sidenav .nav-card a[href^="#"]'));
     if (!links.length || typeof IntersectionObserver !== 'function') return;

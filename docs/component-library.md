@@ -298,7 +298,7 @@ not their position — see [page-layouts.md](page-layouts.md).
 | `resource-index` | 13-data-cut-filters | `resource_index` |
 | `related` | 14-spoke-page-cards | `related` |
 | `methodology` | 16-methodology-section | `methodology` |
-| `faq` | 15-faq-accordion | `faq` |
+| `faq` | Faq | `faq` |
 | `citations` | 60-citations-list | `citations` |
 | `cta` | 17-sticky-cta-footer | `cta` |
 

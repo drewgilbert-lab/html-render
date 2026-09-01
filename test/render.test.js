@@ -115,6 +115,20 @@ test('optional page slots appear only when supplied', () => {
   assert.ok(full.indexOf('id="methodology"') < full.indexOf('id="faq"'));
 });
 
+test('the FAQ renders as a static Q&A list, with no accordion affordance', () => {
+  const html = body(pillar()).html;
+  // Questions are headings, not buttons: the export dropped the toggle.
+  assert.match(html, /<h3 class="faq-question">What is this\?<\/h3>/);
+  assert.match(html, /<div class="faq-answer">A fixture used by the renderer test suite\.<\/div>/);
+  assert.doesNotMatch(html, /faq-item open/);
+  assert.doesNotMatch(html, /faq-icon/);
+  assert.doesNotMatch(html, /aria-expanded/);
+  // Nothing is left for the script to toggle.
+  const withScript = render(pillar(), { config: EXAMPLE_CONFIG, styles: false, schema: false }).html;
+  const script = withScript.slice(withScript.indexOf('<script'), withScript.indexOf('</script>'));
+  assert.doesNotMatch(script, /faq/, 'script.js still references the FAQ toggle');
+});
+
 test('render options control the emitted wrapper assets', () => {
   const plain = render(pillar(), { config: EXAMPLE_CONFIG, styles: false, script: false, schema: false }).html;
   assert.doesNotMatch(plain, /<style>|<script/);

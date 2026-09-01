@@ -17,7 +17,7 @@
      Meta description The vocabulary and calculation logic behind the four metrics GEO teams use to quantify AI search visibility: Share of Voice, Share of Model, Mention Rate, and Citation Rate.
      Canonical URL    https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/
      Published        2026-08-11    Updated  2026-08-11
-     Body             6 sections, ~2160 words
+     Body             6 sections, ~2154 words
 
      Paste this whole block into the target page container. It contains no
      <html>, <head>, site navigation, or footer - page body only.
@@ -256,7 +256,7 @@
   .render-page .related-hub-card p { font-size: 13.5px; color: var(--hg-text-mid); line-height: 1.55; margin-bottom: 8px; }
   .render-page .related-hub-link { font-size: 12.5px; font-weight: var(--fw-bold); color: var(--hg-dark-blue); }
 
-  /* ---- FAQ accordion (15) ---------------------------------- */
+  /* ---- Faq section ----------------------------------------- */
   .render-page .faq-section { padding: var(--section-pad); background: var(--hg-off-white); border-top: 1px solid var(--hg-border); }
   .render-page .faq-section .container { display: grid; grid-template-columns: 260px 1fr; gap: 64px; align-items: start; }
   .render-page .faq-label-col .section-eyebrow { margin-bottom: 8px; }
@@ -265,16 +265,11 @@
   .render-page .faq-list { display: flex; flex-direction: column; }
   .render-page .faq-item { border-bottom: 1px solid var(--hg-border); }
   .render-page .faq-item:first-child { border-top: 1px solid var(--hg-border); }
-  .render-page .faq-question { width: 100%; background: none; border: none; padding: 28px 0; text-align: left; font-family: var(--font); font-size: 16px; font-weight: 700; color: var(--hg-text-dark); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: color 0.2s; }
-  .render-page .faq-question:hover { color: var(--hg-dark-blue); }
-  .render-page .faq-question .faq-icon { font-size: 20px; color: var(--hg-blue); flex-shrink: 0; font-weight: 400; transition: transform 0.2s; }
-  .render-page .faq-answer { display: none; padding: 0 0 28px; font-size: 15px; color: var(--hg-text-mid); line-height: 1.75; }
+  .render-page .faq-question { width: 100%; padding: 28px 0 12px; text-align: left; font-family: var(--font); font-size: 16px; font-weight: 700; color: var(--hg-text-dark); display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: color 0.2s; }
+  .render-page .faq-answer { display: block; padding: 0 0 28px; font-size: 15px; color: var(--hg-text-mid); line-height: 1.75; }
   .render-page .faq-answer p { margin-bottom: 12px; }
   .render-page .faq-answer p:last-child { margin-bottom: 0; }
   .render-page .faq-answer strong { color: var(--hg-text-dark); font-weight: 700; }
-  .render-page .faq-item.open .faq-answer { display: block; }
-  .render-page .faq-item.open .faq-icon { transform: rotate(45deg); }
-  .render-page .faq-item.open .faq-question { color: var(--hg-dark-blue); }
 
   /* ---- Methodology section (16) ---------------------------- */
   .render-page .methodology-section { padding: 56px 0; background: var(--hg-off-white); border-top: 1px solid var(--hg-border); border-bottom: 1px solid var(--hg-border); }
@@ -876,46 +871,28 @@
       </div>
       <div>
         <div class="faq-list">
-          <div class="faq-item open">
-            <button class="faq-question" type="button" aria-expanded="true">
-              What are the core AI visibility metrics?
-              <span class="faq-icon">+</span>
-            </button>
+          <div class="faq-item">
+            <h3 class="faq-question">What are the core AI visibility metrics?</h3>
             <div class="faq-answer">Four metrics anchor AI visibility measurement: <strong>Share of Voice</strong> (a brand's proportion of total mentions against named competitors), <strong>Share of Model</strong> (how one specific AI model represents a brand), <strong>Mention Rate</strong> (how often a brand appears at all across a tracked prompt set), and <strong>Citation Rate</strong> (how often a brand's own content is credited as a source).</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              Is there a standard definition of AI Share of Voice?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">Is there a standard definition of AI Share of Voice?</h3>
             <div class="faq-answer">Not as of Q3 2026. Vendors, agencies, and in-house teams define Share of Voice and Mention Rate differently depending on which AI engines they track and how many prompts they sample, which is why any GEO program should publish its own methodology note alongside the number.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              What is the difference between Mention Rate and Citation Rate?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">What is the difference between Mention Rate and Citation Rate?</h3>
             <div class="faq-answer">Mention Rate counts answers where a brand name appears, with or without a link. Citation Rate is stricter and counts only answers where the brand's own content was retrieved and credited as a source. Citation Rate is the metric tied to a specific, attributable URL.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              Which AI visibility metric should a team track first?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">Which AI visibility metric should a team track first?</h3>
             <div class="faq-answer">Mention Rate, in almost every case. It needs only a defined prompt set and no competitor benchmark, so a team can establish a baseline in one measurement cycle and add competitive metrics once the prompt set has stabilized.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              How many prompts does a tracked prompt set need?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">How many prompts does a tracked prompt set need?</h3>
             <div class="faq-answer">Ten to twenty real buyer questions is enough to establish a first baseline. TrustRadius's GEO Monitoring Dashboard tracks up to 100 prompts per product per month, which is a practical ceiling for a mature program rather than a starting requirement.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              How often do these metrics change?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">How often do these metrics change?</h3>
             <div class="faq-answer">Month over month, even with no new content published. AI answer engines regenerate responses continuously as recrawling updates each engine's underlying source set, so the same tracked prompt can return a different mix of brand mentions from one cycle to the next.</div>
           </div>
         </div>
@@ -1174,20 +1151,12 @@
   }
   </script>
   <script>
-  /* Page behaviour: FAQ disclosure + side-nav scroll spy.
+  /* Page behaviour: side-nav scroll spy.
      Progressive enhancement only; the page is complete without it. */
   (function () {
     var root = document.currentScript ? document.currentScript.closest('.render-page') : null;
     if (!root) root = document.querySelector('.render-page');
     if (!root) return;
-
-    root.addEventListener('click', function (event) {
-      var button = event.target.closest ? event.target.closest('.faq-question') : null;
-      if (!button || !root.contains(button)) return;
-      var item = button.parentElement;
-      var open = item.classList.toggle('open');
-      button.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
 
     var links = Array.prototype.slice.call(root.querySelectorAll('.sidenav .nav-card a[href^="#"]'));
     if (!links.length || typeof IntersectionObserver !== 'function') return;

@@ -1,17 +1,9 @@
-/* Page behaviour: FAQ disclosure + side-nav scroll spy.
+/* Page behaviour: side-nav scroll spy.
    Progressive enhancement only; the page is complete without it. */
 (function () {
   var root = document.currentScript ? document.currentScript.closest('.__page_class__') : null;
   if (!root) root = document.querySelector('.__page_class__');
   if (!root) return;
-
-  root.addEventListener('click', function (event) {
-    var button = event.target.closest ? event.target.closest('.faq-question') : null;
-    if (!button || !root.contains(button)) return;
-    var item = button.parentElement;
-    var open = item.classList.toggle('open');
-    button.setAttribute('aria-expanded', open ? 'true' : 'false');
-  });
 
   var links = Array.prototype.slice.call(root.querySelectorAll('.sidenav .nav-card a[href^="#"]'));
   if (!links.length || typeof IntersectionObserver !== 'function') return;
