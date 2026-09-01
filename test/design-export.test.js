@@ -119,7 +119,6 @@ test('registry renders stay within the class vocabulary of the export JSX', () =
     ComparisonTable: block('comparison-table', {
       columns: [{ label: 'Vendor' }, { label: 'Share', align: 'center' }],
       rows: [{ cells: ['Salesforce', { share: { width: 38.2, value: '38.2%' } }] }],
-      caption: 'Source: HG Insights.',
     }),
   };
   // ComparisonTable composes ShareBar inside a cell, so its vocabulary is the union.

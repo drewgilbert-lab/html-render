@@ -266,7 +266,6 @@ rows:
           width: 38.2
           value: 38.2%
       - +3.1pp
-caption: "Source: HG Insights &middot; Q2 2026 &middot; Enterprise segment (500+ employees)"
 ```
 ````
 
@@ -275,9 +274,16 @@ caption: "Source: HG Insights &middot; Q2 2026 &middot; Enterprise segment (500+
 | `columns` | required, 1+ | Each needs `label`; `align` is `left`/`center`/`right` |
 | `rows` | required, 1+ | Each row's `cells` line up with the columns in order |
 | `cells` | required, 1+ | A bare string is a text cell; `share:` composes a share-bar |
-| `caption` | | The source and definition line below the table |
 
 The first cell of each row is styled as the row identity (bold, dark blue).
+
+**The block carries no caption.** The design system removed `caption` from
+`ComparisonTable` in the 2026-09-01 export — attribution is to become its own
+component rather than a table field. Until it exists, a source line still
+reaches a table through the Markdown path: a `Source: …` paragraph directly
+after a pipe table becomes that table's caption (see
+[markdown-contract.md](markdown-contract.md)). A fenced `comparison-table`
+block has no equivalent.
 
 ---
 
