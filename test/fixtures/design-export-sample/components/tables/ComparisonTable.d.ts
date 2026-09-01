@@ -12,7 +12,5 @@ export interface ComparisonTableProps {
   columns?: ComparisonColumn[];
   /** Row objects keyed by column key. Cell values may be ShareBar/TrendIndicator/Badge elements. */
   rows?: Record<string, React.ReactNode>[];
-  /** Source and definition line below the table. */
-  caption?: React.ReactNode;
 }
 export function ComparisonTable(props: ComparisonTableProps): JSX.Element;

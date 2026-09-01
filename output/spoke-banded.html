@@ -1,12 +1,12 @@
 <!-- ============================================================================
-     HG Insights page body - html-render v1.3.0
+     HG Insights page body - html-render v1.4.0
 
      Page type        spoke (banded layout)
      Title            Reporting AI Search Visibility to Leadership: A GEO Metrics Framework
      Meta description A framework for turning AI Share of Voice, Mention Rate, and Citation Rate into a leadership-ready report, including cadence, benchmarks, and what belongs in a monthly readout.
      Canonical URL    https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/reporting-ai-visibility-to-leadership/
      Published        2026-08-11    Updated  2026-08-11
-     Body             3 sections, ~1593 words
+     Body             3 sections, ~1589 words
 
      Paste this whole block into the target page container. It contains no
      <html>, <head>, site navigation, or footer - page body only.
@@ -245,7 +245,7 @@
   .render-page .related-hub-card p { font-size: 13.5px; color: var(--hg-text-mid); line-height: 1.55; margin-bottom: 8px; }
   .render-page .related-hub-link { font-size: 12.5px; font-weight: var(--fw-bold); color: var(--hg-dark-blue); }
 
-  /* ---- FAQ accordion (15) ---------------------------------- */
+  /* ---- Faq section ----------------------------------------- */
   .render-page .faq-section { padding: var(--section-pad); background: var(--hg-off-white); border-top: 1px solid var(--hg-border); }
   .render-page .faq-section .container { display: grid; grid-template-columns: 260px 1fr; gap: 64px; align-items: start; }
   .render-page .faq-label-col .section-eyebrow { margin-bottom: 8px; }
@@ -254,16 +254,11 @@
   .render-page .faq-list { display: flex; flex-direction: column; }
   .render-page .faq-item { border-bottom: 1px solid var(--hg-border); }
   .render-page .faq-item:first-child { border-top: 1px solid var(--hg-border); }
-  .render-page .faq-question { width: 100%; background: none; border: none; padding: 28px 0; text-align: left; font-family: var(--font); font-size: 16px; font-weight: 700; color: var(--hg-text-dark); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: color 0.2s; }
-  .render-page .faq-question:hover { color: var(--hg-dark-blue); }
-  .render-page .faq-question .faq-icon { font-size: 20px; color: var(--hg-blue); flex-shrink: 0; font-weight: 400; transition: transform 0.2s; }
-  .render-page .faq-answer { display: none; padding: 0 0 28px; font-size: 15px; color: var(--hg-text-mid); line-height: 1.75; }
+  .render-page .faq-question { width: 100%; padding: 28px 0 12px; text-align: left; font-family: var(--font); font-size: 16px; font-weight: 700; color: var(--hg-text-dark); display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: color 0.2s; }
+  .render-page .faq-answer { display: block; padding: 0 0 28px; font-size: 15px; color: var(--hg-text-mid); line-height: 1.75; }
   .render-page .faq-answer p { margin-bottom: 12px; }
   .render-page .faq-answer p:last-child { margin-bottom: 0; }
   .render-page .faq-answer strong { color: var(--hg-text-dark); font-weight: 700; }
-  .render-page .faq-item.open .faq-answer { display: block; }
-  .render-page .faq-item.open .faq-icon { transform: rotate(45deg); }
-  .render-page .faq-item.open .faq-question { color: var(--hg-dark-blue); }
 
   /* ---- Methodology section (16) ---------------------------- */
   .render-page .methodology-section { padding: 56px 0; background: var(--hg-off-white); border-top: 1px solid var(--hg-border); border-bottom: 1px solid var(--hg-border); }
@@ -757,32 +752,20 @@
       </div>
       <div>
         <div class="faq-list">
-          <div class="faq-item open">
-            <button class="faq-question" type="button" aria-expanded="true">
-              How do you report AI search visibility metrics to a CMO or VP Marketing?
-              <span class="faq-icon">+</span>
-            </button>
+          <div class="faq-item">
+            <h3 class="faq-question">How do you report AI search visibility metrics to a CMO or VP Marketing?</h3>
             <div class="faq-answer">Lead with a conversion or pipeline proof point, then show one benchmarked trend line against named competitors, then close on a single coverage number. Keep metric definitions in an appendix. A readout that opens with definitions asks leadership to learn a vocabulary before hearing an answer.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              Which single metric belongs in a leadership readout?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">Which single metric belongs in a leadership readout?</h3>
             <div class="faq-answer">A blended coverage rate, expressed as the percentage of tracked buyer prompts where the brand earns a citation or mention. It is one number, it moves month over month, and it survives being repeated second-hand without a definition attached.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              How often should a GEO report go to leadership?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">How often should a GEO report go to leadership?</h3>
             <div class="faq-answer">Monthly for the marketing leadership team and quarterly for the board. Content and SEO teams need weekly to biweekly prompt-level detail underneath that, but leadership reporting on a weekly cadence turns normal engine variance into noise.</div>
           </div>
           <div class="faq-item">
-            <button class="faq-question" type="button" aria-expanded="false">
-              What makes a GEO reporting line survive a budget review?
-              <span class="faq-icon">+</span>
-            </button>
+            <h3 class="faq-question">What makes a GEO reporting line survive a budget review?</h3>
             <div class="faq-answer">A tie-back to pipeline or conversion. A GEO line item competing on visibility alone loses to requests that quantify revenue impact, which is why the conversion proof point belongs first in the narrative rather than in an appendix.</div>
           </div>
         </div>
@@ -965,20 +948,12 @@
   }
   </script>
   <script>
-  /* Page behaviour: FAQ disclosure + side-nav scroll spy.
+  /* Page behaviour: side-nav scroll spy.
      Progressive enhancement only; the page is complete without it. */
   (function () {
     var root = document.currentScript ? document.currentScript.closest('.render-page') : null;
     if (!root) root = document.querySelector('.render-page');
     if (!root) return;
-
-    root.addEventListener('click', function (event) {
-      var button = event.target.closest ? event.target.closest('.faq-question') : null;
-      if (!button || !root.contains(button)) return;
-      var item = button.parentElement;
-      var open = item.classList.toggle('open');
-      button.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
 
     var links = Array.prototype.slice.call(root.querySelectorAll('.sidenav .nav-card a[href^="#"]'));
     if (!links.length || typeof IntersectionObserver !== 'function') return;

@@ -199,7 +199,6 @@ test('comparison-table renders structure and composes share-bar inside a cell', 
       { cells: ['Salesforce', { share: { width: 38.2, value: '38.2%' } }, '+3.1pp'] },
       { cells: ['SAP CRM', { share: { width: 11.8, value: '11.8%', emphasis: 'dim' } }, '-1.4pp'] },
     ],
-    caption: 'Source: HG Insights &middot; Q2 2026 &middot; Enterprise segment (500+ employees)',
   });
   assert.match(html, /^<div class="table-wrapper">/);
   assert.match(html, /<table class="comparison-table">/);
@@ -208,7 +207,8 @@ test('comparison-table renders structure and composes share-bar inside a cell', 
   assert.match(html, /<td><span class="share-bar"><span class="share-bar-track"><span class="share-bar-fill" style="width:38.2%">/);
   assert.match(html, /share-bar-fill dim/);
   assert.match(html, /<td style="text-align:center">\+3\.1pp<\/td>/);
-  assert.match(html, /<p class="table-caption">Source: HG Insights &middot; Q2 2026/);
+  // The export removed `caption`; a source line reaches a table only via Markdown.
+  assert.doesNotMatch(html, /table-caption/);
   // Only the first column carries the row identity class.
   assert.equal((html.match(/class="vendor-name"/g) || []).length, 2);
 });

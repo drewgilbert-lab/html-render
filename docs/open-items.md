@@ -17,8 +17,9 @@ node bin/html-render.js --audit /path/to/claude-design-export   # coverage vs. t
 node bin/html-render.js --components                            # what is implemented now
 ```
 
-Last reviewed: **2026-08-26**, against Claude Design export build
-`HGInsightsMarketingDesignSystem_3bf70b` and `html-render` v1.3.0.
+Last reviewed: **2026-09-01**, against Claude Design export build
+`HGInsightsMarketingDesignSystem_3bf70b` (the 2026-09-01 recompile — same namespace, different
+contents; see §4) and `html-render` v1.4.0.
 
 ---
 
@@ -93,6 +94,13 @@ page body is not the renderer's to own, so it never emits it. The Claude Design 
 site-header component at all, so there is nothing to reconcile it against; the mismatch is worth
 settling explicitly during migration so a skill author does not read it as one.
 
+**`15-faq-accordion` is named by 14 skill manifests and the accordion no longer exists.** The
+2026-09-01 export made the FAQ a static Q&A list (v1.4.0), so a skill still describing expand /
+collapse behaviour, a `+` toggle, or a first-item-open default is describing markup this renderer
+will not emit. Nothing breaks today — those skills still hand-write their own HTML — but each one's
+"Design Components" section needs the wording corrected as it migrates. The renderer's `faq`
+frontmatter contract is unchanged, so only the prose describing the rendered result is wrong.
+
 ## 3. Component coverage
 
 **Most of the 63 exported components are not implemented** (run `--audit <export-dir>` for the
@@ -101,12 +109,24 @@ convention and cannot yet join on export names). Deferred by decision, not overs
 
 **The numbered→named `source` migration is transitional and deliberate.** The 2026-08-26 pass
 moved the audit join to export component names, but only the four components it touched (`Figure`,
-`ShareBar`, `ComparisonTable`, `Callout`) adopted the new convention. Every other registry entry
-and CSS header still carries the retired numbered form and is reported by `--audit` in its
-"Legacy" bucket. Each migrates when its component is next touched — never in bulk. One carries a
-known debt into that migration: `bars` (`10-supporting-charts (mini bar)`) was built against a
-pre-refresh design the retired catalog never fully caught up with, so its reconciliation against
-the export's `MiniBarChart` needs a real comparison, not just a `source` rename.
+`ShareBar`, `ComparisonTable`, `Callout`) adopted the new convention; `Faq` joined them on
+2026-09-01. Every other registry entry and CSS header still carries the retired numbered form and
+is reported by `--audit` in its "Legacy" bucket. Each migrates when its component is next touched
+— never in bulk. One carries a known debt into that migration: `bars`
+(`10-supporting-charts (mini bar)`) was built against a pre-refresh design the retired catalog
+never fully caught up with, so its reconciliation against the export's `MiniBarChart` needs a real
+comparison, not just a `source` rename.
+
+**Table attribution has no component, by decision.** The 2026-09-01 export removed the
+`source`/`caption` prop from all six of its data-table components, and Drew's call was to follow it
+for the one implemented here (`comparison-table`): citation is not a table field right now, and
+becomes its own component later. Until that component exists there is a **gap with two named
+consumers** — `create-comparison-spoke` and `create-evaluation-guide-spoke` both specify
+`.table-caption` as the source line in their component manifests, and neither has migrated yet. The
+Markdown path still covers the plain case (a `Source: …` paragraph after a pipe table), so a
+migrating skill is only stuck when it needs a caption on a *fenced* `comparison-table`. Worth
+settling before either of those two migrates. Note also that the export left `.table-caption`
+orphaned in its own `css/tables.css`, so the removal may yet be reversed upstream.
 
 Two components remain blocked on a decision rather than on effort:
 
@@ -125,13 +145,22 @@ same cell-composition route, but a true inline-in-prose syntax is still undecide
 
 ## 4. Provenance
 
-**Resolved for the export era, recorded here for the paper trail.** `designCatalog` in
-`package.json` now records the Claude Design export build by its manifest `namespace`
+**Reopened 2026-09-01: the namespace does not identify the build.** `designCatalog` in
+`package.json` records the Claude Design export build by its manifest `namespace`
 (`HGInsightsMarketingDesignSystem_3bf70b`) — the export has no git commit and no version stamp, so
-the namespace suffix, which changes when the export is recompiled, is the build identity (decided
-with Drew, 2026-08-26). The retired catalog's inferred-commit caveat for the v1.0.0 baseline
-(`26337fc`, reconstructed rather than recorded) stays true of that historical entry but no longer
-affects anything current.
+the namespace suffix was adopted as the build identity on the premise that it **changes when the
+export is recompiled** (decided with Drew, 2026-08-26). **That premise is false.** The 2026-09-01
+recompile carries the identical namespace while differing in nine component files,
+`css/navigation.css`, `readme.md`, `_adherence.oxlintrc.json` and `_ds_bundle.js`. So two exports
+that produced two different releases here (v1.3.0 and v1.4.0) are indistinguishable by `build`, and
+the contract file this repo ships downstream stamps the same `catalog=` for both.
+
+`syncedAt` is doing the disambiguating work by accident. What would fix it properly, cheapest
+first: hash the manifest (or the `components/` + `css/` trees) at sync time and record that
+alongside the namespace; or ask whoever produces the export to emit a real version stamp. Neither
+is done. **Until then, do not read a matching `build` as "same export" — diff the folders.** The
+retired catalog's inferred-commit caveat for the v1.0.0 baseline (`26337fc`, reconstructed rather
+than recorded) stays true of that historical entry but no longer affects anything current.
 
 ## 5. Repository process
 
@@ -149,6 +178,12 @@ eventually.
 
 ## Recently closed
 
+- **2026-09-01** — v1.4.0: second export recompile synced. `faq` rebuilt as the export's static
+  Q&A list (accordion, `+` toggle and FAQ click handler all gone) and migrated to the named
+  convention; `comparison-table` lost its `caption` field (breaking for page authors, though the
+  published contract is byte-identical apart from stamps). Scope was deliberately two Changed
+  components and no New ones. Opened two items rather than closing them: the namespace no longer
+  identifies a build (§4) and table attribution now has no component (§3).
 - **2026-08-26** — v1.3.0: first consumer-reported release, driven by the
   `create-glossary-spoke` migration's gap report. `standalone: true` on spokes (no breadcrumb
   bar / `BreadcrumbList` / `isPartOf`), `author.knows_about` → `Person.knowsAbout`,

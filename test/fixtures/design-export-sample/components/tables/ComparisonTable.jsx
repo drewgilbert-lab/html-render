@@ -1,7 +1,7 @@
 import React from 'react';
 
 // columns: [{ key, label, align }]  rows: [{ [key]: ReactNode }] — first column renders as the vendor name.
-export function ComparisonTable({ columns = [], rows = [], caption }) {
+export function ComparisonTable({ columns = [], rows = [] }) {
   const firstKey = columns.length ? columns[0].key : null;
   return (
     <>
@@ -27,7 +27,6 @@ export function ComparisonTable({ columns = [], rows = [], caption }) {
           </tbody>
         </table>
       </div>
-      {caption ? <p className="table-caption">{caption}</p> : null}
     </>
   );
 }

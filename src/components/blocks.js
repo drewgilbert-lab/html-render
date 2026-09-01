@@ -556,7 +556,6 @@ const comparisonTable = {
         },
       },
     },
-    caption: { type: 'text', hint: 'the source and definition line below the table' },
   },
   render(value) {
     const head = el(
@@ -603,7 +602,7 @@ const comparisonTable = {
       { class: 'table-wrapper' },
       `\n${indent(el('table', { class: 'comparison-table' }, `\n${indent(lines(head, body))}\n`))}\n`,
     );
-    return lines(table, value.caption ? el('p', { class: 'table-caption' }, value.caption) : '');
+    return table;
   },
 };
 

@@ -1,6 +1,6 @@
 {
   "name": "html-render",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Deterministic Markdown-to-HTML page-body renderer. Renderer-ready Markdown in, an approved design-system HTML page body out, for insertion into an existing page container.",
   "type": "commonjs",
   "private": true,
@@ -14,7 +14,7 @@
   "designCatalog": {
     "catalog": "HG Insights Marketing Design System (Claude Design export)",
     "build": "HGInsightsMarketingDesignSystem_3bf70b",
-    "syncedAt": "2026-08-26"
+    "syncedAt": "2026-09-01"
   },
   "scripts": {
     "render:examples": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md --config examples/html-render.config.json --out-dir output --preview",
