@@ -10,6 +10,68 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
+## v1.4.0 — 2026-09-01, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
+
+First sync against the **2026-09-01 recompile** of the Claude Design export (staged as
+`HG Insights Marketing Design System 9-1`). Two components changed; no New components taken —
+Drew's scope call, 2026-09-01, with 53 still unimplemented (`--audit` for the live list).
+
+**The manifest `namespace` did not change across the recompile.** Nine component files,
+`css/navigation.css`, `readme.md`, `_adherence.oxlintrc.json` and `_ds_bundle.js` all differ from
+the build v1.2.0 and v1.3.0 synced against, yet the namespace is still
+`HGInsightsMarketingDesignSystem_3bf70b`. The suffix was adopted as the build identity precisely
+because it was believed to change on recompile; it does not. `designCatalog.syncedAt` is the only
+field that moves this release, so the two exports are indistinguishable by `build` alone. Recorded
+in [open-items.md](docs/open-items.md) §4.
+
+- **Changed** `faq` (`Faq`) — the export turned the FAQ from an accordion into a **static
+  two-column Q&A list**. Every answer renders expanded, `button.faq-question` +
+  `span.faq-icon` become a plain `h3.faq-question`, and `faq-item open` / `aria-expanded` are
+  gone. `script.js` lost the FAQ click handler — it had nothing left to toggle — and now carries
+  only the side-nav scroll spy. CSS ported verbatim from the export's `css/navigation.css`
+  (found by searching `globalCssPaths`, not by the `components/navigation/` folder name):
+  `.faq-question` drops `background`/`border`/`cursor` and repads to `28px 0 12px`, `.faq-answer`
+  becomes `display: block`, and `.faq-question:hover`, `.faq-question .faq-icon` and the three
+  `.faq-item.open` rules are deleted, as the export deleted them. Taken as a deliberate, finished
+  redesign: the `.jsx`, `.d.ts`, `.prompt.md`, CSS and the readme's "Web only" list all changed
+  coherently, and the readme also dropped the `+`-rotates-into-`×` glyph from its approved set.
+  **Rendered output changes**: six FAQ items per pillar page lose a `+` glyph, so the comment
+  header's word count drops accordingly (2425 → 2419 on `output/pillar.html`).
+- **Changed** `comparison-table` (`ComparisonTable`) — **BREAKING: the `caption` field is
+  removed.** A page passing `caption:` to the block now fails validation on an unknown field.
+  The export removed `caption` from the component's `.jsx`, `.d.ts` and `.prompt.md`. The
+  evidence was mixed and the call was Drew's (2026-09-01): citation should not be a table field
+  right now, and becomes its own component later. Mixed because the same recompile left
+  `.table-caption` orphaned in `css/tables.css` and deleted the readme's entire "Content
+  fundamentals" section — the doctrine that had mandated `figure · segment · period · n` on every
+  exhibit. `.table-caption` **stays** in `styles.css`: the Markdown path still emits it, where a
+  `Source: …` paragraph directly after a pipe table becomes that table's caption. That affordance
+  is this renderer's own, not a design-system prop, and is untouched — so a source line can still
+  reach a table, just not through the fenced block.
+- **Not synced** the same `source`/`caption` prop removal on `CohortCompare`, `CohortSwitcher`,
+  `InteractiveTable`, `TechStackLayers` and `VendorProfile`. None is implemented here, so there
+  was nothing to change; noted so the next sync does not read their absence as an oversight.
+- **Not synced** `Button.prompt.md`'s changed usage example (`Explore Free →` → `Book a Demo`).
+  Documentation-only in the export, and `Button` is not implemented here.
+- **Migration** both touched components adopted the named convention: `faq`'s source
+  `15-faq-accordion` → `Faq` and its CSS header `FAQ accordion (15)` → `Faq section`.
+  `--audit` legacy entries fall 46 → 44 and covered rises 4 → 5.
+- **Fixture** `test/fixtures/design-export-sample/`'s `ComparisonTable` triad is verbatim from the
+  new export again — the caption removal was its only drift. Its `css/tables.css` deliberately
+  keeps the now-orphaned `.table-caption` rule, mirroring the real export.
+
+**Consumer note (breaking: yes for page authors; published contract: unchanged).** The generated
+contract file is byte-identical to the copy in `geo-spoke-builder` apart from its `version=` /
+`commit=` stamp — verified by regenerating it and diffing. `caption` was never published to
+consumers: the contract lists in-flow blocks by summary and design source, not by field, and
+`faq`'s frontmatter fields did not change. The break is therefore confined to hand-authored
+Markdown, and `docs/component-library.md` — a doc `geo-spoke-builder` skills do read — is where
+the field was documented. No page, example, or test in either repo passed `caption:` to the block.
+`create-glossary-spoke`, the one migrated consumer skill, sources its table captions from the
+Markdown path and is unaffected.
+
+---
+
 ## v1.3.0 — 2026-08-26, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
 
 Contract extensions and one component change, all driven by the gap report from
