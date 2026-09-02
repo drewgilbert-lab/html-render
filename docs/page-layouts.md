@@ -85,16 +85,16 @@ variants, chosen with `layout:` in frontmatter.
 
 ### `layout: article` (default)
 
-Light article hero, then one flowing narrow column. Used by definition,
-glossary, comparison, and decision-tree spokes.
+Light article hero, then a reading column plus a sticky right-rail nav. Used by
+glossary / definition spokes.
 
 ```
 breadcrumb                  (omitted when standalone: true)
 article-hero                H1 + byline + pills on white
-article-body
-  thesis block              (optional) from hero.thesis
-  lead copy                 (optional) any body copy before the first "##"
-  "##" sections             separated by section rules
+spoke-body-section
+  spoke-col article-body    thesis? + lead copy? + "##" sections
+  side-nav                  sticky right-rail nav with scroll-spy;
+                            footer Book a Demo from cta primary
 methodology                 (optional)
 faq
 citations                   (optional)
@@ -102,8 +102,10 @@ related
 cta
 ```
 
-This variant has no gradient hero, no stat grid, and no side nav. Supplying
-`hero.stats` is an error that points you at `layout: banded`.
+This variant has no gradient hero and no stat grid. Supplying `hero.stats` is an
+error that points you at `layout: banded`. The rail is always present; authors
+may set optional `side_nav.label` / `side_nav.note` and optional `intro.toc` to
+control the link list (there is no visible jump nav).
 
 A spoke in either variant may declare `standalone: true` — a page with no
 parent hub. It renders no breadcrumb bar and emits no `BreadcrumbList` and no
@@ -113,16 +115,22 @@ invented.
 
 ### `layout: banded`
 
-Gradient stat hero, then full-width alternating section bands. Used by
-methodology, benchmark-report, and reporting-framework spokes.
+Gradient stat hero, then alternating section bands in the reading column plus
+the same right-rail nav. Used by methodology, benchmark-report, and
+reporting-framework spokes (and every remaining GEO format — see the mapping
+table).
 
 ```
 breadcrumb                  (omitted when standalone: true)
 hero                        gradient band with the stat grid
 freshness-bar               (optional)
-intro-toc                   (optional)
-"##" sections               full-width bands, alternating white / tinted,
-                            left-aligned section headers
+intro copy                  (optional) eyebrow, title, body; no jump-nav column
+spoke-body-section
+  spoke-col                 "##" sections as bands, alternating white / tinted,
+                            left-aligned section headers, not full-bleed under
+                            the rail
+  side-nav                  sticky right-rail nav with scroll-spy;
+                            footer Book a Demo from cta primary
 methodology                 (optional)
 faq
 citations                   (optional)
@@ -130,27 +138,32 @@ related
 cta
 ```
 
+The rail is the only on-page section nav. `intro.toc`, when supplied, feeds the
+rail's link list rather than a visible hub-toc. Intro copy stays when `intro` is
+present.
+
 ### Mapping the GEO spoke formats onto the two variants
 
 The eleven GEO spoke formats are content formats, not layouts. The choice turns
 on one question: does the format open with a stat hero (a headline metric in a
-stat card, a freshness bar, a jump nav) or with a definition that flows straight
-into copy? Every format whose design specification opens with the stat hero is
-`banded`; only the glossary opens on the light article hero.
+stat card, a freshness bar) or with a definition that flows straight into copy?
+Every format whose design specification opens with the stat hero is `banded`;
+only the glossary opens on the light article hero. Both variants include the
+sticky side nav.
 
 | Spoke format | Variant | Why |
 |---|---|---|
 | Glossary / definition | `article` | Leads with a definition block, reads as one article; no stat card |
 | Comparison | `banded` | Opens with the headline differentiating metric and a freshness bar; the matrix sits in its own band |
 | Decision tree | `banded` | The gate thresholds ride in the hero's stat cards; gates are sequential bands |
-| Data dictionary | `banded` | Schema-coverage stat hero, freshness bar, jump nav to the field table |
-| Listicle | `banded` | Headline metric in the hero, jump nav with one link per item |
+| Data dictionary | `banded` | Schema-coverage stat hero, freshness bar, rail links to the field table |
+| Listicle | `banded` | Headline metric in the hero, rail with one link per item |
 | Solution brief | `banded` | The vertical's headline stat leads; problem / solution bands follow |
 | Methodology | `banded` | Stat hero plus distinct framework stages |
 | Benchmark report | `banded` | Leads with proprietary numbers |
 | Evaluation guide | `banded` | Distinct scoring, red-flag, and ROI zones |
 | Integration blueprint | `banded` | Distinct architecture and deployment zones |
-| Pillar guide (spoke) | `banded` | Long, with clearly separated sub-topics and a jump nav |
+| Pillar guide (spoke) | `banded` | Long, with clearly separated sub-topics and a side-nav rail |
 
 Record the format itself in `eyebrow` and in the `tag` of the cards that link to
 the page. It is a label, not a layout. (Until v1.5.0 this table mapped five of

@@ -203,6 +203,7 @@ function contractFor(pageType) {
   if (pageType === 'spoke') {
     fields.layout = { type: 'enum', values: SPOKE_LAYOUTS, default: 'article' };
     fields.related.required = true;
+    fields.side_nav = { type: 'object', fields: SIDE_NAV_FIELDS };
     fields.standalone = {
       type: 'bool',
       default: false,

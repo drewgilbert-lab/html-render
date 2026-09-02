@@ -1,5 +1,5 @@
 <!-- ============================================================================
-     HG Insights page body - html-render v1.5.0
+     HG Insights page body - html-render v1.6.0
 
      Page type        pillar
      Title            How to Measure Your Brand's AI Search Visibility
@@ -181,6 +181,7 @@
   /* ---- Hub intro + TOC (06) --------------------------------- */
   .render-page .hub-intro-section { padding: 64px 0 48px; background: var(--hg-white); border-bottom: 1px solid var(--hg-border); }
   .render-page .hub-intro-section .container { display: grid; grid-template-columns: 1fr 340px; gap: 64px; align-items: start; }
+  .render-page .hub-intro-section.no-toc .container { grid-template-columns: 1fr; }
   .render-page .hub-intro-eyebrow { font-size: 12px; font-weight: var(--fw-bold); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--hg-dark-blue); margin-bottom: 10px; }
   .render-page .hub-intro-title { font-weight: var(--fw-black); font-size: 32px; color: var(--hg-text-dark); line-height: var(--lh-tight); margin-bottom: 20px; }
   .render-page .hub-intro-text p { font-size: 17px; color: var(--hg-text-mid); line-height: 1.75; margin-bottom: 16px; }
@@ -298,6 +299,8 @@
   .render-page .nav-card ul li a:hover { color: var(--hg-dark-blue); background: var(--hg-bg); }
   .render-page .nav-card ul li a.active { border-left-color: var(--hg-light-blue); color: var(--hg-dark-blue); background: rgba(184,221,241,0.3); font-weight: 800; }
   .render-page .nav-foot { border-top: 1px solid var(--hg-border); padding: 10px 16px; font-size: 12.5px; color: var(--hg-text-mid); line-height: 1.55; font-style: italic; }
+  .render-page .nav-cta { border-top: 1px solid var(--hg-border); padding: 12px 16px; }
+  .render-page .nav-cta .btn-primary { display: block; width: 100%; box-sizing: border-box; }
 
   /* ---- Thesis block (31) ----------------------------------- */
   .render-page .thesis-wrap { background: var(--hg-white); padding: 40px 0 8px; }
@@ -447,6 +450,9 @@
   .render-page .main-col p strong { color: var(--hg-text-dark); font-weight: var(--fw-bold); }
   .render-page .main-col h3 { font-size: var(--fs-h3); font-weight: var(--fw-black); color: var(--hg-dark-blue); margin: 24px 0 12px; line-height: 1.3; }
 
+  .render-page .spoke-body-section .container { display: grid; grid-template-columns: 1fr 260px; gap: var(--space-12); align-items: start; }
+  .render-page .spoke-col { min-width: 0; }
+
   .render-page .page-section { padding: 56px 0; background: var(--hg-white); }
   .render-page .page-section.tinted { background: var(--hg-off-white); }
   .render-page .page-section p { font-size: 17px; color: var(--hg-text-mid); line-height: 1.75; margin-bottom: 16px; max-width: 900px; }
@@ -548,6 +554,8 @@
     .render-page .article-body-section .container { display: flex; flex-direction: column; }
     .render-page .main-col { max-width: none; }
     .render-page .sidenav { position: static; width: 100%; margin-top: 32px; }
+    .render-page .spoke-body-section .container { display: flex; flex-direction: column; }
+    .render-page .spoke-body-section .sidenav { order: -1; }
     .render-page .before-after { grid-template-columns: 1fr; }
     .render-page .bf-figure { font-size: 64px; }
     .render-page .bf-compare { grid-template-columns: 1fr; gap: 16px; }

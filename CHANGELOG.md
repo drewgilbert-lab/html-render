@@ -10,6 +10,35 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
+## v1.6.0 — 2026-09-02, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
+
+A template release, not a catalog refresh. Both spoke layouts now always compose
+the sticky right-rail `side-nav` that pillar already had; banded spokes drop the
+intro jump-nav column. Markdown (`intro` / `cta`) is unchanged; rendered chrome
+on spokes is not. No new design-system component: nav-card colors, type, 10px
+radius, and the light-blue active accent are untouched.
+
+**Layout (pipeline).** Both spoke variants now compose the sticky right-rail
+`side-nav`. This is a template change, not a new design component: nav-card
+chrome (colors, type, 10px radius, light-blue active accent) is unchanged.
+
+- **Changed** `layout: article` and `layout: banded` always emit `side-nav`.
+  Links stay derived from body sections (or explicit `intro.toc`). The footer
+  Book a Demo button is assembled from the first `cta.buttons` entry with
+  `variant: primary` (default); `cta` was already required, so there is no new
+  required frontmatter key. Optional `side_nav` on spoke may override `label`
+  and `note` only.
+- **Changed** banded spokes no longer render the intro jump-nav column
+  (`.hub-toc`). Intro copy (`intro.eyebrow`, `title`, `body`) still renders
+  when `intro` is present; the rail is the only on-page section nav.
+- **Changed** spoke reading column is the leftover width inside the 1340px
+  container (gutters 24px, 48px gap, 260px rail ≈ 984px), not pillar's 780px
+  `.main-col`. Spokes use `.spoke-body-section` / `.spoke-col` so pillar's
+  narrow column is untouched. Wide in-flow blocks (comparison tables) live in
+  that column.
+
+---
+
 ## v1.5.0 — 2026-09-01, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
 
 The second consumer-driven release. `geo-spoke-builder` is migrating its remaining twelve

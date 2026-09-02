@@ -1,6 +1,6 @@
 {
   "name": "html-render",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Deterministic Markdown-to-HTML page-body renderer. Renderer-ready Markdown in, an approved design-system HTML page body out, for insertion into an existing page container.",
   "type": "commonjs",
   "private": true,

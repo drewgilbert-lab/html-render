@@ -296,7 +296,11 @@ const introToc = {
           )}\n`,
         )
       : '';
-    return el('section', { class: 'hub-intro-section', id: 'overview' }, `\n${indent(container(lines(text, toc)))}\n`);
+    return el(
+      'section',
+      { class: toc ? 'hub-intro-section' : 'hub-intro-section no-toc', id: 'overview' },
+      `\n${indent(container(lines(text, toc)))}\n`,
+    );
   },
 };
 
@@ -308,6 +312,13 @@ const sideNav = {
     label: { type: 'text', default: 'On this page' },
     items: { type: 'list', required: true, min: 1, fields: { label: { type: 'text', required: true }, anchor: { type: 'plain', required: true } } },
     note: { type: 'text' },
+    button: {
+      type: 'object',
+      fields: {
+        label: { type: 'text', required: true },
+        url: { type: 'url', required: true },
+      },
+    },
   },
   render(value) {
     const nav = el(
@@ -322,6 +333,13 @@ const sideNav = {
             `\n${indent(lines(value.items.map((item) => el('li', null, el('a', { href: `#${item.anchor}` }, item.label)))))}\n`,
           ),
           value.note ? el('div', { class: 'nav-foot' }, value.note) : '',
+          value.button
+            ? el(
+                'div',
+                { class: 'nav-cta' },
+                `\n${indent(el('a', { class: 'btn-primary', href: value.button.url }, value.button.label))}\n`,
+              )
+            : '',
         ),
       )}\n`,
     );

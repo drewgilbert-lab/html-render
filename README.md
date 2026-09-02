@@ -265,7 +265,7 @@ runnable as `/sync-design-components`. Each run appends to
 |---|---|---|
 | **Pillar** | Parent hub of a conversation space; routes down to every cluster | Gradient hero → intro + TOC → narrow article column with sticky side nav |
 | **Cluster** | Domain router; defines one domain and indexes its spokes | Gradient hero → intro + TOC → scope section → resource index → alternating section bands |
-| **Spoke** | One conversation inside a cluster | `article` (light hero, flowing column) or `banded` (stat hero, alternating bands) |
+| **Spoke** | One conversation inside a cluster | `article` (light hero, reading column + sticky side nav) or `banded` (stat hero, alternating bands + sticky side nav) |
 
 The two Spoke variants are the two legitimate variants present in the supplied
 designs; the eleven GEO spoke *formats* map onto them as content formats, not

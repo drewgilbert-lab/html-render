@@ -98,7 +98,7 @@ freshness:                     # the dark band under the hero
   cadence: How often they refresh
   link_text: See how these figures are tracked
   link_url: "#faq"
-intro:                         # the two-column intro + jump nav
+intro:                         # pillar/cluster: intro copy + jump nav; spoke: optional copy (`toc` feeds the rail)
   eyebrow: About This Guide
   title: What this guide covers
   body: |
@@ -218,8 +218,8 @@ index when it has one: a cluster's resource index, or a pillar's list of
 | Key | Page class | Required | What it does |
 |---|---|---|---|
 | `hero.stats` | pillar, cluster, banded spoke | yes | The stat-card grid in the gradient hero |
-| `intro` | pillar, cluster | yes | Intro copy plus the sticky jump nav |
-| `side_nav` | pillar | no | `label` and `note` for the right-rail nav; its links are derived |
+| `intro` | pillar, cluster (required); spoke (optional) | see class | Pillar/cluster: intro copy plus the sticky jump nav. Spoke: intro copy only; `intro.toc` feeds the right-rail link list rather than a visible jump nav |
+| `side_nav` | pillar, spoke | no | `label` and `note` for the right-rail nav. Links are derived from body sections (or `intro.toc`). On spoke, the footer Book a Demo button is assembled from the first `cta.buttons` entry with `variant: primary` (default); it is not a `side_nav` key |
 | `resource_index` | cluster | yes | The card grid indexing every spoke in the cluster |
 | `related` | spoke | yes | The closing cross-link band |
 | `layout` | spoke | no | `article` (default) or `banded` — see [page-layouts.md](page-layouts.md) |
