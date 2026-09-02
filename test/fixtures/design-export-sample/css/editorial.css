@@ -1,0 +1,8 @@
+/* HG Insights editorial CSS — side nav, thesis block, approach table, limitations,
+   editorial hero, meta pills, byline, citations, social proof, expert quote. */
+
+/* --- Limitations cards --- */
+.limitations-cards{display:grid;gap:14px;margin:4px 0 0}
+.limit{border:1px solid var(--hg-border-light);border-left:4px solid var(--hg-melon);border-radius:0 var(--hg-radius) var(--hg-radius) 0;padding:18px 22px;background:var(--hg-white)}
+.limit h3{margin:0 0 8px;font-size:17px;font-weight:800;color:var(--hg-melon)}
+.limit p{margin:0;font-size:var(--fs-body);color:var(--hg-text-mid);line-height:1.7}

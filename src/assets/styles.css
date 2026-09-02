@@ -452,6 +452,68 @@
 .__page_class__ .article-body p strong { color: var(--hg-text-dark); }
 .__page_class__ .article-body .section-subtitle { max-width: 760px; margin: 0 0 var(--space-4); }
 
+/*
+ * The four blocks below sit after the page-composition rules on purpose: they
+ * carry their own h3 and p treatments, and the composition rules for
+ * `.page-section`, `.main-col`, and `.article-body` would otherwise win the
+ * cascade at equal specificity. Values are the export's, verbatim.
+ */
+
+/* ---- Limitations cards ------------------------------ */
+.__page_class__ .limitations-cards { display: grid; gap: 14px; margin: 4px 0 0; }
+.__page_class__ .limitations-cards .limit { border: 1px solid var(--hg-border-light); border-left: 4px solid var(--hg-melon); border-radius: 0 var(--hg-radius) var(--hg-radius) 0; padding: 18px 22px; background: var(--hg-white); }
+.__page_class__ .limitations-cards .limit h3 { margin: 0 0 8px; font-size: 17px; font-weight: 800; color: var(--hg-melon); }
+.__page_class__ .limitations-cards .limit p { margin: 0; font-size: var(--fs-body); color: var(--hg-text-mid); line-height: 1.7; max-width: none; }
+
+/* ---- Trend indicator -------------------------------- */
+.__page_class__ .trend-indicator { font-weight: 800; white-space: nowrap; }
+.__page_class__ .trend-indicator.up { color: var(--hg-positive); }
+.__page_class__ .trend-indicator.down { color: var(--hg-negative); }
+.__page_class__ .trend-indicator.flat { color: var(--hg-text-light); }
+
+/* ---- Key insights panel ----------------------------- */
+.__page_class__ .insights-panel { background: var(--grad-subtle); border: 1px solid rgba(0,88,163,0.12); border-radius: 12px; padding: 32px; margin: 20px 0; }
+.__page_class__ .insights-panel-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hg-blue); margin-bottom: 20px; display: flex; align-items: center; gap: 6px; }
+.__page_class__ .insights-panel-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--hg-blue); flex-shrink: 0; }
+.__page_class__ .insights-panel h3 { font-weight: 800; font-size: 18px; color: var(--hg-text-dark); margin: 0 0 20px; line-height: 1.3; }
+.__page_class__ .insight-list { display: flex; flex-direction: column; gap: 16px; }
+.__page_class__ .insight-item { display: flex; gap: 12px; align-items: flex-start; }
+.__page_class__ .insight-icon { width: 24px; height: 24px; background: var(--hg-dark-blue); border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+.__page_class__ .insight-icon svg { width: 12px; height: 12px; }
+.__page_class__ .insight-item .insight-text { font-size: 14px; color: var(--hg-text-mid); line-height: 1.6; margin: 0; max-width: none; }
+.__page_class__ .insight-item .insight-text strong { color: var(--hg-text-dark); font-weight: 700; }
+.__page_class__ .insight-attribution { font-size: 12px; color: var(--hg-blue); font-weight: 600; margin-top: 4px; }
+
+/* ---- Bar chart -------------------------------------- */
+.__page_class__ .chart-wrapper { background: var(--hg-white); border: 1px solid var(--hg-border-light); border-radius: 12px; padding: 32px; margin: 20px 0; }
+.__page_class__ .chart-title-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; gap: 16px; }
+.__page_class__ .chart-title { font-weight: 800; font-size: 16px; color: var(--hg-text-dark); line-height: 1.3; }
+.__page_class__ .chart-date-badge { font-size: 12px; color: var(--hg-text-light); background: var(--hg-off-white); padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; font-weight: 600; }
+.__page_class__ .bar-chart { display: flex; flex-direction: column; gap: 14px; }
+.__page_class__ .bar-row { display: grid; grid-template-columns: 140px 1fr 52px; align-items: center; gap: 12px; }
+.__page_class__ .bar-label { font-size: 14px; font-weight: 700; color: var(--hg-text-dark); text-align: right; }
+.__page_class__ .bar-track { background: var(--hg-off-white); border-radius: 4px; height: 32px; overflow: hidden; }
+.__page_class__ .bar-fill { height: 100%; border-radius: 4px; background: var(--grad-dark-blue-purple); }
+.__page_class__ .bar-fill.accent { background: linear-gradient(90deg, var(--hg-blue) 0%, var(--hg-light-blue) 100%); }
+.__page_class__ .bar-fill.dim { background: linear-gradient(90deg, var(--hg-gray) 0%, var(--hg-gray-light) 100%); }
+.__page_class__ .bar-seg.s1, .__page_class__ .bar-subbar.s1, .__page_class__ .bar-legend-swatch.s1 { background: var(--grad-dark-blue-purple); }
+.__page_class__ .bar-seg.s2, .__page_class__ .bar-subbar.s2, .__page_class__ .bar-legend-swatch.s2 { background: var(--hg-blue); }
+.__page_class__ .bar-seg.s3, .__page_class__ .bar-subbar.s3, .__page_class__ .bar-legend-swatch.s3 { background: var(--hg-light-blue); }
+.__page_class__ .bar-seg.dim, .__page_class__ .bar-subbar.dim, .__page_class__ .bar-legend-swatch.dim { background: var(--hg-gray); }
+.__page_class__ .bar-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 18px; }
+.__page_class__ .bar-legend-item { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--hg-text-mid); }
+.__page_class__ .bar-legend-swatch { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.__page_class__ .bar-chart.stacked .bar-track { display: flex; }
+.__page_class__ .bar-seg { height: 100%; min-width: 2px; }
+.__page_class__ .bar-seg:first-child { border-radius: 4px 0 0 4px; }
+.__page_class__ .bar-seg:last-child { border-radius: 0 4px 4px 0; }
+.__page_class__ .bar-chart.grouped .bar-group { display: flex; flex-direction: column; gap: 5px; justify-content: center; }
+.__page_class__ .bar-subbar { height: 13px; border-radius: 4px; min-width: 2px; }
+.__page_class__ .bar-value { font-size: 14px; font-weight: 800; color: var(--hg-dark-blue); }
+.__page_class__ .chart-footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--hg-border); font-size: 12px; color: var(--hg-text-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.__page_class__ .chart-footer a { color: var(--hg-blue); text-decoration: none; font-weight: 600; }
+.__page_class__ .chart-footer a:hover { color: var(--hg-blue-hover); }
+
 /* ---- Responsive ------------------------------------- */
 @media (max-width: 1024px) {
   .__page_class__ .data-cuts-grid { grid-template-columns: 1fr 1fr; }
@@ -474,6 +536,7 @@
   .__page_class__ .bf-compare { grid-template-columns: 1fr; gap: 16px; }
   .__page_class__ .bf-compare-vs { display: none; }
   .__page_class__ .mini-bar-row { grid-template-columns: 120px 1fr 48px; }
+  .__page_class__ .bar-row { grid-template-columns: 110px 1fr 52px; }
 }
 @media (max-width: 720px) {
   .__page_class__ .hero h1 { font-size: 32px; }

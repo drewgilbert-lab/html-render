@@ -90,7 +90,9 @@ items:
 
 | Key | | Notes |
 |---|---|---|
+| `howto` | `true` | Marks this block as the source of the page's `HowTo` steps; needs `howto:` in frontmatter (see [markdown-contract.md](markdown-contract.md#format-specific-schema-nodes)) |
 | `items` | required, 2+ | Each needs `title` and `body`; badges are numbered in order |
+| `items[].id` | | A lowercase anchor for the step (`level-1`); rendered as the step's `id` and used as the `HowToStep` url |
 
 ### `before-after` — 50-before-after
 
@@ -273,7 +275,7 @@ rows:
 |---|---|---|
 | `columns` | required, 1+ | Each needs `label`; `align` is `left`/`center`/`right` |
 | `rows` | required, 1+ | Each row's `cells` line up with the columns in order |
-| `cells` | required, 1+ | A bare string is a text cell; `share:` composes a share-bar |
+| `cells` | required, 1+ | A bare string is a text cell; `share:` composes a share-bar; `trend:` composes a trend-indicator |
 
 The first cell of each row is styled as the row identity (bold, dark blue).
 
@@ -284,6 +286,109 @@ reaches a table through the Markdown path: a `Source: …` paragraph directly
 after a pipe table becomes that table's caption (see
 [markdown-contract.md](markdown-contract.md)). A fenced `comparison-table`
 block has no equivalent.
+
+### `trend-indicator` — TrendIndicator
+
+A directional value: the arrow plus the figure. Up is blue, down is melon, flat
+is grey; the brand bans green. Its main home is a `comparison-table` cell,
+where the table composes it from a `trend:` cell; standalone it renders one
+inline span.
+
+````markdown
+```trend-indicator
+direction: up
+value: +3.1pp
+```
+````
+
+| Key | | Notes |
+|---|---|---|
+| `direction` | `up` \| `down` \| `flat` | Default `flat` |
+| `value` | required | The figure; the arrow glyph is supplied |
+
+### `limitations-cards` — LimitationsCards
+
+A stacked set of named caveats, each with a melon left-border accent. Usually
+sits right after a methodology section. The design intends three or more; for a
+single caveat use `callout` with `tone: warn`, or `methodology.caveat`.
+
+````markdown
+```limitations-cards
+items:
+  - title: Install share is not revenue share
+    body: A technology with broad adoption among smaller companies may show high install share while representing a small fraction of revenue.
+  - title: Geographic signal density varies
+    body: Coverage is strongest in North America, Western Europe, and Australia.
+```
+````
+
+| Key | | Notes |
+|---|---|---|
+| `items` | required, 2+ | Each needs `title` and `body` |
+
+### `key-insights` — KeyInsights
+
+A panel of analyst takeaways: check-icon bullets, each with a bold lead clause,
+supporting detail, and an attribution pointing at the exhibit that backs it.
+Sits beside a chart or table.
+
+````markdown
+```key-insights
+title: What the data tells us about the CRM market right now
+items:
+  - lead: Salesforce is consolidating enterprise dominance.
+    text: Install share grew from 35.1% to 38.2% year over year.
+    attribution: See primary chart
+```
+````
+
+| Key | | Notes |
+|---|---|---|
+| `label` | | The uppercase kicker; defaults to `Analyst Insights` |
+| `title` | | Optional heading |
+| `items` | required, 1+ | Each needs `text`; `lead` and `attribution` are optional |
+
+### `bar-chart` — BarChart
+
+The card-framed horizontal bar chart that ranks items by one metric, with
+`stacked` and `grouped` variants. Pick one variant per page. Pairs naturally
+with `key-insights`.
+
+````markdown
+```bar-chart
+title: CRM Install Share, Enterprise Segment
+subtitle: 500+ employees &middot; 47,218 installs
+date_badge: Q2 2026
+rows:
+  - label: Salesforce
+    value: 38.2%
+  - label: HubSpot
+    value: 11.8%
+    emphasis: accent
+  - label: Other
+    value: 7.9%
+    emphasis: dim
+source: Source: HG Insights &middot; Q2 2026 &middot; 47,218 verified installs
+```
+````
+
+| Key | | Notes |
+|---|---|---|
+| `variant` | `single` \| `stacked` \| `grouped` | Default `single` |
+| `title` | required | |
+| `subtitle` | | The small grey line under the title |
+| `date_badge` | | The pill at the top right, e.g. `Q2 2026` |
+| `rows` | required, 1+ | Each needs `label`; `value` is the printed figure |
+| `rows[].width` | | Single variant: bar width as a percent. Derived from the leading number in `value`, indexed to the largest, when omitted |
+| `rows[].emphasis` | `default` \| `accent` \| `dim` | Single variant |
+| `rows[].segments` | | Stacked variant: `{ width, series, title? }` per part |
+| `rows[].bars` | | Grouped variant: `{ width, series }` per series |
+| `legend` | | `{ label, series }`; required for `stacked` and `grouped` |
+| `source` | | The footer source line |
+| `download_label`, `download_url` | | Both or neither: the data-download link in the footer |
+
+Series are `s1` (gradient), `s2` (blue), `s3` (light blue), and `dim` (gray);
+keep them consistent between the bars and the legend.
 
 ---
 

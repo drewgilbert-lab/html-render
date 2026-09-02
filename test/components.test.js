@@ -213,6 +213,107 @@ test('comparison-table renders structure and composes share-bar inside a cell', 
   assert.equal((html.match(/class="vendor-name"/g) || []).length, 2);
 });
 
+test('comparison-table composes trend-indicator inside a trend cell', () => {
+  const html = block('comparison-table', {
+    columns: [{ label: 'Vendor' }, { label: 'YoY Change', align: 'center' }],
+    rows: [
+      { cells: ['Salesforce', { trend: { direction: 'up', value: '+3.1pp' } }] },
+      { cells: ['SAP CRM', { trend: { direction: 'down', value: '-1.4pp' } }] },
+      { cells: ['Other', { trend: { value: 'flat' } }] },
+    ],
+  });
+  assert.match(html, /<td style="text-align:center"><span class="trend-indicator up">&#9650; \+3\.1pp<\/span><\/td>/);
+  assert.match(html, /<span class="trend-indicator down">&#9660; -1\.4pp<\/span>/);
+  assert.match(html, /<span class="trend-indicator flat">&rarr; flat<\/span>/);
+});
+
+test('trend-indicator renders standalone with the arrow the direction implies', () => {
+  assert.equal(block('trend-indicator', { direction: 'up', value: '+3.1pp' }), '<span class="trend-indicator up">&#9650; +3.1pp</span>');
+  assert.equal(block('trend-indicator', { value: 'flat' }), '<span class="trend-indicator flat">&rarr; flat</span>');
+});
+
+test('limitations-cards renders one melon-accented card per caveat', () => {
+  const html = block('limitations-cards', {
+    items: [
+      { title: 'Install share is not revenue share', body: 'Broad adoption can mean a small revenue fraction.' },
+      { title: 'Geographic signal density varies', body: 'Coverage is strongest in North America.' },
+    ],
+  });
+  assert.match(html, /^<div class="limitations-cards">/);
+  assert.equal((html.match(/class="limit"/g) || []).length, 2);
+  assert.match(html, /<h3>Install share is not revenue share<\/h3>\s*<p>Broad adoption/);
+});
+
+test('key-insights renders the label, an optional title, and check-icon items with attribution', () => {
+  const html = block('key-insights', {
+    title: 'What the data tells us',
+    items: [
+      { lead: 'Salesforce is consolidating.', text: 'Install share grew from 35.1% to 38.2% YoY.', attribution: 'See primary chart' },
+      { text: 'A finding with no lead clause.' },
+    ],
+  });
+  assert.match(html, /^<div class="insights-panel">/);
+  assert.match(html, /<div class="insights-panel-label">Analyst Insights<\/div>/);
+  assert.match(html, /<h3>What the data tells us<\/h3>/);
+  assert.match(html, /<p class="insight-text"><strong>Salesforce is consolidating\.<\/strong> Install share grew/);
+  assert.match(html, /<div class="insight-attribution">See primary chart<\/div>/);
+  assert.match(html, /<p class="insight-text">A finding with no lead clause\.<\/p>/);
+  assert.equal((html.match(/class="insight-icon"/g) || []).length, 2);
+  assert.match(html, /<svg viewBox="0 0 12 12"/);
+
+  const relabelled = block('key-insights', { label: 'Key Takeaways', items: [{ text: 'One.' }] });
+  assert.match(relabelled, /insights-panel-label">Key Takeaways</);
+  assert.doesNotMatch(relabelled, /<h3>/);
+});
+
+test('bar-chart single variant derives widths from values, indexed to the largest, unless width is explicit', () => {
+  const html = block('bar-chart', {
+    title: 'CRM Install Share',
+    subtitle: '500+ employees',
+    date_badge: 'Q2 2026',
+    rows: [
+      { label: 'Salesforce', value: '38.2%' },
+      { label: 'HubSpot', value: '11.8%', emphasis: 'accent' },
+      { label: 'Other', value: '7.9%', width: 19, emphasis: 'dim' },
+    ],
+    source: 'Source: HG Insights',
+    download_label: 'Download data',
+    download_url: '/data/crm.csv',
+  });
+  assert.match(html, /^<div class="chart-wrapper">/);
+  assert.match(html, /<div class="chart-title">CRM Install Share<br><span style="font-weight:400;font-size:13px;color:var\(--hg-text-light\)">500\+ employees<\/span><\/div>/);
+  assert.match(html, /<span class="chart-date-badge">Q2 2026<\/span>/);
+  assert.match(html, /<div class="bar-chart">/);
+  assert.match(html, /<div class="bar-fill" style="width:100%">/);
+  assert.match(html, /<div class="bar-fill accent" style="width:31%">/);
+  assert.match(html, /<div class="bar-fill dim" style="width:19%">/);
+  assert.match(html, /<div class="bar-value">38\.2%<\/div>/);
+  assert.match(html, /<div class="chart-footer">\s*<span>Source: HG Insights<\/span>\s*<a href="\/data\/crm\.csv">Download data<\/a>/);
+  assert.doesNotMatch(html, /bar-legend/);
+});
+
+test('bar-chart stacked and grouped variants carry their series classes and a legend', () => {
+  const stacked = block('bar-chart', {
+    variant: 'stacked',
+    title: 'Spend mix',
+    legend: [{ label: 'Software', series: 's1' }, { label: 'Services', series: 's2' }],
+    rows: [{ label: 'Enterprise', value: '$1.1T', segments: [{ width: 60, series: 's1', title: 'Software' }, { width: 40, series: 's2' }] }],
+  });
+  assert.match(stacked, /<div class="bar-chart stacked">/);
+  assert.match(stacked, /<span class="bar-legend-item"><span class="bar-legend-swatch s1"><\/span>Software<\/span>/);
+  assert.match(stacked, /<div class="bar-track">\s*<div class="bar-seg s1" style="width:60%" title="Software"><\/div>\s*<div class="bar-seg s2" style="width:40%"><\/div>/);
+
+  const grouped = block('bar-chart', {
+    variant: 'grouped',
+    title: 'Two periods',
+    legend: [{ label: '2025', series: 's2' }, { label: '2026', series: 's1' }],
+    rows: [{ label: 'Salesforce', value: '+3.1pp', bars: [{ width: 70, series: 's2' }, { width: 82, series: 's1' }] }],
+  });
+  assert.match(grouped, /<div class="bar-chart grouped">/);
+  assert.match(grouped, /<div class="bar-group">\s*<div class="bar-subbar s2" style="width:70%"><\/div>\s*<div class="bar-subbar s1" style="width:82%"><\/div>/);
+  assert.doesNotMatch(grouped, /bar-track/);
+});
+
 test('a comparison-table row shorter than its columns pads with empty cells', () => {
   const html = block('comparison-table', {
     columns: [{ label: 'Vendor' }, { label: 'Share' }],

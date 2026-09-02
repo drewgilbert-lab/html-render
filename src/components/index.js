@@ -33,6 +33,12 @@ function validateBlock(node, path, report) {
     return;
   }
   validateFields(component.fields, node.data, path, report, node.line);
+  // Cross-field rules a `fields` map cannot express (a variant that needs a legend,
+  // a pair of keys that go together). Optional per component; reports at the block's line.
+  if (typeof component.validate === 'function') {
+    const scoped = { add: (subpath, message, line) => report.add(subpath, message, line == null ? node.line : line) };
+    component.validate(node.data, path, scoped);
+  }
 }
 
 /** Render one ```name block. Assumes validation already passed. */

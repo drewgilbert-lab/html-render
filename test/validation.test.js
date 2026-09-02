@@ -187,3 +187,31 @@ test('the error message lists every problem at once', () => {
     assert.match(error.message, /- description: is required/);
   }
 });
+
+test('bar-chart cross-field rules are reported at the block', () => {
+  const chart = (yaml) => spoke().replace('A body paragraph in the first section.', ['```bar-chart', ...yaml, '```'].join('\n'));
+
+  const noLegend = errorsFor(chart(['variant: stacked', 'title: Mix', 'rows:', '  - label: A', '    segments:', '      - width: 50', '        series: s1']));
+  assert.ok(noLegend.some((error) => error.path === '```bar-chart.legend' && /required for the stacked variant/.test(error.message)), JSON.stringify(noLegend));
+
+  const noSegments = errorsFor(chart(['variant: stacked', 'title: Mix', 'legend:', '  - label: A', '    series: s1', 'rows:', '  - label: A', '    value: 1']));
+  assert.ok(noSegments.some((error) => error.path === '```bar-chart.rows[0].segments'), JSON.stringify(noSegments));
+
+  const noWidth = errorsFor(chart(['title: Ranking', 'rows:', '  - label: A', '    value: n/a']));
+  assert.ok(noWidth.some((error) => error.path === '```bar-chart.rows[0].width'), JSON.stringify(noWidth));
+
+  const halfDownload = errorsFor(chart(['title: Ranking', 'rows:', '  - label: A', '    value: 10%', 'download_label: Download']));
+  assert.ok(halfDownload.some((error) => /download_label and download_url go together/.test(error.message)), JSON.stringify(halfDownload));
+
+  const wrongSeries = errorsFor(chart(['variant: grouped', 'title: G', 'legend:', '  - label: A', '    series: s9', 'rows:', '  - label: A', '    bars:', '      - width: 10', '        series: s1']));
+  assert.ok(wrongSeries.some((error) => error.path === '```bar-chart.legend[0].series' && /must be one of/.test(error.message)), JSON.stringify(wrongSeries));
+});
+
+test('a comparison-table trend cell rejects an unknown direction', () => {
+  const source = spoke().replace(
+    'A body paragraph in the first section.',
+    ['```comparison-table', 'columns:', '  - label: Vendor', '  - label: Trend', 'rows:', '  - cells:', '      - Salesforce', '      - trend:', '          direction: sideways', '          value: flat', '```'].join('\n'),
+  );
+  const errors = errorsFor(source);
+  assert.ok(errors.some((error) => /must be one of: up, down, flat/.test(error.message)), JSON.stringify(errors));
+});
