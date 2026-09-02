@@ -108,8 +108,8 @@ function spoke(extra = '') {
   return `---\npage_type: spoke\n${SHARED}\n${RELATED}\n${extra}---\n${BODY}`;
 }
 
-function bandedSpoke(extra = '') {
-  return `---\npage_type: spoke\nlayout: banded\n${SHARED}\n${HERO}\n${RELATED}\n${extra}---\n${BODY}`;
+function bandedSpoke(extra = '', hero = HERO) {
+  return `---\npage_type: spoke\nlayout: banded\n${SHARED}\n${hero}\n${RELATED}\n${extra}---\n${BODY}`;
 }
 
 /** Replace a line in a document by prefix, or drop it when `to` is null. */

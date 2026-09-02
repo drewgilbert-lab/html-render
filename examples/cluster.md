@@ -23,11 +23,6 @@ author:
   title: Principal Analyst, HG Insights
   url: https://hginsights.com/authors/jordan-lee/
 
-pills:
-  - Ungated & citable
-  - label: Last reviewed: August 2026
-    tone: melon
-
 hero:
   thesis: Core AI Visibility Metrics and Vocabulary is the set of four measurements, Share of Voice, Share of Model, Mention Rate, and Citation Rate, used to quantify how often and how favorably a brand appears in AI-generated answers. TrustRadius tracks up to 100 real buyer prompts per product each month to produce them.
   freshness_badge: Data as of Q3 2026
@@ -147,11 +142,8 @@ cta:
   title: See how TrustRadius's GEO Monitoring Dashboard tracks these metrics for your product
   body: HG Insights tracks brand and competitor mentions across ChatGPT, Gemini, Perplexity, Claude, and Google AI Overviews for up to 100 real buyer prompts per product each month, refreshed on a recurring cycle so every metric in this cluster becomes a trend line rather than a snapshot.
   buttons:
-    - label: Book a Demo
+    - label: Request a Demo
       url: https://hginsights.com/demo
-    - label: Explore the Pillar Guide
-      url: https://hginsights.com/geo/how-to-measure-ai-search-visibility/
-      variant: secondary
 ---
 
 ## What Is Core AI Visibility Metrics and Vocabulary, and Where Does It Fit in Measuring AI Search Visibility?

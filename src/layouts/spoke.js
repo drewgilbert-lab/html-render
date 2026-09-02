@@ -15,11 +15,15 @@
  *                       this (every remaining GEO format maps here).
  *
  * Component order (fixed per variant):
- *   article: breadcrumb -> article hero -> article body + side-nav ->
- *            methodology? -> FAQ -> citations? -> related -> CTA
- *   banded:  breadcrumb -> gradient hero -> freshness? -> intro copy? ->
+ *   article: breadcrumb -> article hero -> freshness-bar -> article body +
+ *            side-nav -> methodology? -> FAQ -> citations? -> related -> CTA
+ *   banded:  breadcrumb -> gradient hero -> freshness-bar -> intro copy? ->
  *            section bands + side-nav -> methodology? -> FAQ -> citations? ->
  *            related -> CTA
+ *
+ * Spoke chrome omits the hero eyebrow, meta pills, and in-hero thesis. The
+ * thesis sits in the reading column. The freshness bar always renders. The
+ * footer CTA is a single primary button.
  */
 
 const { el, lines, indent, container } = require('../html');
@@ -38,24 +42,25 @@ const describe = () => ({
     article: [
       'breadcrumb (omitted when standalone: true)',
       'article-hero',
+      'freshness-bar',
       'article body + side-nav',
       'methodology (optional)',
       'faq',
       'citations (optional)',
       'related',
-      'cta',
+      'cta (single primary button)',
     ],
     banded: [
       'breadcrumb (omitted when standalone: true)',
-      'hero',
-      'freshness-bar (optional)',
+      'hero (no eyebrow, pills, or thesis)',
+      'freshness-bar',
       'intro copy (optional)',
       'section bands + side-nav',
       'methodology (optional)',
       'faq',
       'citations (optional)',
       'related',
-      'cta',
+      'cta (single primary button)',
     ],
   },
 });
@@ -106,48 +111,55 @@ function renderBandedSection(section, index) {
   );
 }
 
+function thesisBlock(fm) {
+  if (!(fm.hero && fm.hero.thesis)) return '';
+  return el('p', { class: 'thesis-block' }, normalizeField({ type: 'text' }, fm.hero.thesis));
+}
+
 function renderArticle(doc) {
   const fm = doc.frontmatter;
   const blocks = [];
-  if (fm.hero && fm.hero.thesis) {
-    blocks.push(el('p', { class: 'thesis-block' }, normalizeField({ type: 'text' }, fm.hero.thesis)));
-  }
+  const thesis = thesisBlock(fm);
+  if (thesis) blocks.push(thesis);
   const preamble = renderNodes(doc.preamble, {});
   if (preamble) blocks.push(preamble);
-  doc.sections.forEach((section, index) => {
-    // A rule separates one section from the next; the opening thesis and lead
-    // copy run straight into the first heading.
-    if (index > 0) blocks.push('<hr class="section-rule">');
+  doc.sections.forEach((section) => {
     blocks.push(renderArticleSection(section));
   });
 
   return lines(
     fm.standalone ? '' : renderSlot('breadcrumb', assemble.breadcrumbInput(fm)),
     renderSlot('article-hero', assemble.articleHeroInput(fm)),
+    renderSlot('freshness-bar', assemble.freshnessInput(fm)),
     renderSpokeBody(el('div', { class: 'spoke-col article-body' }, `\n${indent(lines(blocks))}\n`), fm, doc.sections),
     fm.methodology ? renderSlot('methodology', fm.methodology) : '',
     renderSlot('faq', fm.faq),
     fm.citations ? renderSlot('citations', fm.citations) : '',
     renderSlot('related', fm.related),
-    renderSlot('cta', fm.cta),
+    renderSlot('cta', assemble.ctaInput(fm)),
   );
 }
 
 function renderBanded(doc) {
   const fm = doc.frontmatter;
   const sections = doc.sections;
-  const bands = sections.map((section, index) => renderBandedSection(section, index));
+  const col = [];
+  const thesis = thesisBlock(fm);
+  if (thesis) col.push(thesis);
+  sections.forEach((section, index) => {
+    col.push(renderBandedSection(section, index));
+  });
   return lines(
     fm.standalone ? '' : renderSlot('breadcrumb', assemble.breadcrumbInput(fm)),
     renderSlot('hero', assemble.heroInput(fm)),
-    fm.freshness ? renderSlot('freshness-bar', fm.freshness) : '',
+    renderSlot('freshness-bar', assemble.freshnessInput(fm)),
     fm.intro ? renderSlot('intro-toc', assemble.introTocInput(fm, sections, { omitToc: true })) : '',
-    renderSpokeBody(el('div', { class: 'spoke-col' }, `\n${indent(lines(bands))}\n`), fm, sections),
+    renderSpokeBody(el('div', { class: 'spoke-col' }, `\n${indent(lines(col))}\n`), fm, sections),
     fm.methodology ? renderSlot('methodology', fm.methodology) : '',
     renderSlot('faq', fm.faq),
     fm.citations ? renderSlot('citations', fm.citations) : '',
     renderSlot('related', fm.related),
-    renderSlot('cta', fm.cta),
+    renderSlot('cta', assemble.ctaInput(fm)),
   );
 }
 

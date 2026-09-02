@@ -10,6 +10,37 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
+## v1.7.0 — 2026-09-02, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
+
+A template change, not a catalog refresh. Every page class is quieter: no hero
+eyebrow or meta pills, the thesis sits in the body, a freshness bar always sits
+under the hero, section hairlines are gone, tinted bands inset text from the
+gray edge, and the footer CTA is a single primary button. Breaking for
+`geo-spoke-builder` consumers that still emit pills, a secondary CTA, or expect
+the freshness bar to be optional.
+
+**Layout (pipeline).** Pillar, cluster, and both spoke variants.
+
+- **Changed** the gradient hero omits `eyebrow`, `pills`, and `hero.thesis` on
+  every page class. Pillar and spoke place the thesis in the reading column;
+  cluster still uses `thesis-band` after the intro. `pills` remains a valid
+  frontmatter key and is not rendered.
+- **Changed** every page class always emits `freshness-bar` immediately under
+  the hero. Copy is `Data last updated: {label}` with no highlighted span.
+  Layouts pass only `label` (`freshness.label`, else a quarter derived from
+  `updated` / `published`); note, cadence, and methodology link are ignored.
+- **Changed** no page class inserts `<hr class="section-rule">` between body
+  sections. Hairline borders are gone on intro, methodology, FAQ, citations,
+  and related. FAQ item rules stay.
+- **Changed** `.spoke-col .page-section` keeps `padding: 56px var(--space-8)` so
+  tinted spoke bands inset text from the gray edge. Cluster full-width bands
+  keep vertical padding only; `.container` already insets that copy.
+- **Changed** `cta.buttons` max is 1 on every page class. Secondary buttons,
+  `cta.links`, and `cta.pills` are not rendered. Spoke side-nav footer still
+  reuses that primary.
+
+---
+
 ## v1.6.0 — 2026-09-02, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
 
 A template release, not a catalog refresh. Both spoke layouts now always compose

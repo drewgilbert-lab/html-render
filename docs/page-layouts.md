@@ -16,12 +16,12 @@ retrieval systems down to every cluster and key spoke.
 
 ```
 breadcrumb
-hero                        gradient band: eyebrow, H1, lead, pills, thesis,
-                            byline, freshness badge, coverage, stat grid
-freshness-bar               (optional)
+hero                        gradient band: H1, lead, byline, freshness badge,
+                            coverage, stat grid (no eyebrow, pills, or thesis)
+freshness-bar               always; `Data last updated: {label}`
 intro-toc                   intro copy + sticky jump nav
 article-body-section
-  main-col                  every "##" section, separated by section rules,
+  main-col                  thesis? then every "##" section (no section rules),
                             in the narrow 780px article column with
                             left-aligned section headers
   side-nav                  sticky right-rail nav with scroll-spy
@@ -29,12 +29,16 @@ methodology                 (optional)
 faq
 citations                   (optional)
 related                     (optional)
-cta
+cta                         single primary button
 ```
 
 Notes:
 
-- The hero renders `hero.thesis` inside itself.
+- `hero.thesis` sits at the top of the reading column, not inside the hero.
+- `pills` and the page `eyebrow` are accepted but not rendered in the hero.
+- The freshness bar always sits under the hero: `freshness.label` if supplied,
+  otherwise a quarter derived from `updated` (else `published`); note, cadence,
+  and methodology link are ignored. `cta.buttons` allows one entry.
 - The jump nav and the side nav are both derived from the body sections, so they
   cannot drift from the page. Supply `intro.toc` to override.
 - All body copy must sit inside `##` sections; copy before the first heading is
@@ -49,20 +53,19 @@ domain and indexes every spoke beneath it.
 
 ```
 breadcrumb
-hero                        gradient band, without the thesis
-thesis-band                 (optional) full-width band carrying hero.thesis
+hero                        gradient band with the stat grid; no eyebrow,
+                            pills, or thesis
+freshness-bar               always; `Data last updated: {label}`
 intro-toc
-section rule
+thesis-band                 (optional) full-width band carrying hero.thesis
 first "##" section          full-width band, centred section header
-section rule
 resource-index              the card grid indexing every spoke
-section rule
 remaining "##" sections     full-width bands, alternating white / tinted
 methodology                 (optional)
 faq
 citations                   (optional)
 related                     (optional)
-cta
+cta                         single primary button
 ```
 
 Notes:
@@ -70,8 +73,11 @@ Notes:
 - **The resource index sits immediately after the first body section.** That is
   where the approved design puts it: the page states its scope, then indexes the
   spokes. The position is fixed, not authored.
-- `hero.thesis` renders as its own band rather than inside the hero, matching the
-  approved cluster design.
+- `hero.thesis` renders as its own band after the intro, not inside the hero.
+- `pills` and the page `eyebrow` are accepted but not rendered in the hero.
+- The freshness bar always sits under the hero; note, cadence, and methodology
+  link are ignored. `cta.buttons` allows one entry. There are no section-rule
+  hairlines between body sections. Full-width bands inset copy via `.container`.
 - `###` headings become grouping blocks — a heavy sub-heading with its copy and
   any card grid beneath it.
 - Section bands alternate automatically; `band:` in a `section` block overrides.
@@ -90,22 +96,28 @@ glossary / definition spokes.
 
 ```
 breadcrumb                  (omitted when standalone: true)
-article-hero                H1 + byline + pills on white
+article-hero                H1 + byline on white (no pills)
+freshness-bar               always; `Data last updated: {label}`
 spoke-body-section
   spoke-col article-body    thesis? + lead copy? + "##" sections
+                            (no section rules)
   side-nav                  sticky right-rail nav with scroll-spy;
-                            footer Book a Demo from cta primary
+                            footer Request a Demo from cta primary
 methodology                 (optional)
 faq
 citations                   (optional)
 related
-cta
+cta                         single primary button
 ```
 
 This variant has no gradient hero and no stat grid. Supplying `hero.stats` is an
 error that points you at `layout: banded`. The rail is always present; authors
 may set optional `side_nav.label` / `side_nav.note` and optional `intro.toc` to
-control the link list (there is no visible jump nav).
+control the link list (there is no visible jump nav). `pills` is accepted but
+not rendered. The freshness bar always sits under the article hero: `freshness.label`
+if supplied, otherwise a quarter derived from `updated` (else `published`).
+`cta.buttons` allows one entry; secondary buttons, `cta.links`, and `cta.pills`
+are not rendered. `hero.thesis` sits at the top of the reading column.
 
 A spoke in either variant may declare `standalone: true` — a page with no
 parent hub. It renders no breadcrumb bar and emits no `BreadcrumbList` and no
@@ -122,25 +134,32 @@ table).
 
 ```
 breadcrumb                  (omitted when standalone: true)
-hero                        gradient band with the stat grid
-freshness-bar               (optional)
+hero                        gradient band with the stat grid; no eyebrow,
+                            pills, or thesis
+freshness-bar               always; `Data last updated: {label}`
 intro copy                  (optional) eyebrow, title, body; no jump-nav column
 spoke-body-section
-  spoke-col                 "##" sections as bands, alternating white / tinted,
-                            left-aligned section headers, not full-bleed under
-                            the rail
+  spoke-col                 thesis? then "##" sections as bands, alternating
+                            white / tinted, left-aligned section headers, not
+                            full-bleed under the rail
   side-nav                  sticky right-rail nav with scroll-spy;
-                            footer Book a Demo from cta primary
+                            footer Request a Demo from cta primary
 methodology                 (optional)
 faq
 citations                   (optional)
 related
-cta
+cta                         single primary button
 ```
 
 The rail is the only on-page section nav. `intro.toc`, when supplied, feeds the
 rail's link list rather than a visible hub-toc. Intro copy stays when `intro` is
-present.
+present. `pills` and the page `eyebrow` are accepted but not rendered in the
+hero. `hero.thesis` sits at the top of the reading column, not inside the hero.
+The freshness bar always sits under the hero: `freshness.label` if supplied,
+otherwise a quarter derived from `updated` (else `published`); note, cadence,
+and methodology link are ignored. `cta.buttons` allows one entry. Tinted bands
+inset text from the gray edge with the same horizontal padding as white bands.
+There are no section-rule hairlines between body sections.
 
 ### Mapping the GEO spoke formats onto the two variants
 

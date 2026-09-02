@@ -5,13 +5,17 @@
  * spokes.
  *
  * Component order (fixed):
- *   breadcrumb -> gradient hero -> thesis band? -> intro + TOC ->
- *   first body section (scope) -> resource index -> remaining body sections ->
- *   methodology? -> FAQ -> citations? -> related? -> CTA
+ *   breadcrumb -> gradient hero -> freshness-bar -> intro + TOC ->
+ *   thesis-band? -> first body section (scope) -> resource index ->
+ *   remaining body sections -> methodology? -> FAQ -> citations? -> related? -> CTA
  *
  * The resource index sits immediately after the first body section, which is
  * where the approved design puts it: the page states its scope, then indexes
  * every spoke beneath it.
+ *
+ * Hero omits eyebrow, pills, and thesis. Thesis sits in its own band after the
+ * intro. The freshness bar always renders. The footer CTA is a single primary
+ * button.
  */
 
 const { el, lines, indent, container } = require('../html');
@@ -27,9 +31,10 @@ const describe = () => ({
   summary: 'Domain router: defines one domain of the parent conversation and indexes every spoke beneath it.',
   order: [
     'breadcrumb',
-    'hero',
-    'thesis-band (optional)',
+    'hero (no eyebrow, pills, or thesis)',
+    'freshness-bar',
     'intro-toc',
+    'thesis-band (optional)',
     'first body section',
     'resource-index',
     'remaining body sections',
@@ -37,7 +42,7 @@ const describe = () => ({
     'faq',
     'citations (optional)',
     'related (optional)',
-    'cta',
+    'cta (single primary button)',
   ],
 });
 
@@ -63,33 +68,25 @@ function render(doc) {
   const sections = doc.sections;
   const tocOptions = { resourceIndexAfterFirst: true };
 
-  const hero = assemble.heroInput(fm);
-  // The cluster design carries the thesis in its own full-width band rather
-  // than inside the hero, so the hero is rendered without it.
-  hero.thesis = null;
-
   const parts = [
     renderSlot('breadcrumb', assemble.breadcrumbInput(fm)),
-    renderSlot('hero', hero),
+    renderSlot('hero', assemble.heroInput(fm)),
+    renderSlot('freshness-bar', assemble.freshnessInput(fm)),
+    renderSlot('intro-toc', assemble.introTocInput(fm, sections, tocOptions)),
   ];
   const thesis = assemble.thesisBandInput(fm);
   if (thesis) parts.push(renderSlot('thesis-band', thesis));
-  parts.push(renderSlot('intro-toc', assemble.introTocInput(fm, sections, tocOptions)));
 
   sections.forEach((section, index) => {
-    parts.push('<hr class="section-rule">');
     parts.push(renderSection(section, index));
-    if (index === 0) {
-      parts.push('<hr class="section-rule">');
-      parts.push(renderSlot('resource-index', fm.resource_index));
-    }
+    if (index === 0) parts.push(renderSlot('resource-index', fm.resource_index));
   });
 
   if (fm.methodology) parts.push(renderSlot('methodology', fm.methodology));
   parts.push(renderSlot('faq', fm.faq));
   if (fm.citations) parts.push(renderSlot('citations', fm.citations));
   if (fm.related) parts.push(renderSlot('related', fm.related));
-  parts.push(renderSlot('cta', fm.cta));
+  parts.push(renderSlot('cta', assemble.ctaInput(fm)));
 
   return lines(parts);
 }

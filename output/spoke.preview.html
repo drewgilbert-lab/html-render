@@ -10,14 +10,14 @@
 <body>
 <div class="preview-note">PREVIEW ONLY — visual review wrapper. The deliverable is the page body inside, page type: spoke.</div>
 <!-- ============================================================================
-     HG Insights page body - html-render v1.6.0
+     HG Insights page body - html-render v1.7.0
 
      Page type        spoke (article layout)
      Title            What Is Share of Voice in AI Search? Definition, Formula & Example
      Meta description AI Share of Voice is the percentage of tracked brand mentions a brand and its named competitors hold across AI answer engines. Definition, formula, and a worked example.
      Canonical URL    https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/share-of-voice/
      Published        2026-08-11    Updated  2026-08-11
-     Body             3 sections, ~1360 words
+     Body             3 sections, ~1353 words
 
      Paste this whole block into the target page container. It contains no
      <html>, <head>, site navigation, or footer - page body only.
@@ -190,7 +190,7 @@
   .render-page .section-header.align-left .section-subtitle { margin: 0; }
 
   /* ---- Hub intro + TOC (06) --------------------------------- */
-  .render-page .hub-intro-section { padding: 64px 0 48px; background: var(--hg-white); border-bottom: 1px solid var(--hg-border); }
+  .render-page .hub-intro-section { padding: 64px 0 48px; background: var(--hg-white); }
   .render-page .hub-intro-section .container { display: grid; grid-template-columns: 1fr 340px; gap: 64px; align-items: start; }
   .render-page .hub-intro-section.no-toc .container { grid-template-columns: 1fr; }
   .render-page .hub-intro-eyebrow { font-size: 12px; font-weight: var(--fw-bold); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--hg-dark-blue); margin-bottom: 10px; }
@@ -248,7 +248,7 @@
   .render-page .coming-soon-badge { display: inline-block; background: var(--hg-off-white); color: var(--hg-text-light); font-size: 11px; font-weight: var(--fw-bold); padding: 3px 10px; border-radius: 20px; margin-top: 14px; text-transform: uppercase; letter-spacing: 0.05em; }
 
   /* ---- Spoke / related cards (14) --------------------------- */
-  .render-page .related-hubs-section { padding: 64px 0; background: var(--hg-off-white); border-top: 1px solid var(--hg-border); border-bottom: 1px solid var(--hg-border); }
+  .render-page .related-hubs-section { padding: 64px 0; background: var(--hg-off-white); }
   .render-page .related-hubs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px; }
   .render-page .related-hub-card { background: var(--hg-white); border: 1px solid var(--hg-border-light); border-radius: 12px; padding: 20px; text-decoration: none; color: inherit; transition: border-color 0.2s, box-shadow 0.2s; display: block; }
   .render-page .related-hub-card:hover { border-color: var(--hg-blue-hover); box-shadow: 0 4px 16px rgba(0,88,163,0.08); }
@@ -258,7 +258,7 @@
   .render-page .related-hub-link { font-size: 12.5px; font-weight: var(--fw-bold); color: var(--hg-dark-blue); }
 
   /* ---- Faq section ----------------------------------------- */
-  .render-page .faq-section { padding: var(--section-pad); background: var(--hg-off-white); border-top: 1px solid var(--hg-border); }
+  .render-page .faq-section { padding: var(--section-pad); background: var(--hg-off-white); }
   .render-page .faq-section .container { display: grid; grid-template-columns: 260px 1fr; gap: 64px; align-items: start; }
   .render-page .faq-label-col .section-eyebrow { margin-bottom: 8px; }
   .render-page .faq-label-col h2 { font-weight: 900; font-size: 28px; color: var(--hg-text-dark); line-height: 1.2; margin-bottom: 16px; }
@@ -273,7 +273,7 @@
   .render-page .faq-answer strong { color: var(--hg-text-dark); font-weight: 700; }
 
   /* ---- Methodology section (16) ---------------------------- */
-  .render-page .methodology-section { padding: 56px 0; background: var(--hg-off-white); border-top: 1px solid var(--hg-border); border-bottom: 1px solid var(--hg-border); }
+  .render-page .methodology-section { padding: 56px 0; background: var(--hg-off-white); }
   .render-page .methodology-section .container { display: grid; grid-template-columns: 280px 1fr; gap: 60px; align-items: start; }
   .render-page .methodology-eyebrow { font-size: 12px; font-weight: var(--fw-bold); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--hg-dark-blue); margin-bottom: 8px; }
   .render-page .methodology-label-col h2 { font-weight: var(--fw-black); font-size: 28px; color: var(--hg-text-dark); line-height: 1.2; }
@@ -428,7 +428,7 @@
   .render-page .share-bar.no-track .share-bar-fill { height: 8px; min-width: 4px; flex-shrink: 0; }
 
   /* ---- Citations list (60) ----------------------------- */
-  .render-page .citations-section { padding: 56px 0; background: var(--hg-white); border-top: 1px solid var(--hg-border); }
+  .render-page .citations-section { padding: 56px 0; background: var(--hg-white); }
   .render-page .citations-list { padding-top: var(--space-4); }
   .render-page .citations-list-items { list-style: none; padding: 0; margin: 0; column-gap: var(--space-10); }
   .render-page .citation-item { display: flex; gap: var(--space-2); padding: var(--space-2) 0; break-inside: avoid; }
@@ -466,6 +466,11 @@
 
   .render-page .page-section { padding: 56px 0; background: var(--hg-white); }
   .render-page .page-section.tinted { background: var(--hg-off-white); }
+  .render-page .spoke-col .page-section { padding: 56px var(--space-8); }
+
+  /* No hairline between page-level sections. FAQ item rules stay: those are
+     not section dividers. Spoke column bands inset text from the gray edge;
+     cluster full-width bands already inset via .container. */
   .render-page .page-section p { font-size: 17px; color: var(--hg-text-mid); line-height: 1.75; margin-bottom: 16px; max-width: 900px; }
   .render-page .page-section p:last-child { margin-bottom: 0; }
   .render-page .page-section strong { color: var(--hg-text-dark); font-weight: var(--fw-bold); }
@@ -612,9 +617,10 @@
         <span class="author-byline-bio">Published August 11, 2026 &middot; Reviewed quarterly</span>
       </div>
     </div>
-    <div class="meta">
-      <span class="pill"><span class="dot"></span> Ungated &amp; citable</span>
-      <span class="pill melon"><span class="dot"></span> Last reviewed: August 2026</span>
+  </div>
+  <div class="freshness-bar">
+    <div class="container">
+      <span class="freshness-text">Data last updated: Q3 2026</span>
     </div>
   </div>
   <section class="spoke-body-section">
@@ -632,7 +638,6 @@
             <p class="callout-box-body">AI Share of Voice depends on AI crawlers reaching a brand's pages in the first place. TrustRadius customers receive 21 times more AI crawler visits than non-customers, according to TrustRadius internal data, because verified customer review content gives generative engines more citable material to draw on when constructing an answer.</p>
           </div>
         </section>
-        <hr class="section-rule">
         <section id="why-do-geo-teams-track-ai-share-of-voice">
           <h2>Why Do GEO Teams Track AI Share of Voice?</h2>
           <p>A GEO or AI Visibility Specialist building a measurement practice for the first time needs a number that translates cleanly into a leadership report and a content roadmap. AI Share of Voice does both: the metric names a competitive gap in a single percentage and points to the specific tracked prompts driving that gap.<sup><a href="#citation-1">[1]</a></sup></p>
@@ -651,7 +656,6 @@
             </div>
           </div>
         </section>
-        <hr class="section-rule">
         <section id="how-does-ai-share-of-voice-differ-from-ai">
           <h2>How Does AI Share of Voice Differ From AI Mention Rate?</h2>
           <p>AI Share of Voice and AI Mention Rate get confused constantly because both come from the same underlying tracked-prompt data set. AI Mention Rate answers a simpler question: did a brand appear at all. AI Share of Voice answers a comparative question: how much of the total conversation a brand holds against every named competitor.<sup><a href="#citation-4">[4]</a></sup></p>
@@ -718,7 +722,7 @@
             <li><a href="#faq">FAQ</a></li>
           </ul>
           <div class="nav-cta">
-            <a class="btn-primary" href="https://hginsights.com/demo">Book a Demo</a>
+            <a class="btn-primary" href="https://hginsights.com/demo">Request a Demo</a>
           </div>
         </nav>
       </aside>
@@ -813,13 +817,9 @@
         <div class="section-eyebrow">Put This Metric to Work</div>
         <h2>See your brand's AI Share of Voice against named competitors</h2>
         <p>HG Insights tracks brand and competitor mentions across ChatGPT, Gemini, Perplexity, Claude, and Google AI Overviews for a defined set of tracked prompts, refreshed monthly so GEO teams can report a moving number instead of a one-time snapshot.</p>
-        <div class="meta">
-          <span class="pill"><span class="dot"></span> Ungated &amp; citable</span>
-          <span class="pill melon"><span class="dot"></span> Last reviewed: August 2026</span>
-        </div>
       </div>
       <div class="cta-buttons">
-        <a class="btn-primary" href="https://hginsights.com/demo">Book a Demo</a>
+        <a class="btn-primary" href="https://hginsights.com/demo">Request a Demo</a>
       </div>
     </div>
   </section>

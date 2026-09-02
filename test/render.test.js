@@ -17,6 +17,7 @@ test('valid Pillar Markdown renders the Pillar layout', () => {
   const order = [
     'class="breadcrumb-bar"',
     'class="hero" id="hero"',
+    'class="freshness-bar"',
     'class="hub-intro-section" id="overview"',
     'class="article-body-section"',
     'class="main-col"',
@@ -38,6 +39,12 @@ test('valid Pillar Markdown renders the Pillar layout', () => {
   // Auto table of contents and side nav both resolve to the body sections.
   assert.match(html, /<a href="#why"><span class="hub-toc-dot"><\/span>Why It Matters<\/a>/);
   assert.match(html, /<div class="nav-head">On this page<\/div>/);
+  assert.match(html, /class="freshness-bar"/);
+  assert.match(html, /Data last updated: Q3 2026/);
+  assert.doesNotMatch(html, /hero-eyebrow/);
+  assert.doesNotMatch(html, /class="pill"/);
+  assert.doesNotMatch(html, /section-rule/);
+  assert.doesNotMatch(html, /class="btn-secondary"/);
   // Body only: no document scaffolding, navigation, or footer.
   assert.doesNotMatch(html, /<html|<head|<body|wp-header-placeholder|wp-footer-placeholder/);
 });
@@ -53,6 +60,12 @@ test('valid Cluster Markdown renders the Cluster layout with the resource index 
 
   // Cluster sections are full-width bands that alternate.
   assert.match(html, /<section class="page-section tinted" id="program">/);
+  assert.match(html, /class="freshness-bar"/);
+  assert.match(html, /Data last updated: Q3 2026/);
+  assert.doesNotMatch(html, /hero-eyebrow/);
+  assert.doesNotMatch(html, /class="pill"/);
+  assert.doesNotMatch(html, /section-rule/);
+  assert.doesNotMatch(html, /class="btn-secondary"/);
   // The thesis band is absent when no hero thesis is supplied.
   assert.doesNotMatch(html, /thesis-wrap/);
   // Cluster has no right-rail nav.
@@ -71,13 +84,18 @@ test('valid Spoke Markdown renders the article variant', () => {
   assert.match(html, /<div class="nav-cta">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
   assert.match(html, /class="cta-section" id="cta"/);
   assert.match(html, /<div class="cta-buttons">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
+  assert.doesNotMatch(html, /class="btn-secondary"/);
+  assert.match(html, /class="freshness-bar"/);
+  assert.match(html, /Data last updated: Q3 2026/);
+  assert.doesNotMatch(html, /section-rule/);
+  assert.doesNotMatch(html, /class="pill"/);
   // The article variant does not use the gradient hero or a jump nav.
   assert.doesNotMatch(html, /class="hero" id="hero"/);
   assert.doesNotMatch(html, /class="hub-toc"/);
 });
 
 test('the banded Spoke variant uses the gradient hero, section bands, and the side-nav rail', () => {
-  const { html, layout } = body(bandedSpoke(`${INTRO}\n`));
+  const { html, layout } = body(bandedSpoke(`${INTRO}\n`, HERO_WITH_THESIS));
   assert.equal(layout, 'banded');
   assert.match(html, /class="hero" id="hero"/);
   assert.match(html, /<section class="page-section" id="why">/);
@@ -88,11 +106,27 @@ test('the banded Spoke variant uses the gradient hero, section bands, and the si
   assert.match(html, /<div class="nav-cta">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
   assert.doesNotMatch(html, /class="article-hero"/);
   assert.doesNotMatch(html, /class="hub-toc"/);
+  assert.doesNotMatch(html, /hero-eyebrow/);
+  assert.doesNotMatch(html, /class="pill"/);
+  assert.match(html, /class="freshness-bar"/);
+  assert.match(html, /Data last updated: Q3 2026/);
+  assert.doesNotMatch(html, /freshness-cadence|methodology-link/);
+  assert.doesNotMatch(html, /section-rule/);
+  // Thesis lives in the reading column, not inside the hero.
+  const heroEnd = html.indexOf('</section>', html.indexOf('class="hero" id="hero"'));
+  const spokeCol = html.indexOf('class="spoke-col"');
+  const thesis = html.indexOf('class="thesis-block"');
+  assert.ok(thesis > heroEnd && thesis > spokeCol, 'banded thesis should sit in .spoke-col, not the hero');
+  assert.match(html, /<div class="cta-buttons">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
+  assert.doesNotMatch(html, /class="btn-secondary"/);
 });
 
-test('a hero thesis renders inside the Pillar hero and as a band on a Cluster', () => {
+test('a hero thesis renders in the Pillar reading column and as a band on a Cluster', () => {
   const pillarHtml = body(pillar('', HERO_WITH_THESIS)).html;
-  assert.match(pillarHtml, /hero-left[\s\S]*?<p class="thesis-block">A forty word statement/);
+  const pillarHeroEnd = pillarHtml.indexOf('</section>', pillarHtml.indexOf('class="hero" id="hero"'));
+  const pillarThesis = pillarHtml.indexOf('class="thesis-block"');
+  assert.ok(pillarThesis > pillarHeroEnd, 'pillar thesis should sit after the hero');
+  assert.match(pillarHtml, /class="main-col"[\s\S]*?<p class="thesis-block">A forty word statement/);
   assert.doesNotMatch(pillarHtml, /thesis-wrap/);
 
   const clusterHtml = body(cluster('', HERO_WITH_THESIS)).html;
@@ -103,7 +137,9 @@ test('a hero thesis renders inside the Pillar hero and as a band on a Cluster', 
 
 test('optional page slots appear only when supplied', () => {
   const bare = body(pillar()).html;
-  assert.doesNotMatch(bare, /freshness-bar|citations-section|methodology-section|related-hubs-section/);
+  assert.match(bare, /class="freshness-bar"/);
+  assert.doesNotMatch(bare, /citations-section|methodology-section|related-hubs-section/);
+  assert.doesNotMatch(bare, /freshness-cadence|methodology-link/);
 
   const extras = [
     'freshness:',
@@ -122,6 +158,7 @@ test('optional page slots appear only when supplied', () => {
   ].join('\n');
   const full = body(pillar(extras)).html;
   assert.match(full, /class="freshness-bar"/);
+  assert.doesNotMatch(full, /freshness-cadence|methodology-link/);
   assert.match(full, /class="methodology-section" id="methodology"/);
   assert.match(full, /class="citations-section" id="citations"/);
   // Methodology sits between the body and the FAQ.

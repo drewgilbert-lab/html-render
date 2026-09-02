@@ -214,10 +214,10 @@ const articleHero = {
 
 const freshnessBar = {
   name: 'freshness-bar',
-  summary: 'Dark-blue band stating when the data was last reviewed and how often it refreshes.',
+  summary: 'Dark-blue band stating when the data was last updated and how often it refreshes.',
   source: '04-data-freshness-bar',
   fields: {
-    label: { type: 'text', required: true, hint: 'the "last reviewed" value, e.g. "Q3 2026"' },
+    label: { type: 'text', required: true, hint: 'the "last updated" value, e.g. "Q3 2026"' },
     note: { type: 'text' },
     cadence: { type: 'text' },
     link_text: { type: 'text' },
@@ -228,7 +228,7 @@ const freshnessBar = {
       'span',
       { class: 'freshness-text' },
       [
-        `Data last reviewed: ${el('span', null, value.label)}`,
+        `Data last updated: ${value.label}`,
         value.note ? `&nbsp;&middot;&nbsp; ${value.note}` : '',
         value.cadence ? el('span', { class: 'freshness-cadence' }, `&middot; ${value.cadence}`) : '',
       ]
