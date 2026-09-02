@@ -10,7 +10,7 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
-## Unreleased
+## v1.7.0 — 2026-09-02, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
 
 A template change, not a catalog refresh. Every page class is quieter: no hero
 eyebrow or meta pills, the thesis sits in the body, a freshness bar always sits
