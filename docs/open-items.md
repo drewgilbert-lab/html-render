@@ -57,18 +57,27 @@ the fix is something that reads the field contracts, not a narrower regex.
 
 ## 2. Consumer migration
 
-**The remaining 12 page-building skills in `geo-spoke-builder` are migrating against v1.5.0.**
-The first migration landed with `create-glossary-spoke` (geo-spoke-builder#24, plugin 0.24.0; the
-checklist is that repo's `docs/HTML-RENDER-MIGRATION.md`), and its gap report drove the v1.3.0
-extensions (`standalone`, `knows_about`, provenance keys, citations separator). The batch migration
-of the other twelve (2026-09-01) drove v1.5.0: reconciling each skill's schema stack against the
-renderer showed that `geo-standards.md` §1.1's format-specific types (`HowTo`, `Dataset`,
-`ItemList`, `Service`, `DefinedTermSet`, `SoftwareApplication`, `TechArticle`, `CollectionPage`)
-had no renderer counterpart at all, and that four export components every batch named were still
-unimplemented. Both are closed in v1.5.0 — see `CHANGELOG.md`. Contract delivery history: first
-sync was [geo-spoke-builder#23](https://github.com/drewgilbert-lab/geo-spoke-builder/pull/23),
-merged 2026-08-27. Rewriting each skill's "Design Components" section happens skill-by-skill as it
-migrates, not in one pass.
+**All 13 page-building skills in `geo-spoke-builder` are on this renderer as of 2026-09-01.**
+The first migration landed with `create-glossary-spoke` (geo-spoke-builder#24, plugin 0.24.0), and
+its gap report drove the v1.3.0 extensions (`standalone`, `knows_about`, provenance keys, citations
+separator). The other twelve migrated on 2026-09-01, one skill per PR
+([geo-spoke-builder#31–#42](https://github.com/drewgilbert-lab/geo-spoke-builder/pulls?q=is%3Apr+is%3Amerged+html-render),
+plugin 0.28.0–0.39.0; the per-skill manifest translations are that repo's
+`docs/HTML-RENDER-MIGRATION.md`). Reconciling their schema stacks against the renderer showed that
+`geo-standards.md` §1.1's format-specific types (`HowTo`, `Dataset`, `ItemList`, `Service`,
+`DefinedTermSet`, `SoftwareApplication`, `TechArticle`, `CollectionPage`) had no renderer
+counterpart at all, and that four export components the batch named were still unimplemented.
+Both are closed in v1.5.0 — see `CHANGELOG.md`. Contract delivery history: first sync was
+[geo-spoke-builder#23](https://github.com/drewgilbert-lab/geo-spoke-builder/pull/23), merged
+2026-08-27; the v1.5.0 contract was generated locally from this repo's PR #9 branch and shipped
+downstream with geo-spoke-builder#31, so the tag-triggered sync after `v1.5.0` is cut will
+re-stamp only its `commit=` line.
+
+**Every remaining spoke format is `banded`; only the glossary is `article`.** The consumer chose the
+variant from each skill's own design specification (stat hero, freshness bar, jump nav), which is
+why [page-layouts.md](page-layouts.md) re-mapped five formats in v1.5.0. Where a format's opening
+block carries a number only when the topic has one, the skill falls back to `article` at run time
+rather than inventing a stat card.
 
 **Skill needs v1.5.0 deliberately does not meet**, each recorded in that repo's migration file as a
 translation decision rather than a renderer gap: a right-rail side nav on long spokes (the pillar
