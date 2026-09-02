@@ -1,5 +1,8 @@
 ---
 page_type: cluster
+# A cluster collects and routes; CollectionPage describes that job better than Article.
+article:
+  type: CollectionPage
 title: Core AI Visibility Metrics and Vocabulary
 url: https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/
 eyebrow: Cluster Hub &middot; AI Search Visibility Measurement
