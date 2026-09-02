@@ -163,7 +163,14 @@ function baseFields() {
     faq: { type: 'object', required: true, fields: slotFields('faq') },
     citations: { type: 'object', fields: slotFields('citations') },
     related: { type: 'object', fields: slotFields('related') },
-    cta: { type: 'object', required: true, fields: slotFields('cta') },
+    cta: (() => {
+      const fields = slotFields('cta');
+      return {
+        type: 'object',
+        required: true,
+        fields: { ...fields, buttons: { ...fields.buttons, max: 1 } },
+      };
+    })(),
     term: { type: 'object', fields: TERM_FIELDS },
     article: { type: 'object', fields: ARTICLE_FIELDS, hint: 'the root schema node\'s type and TechArticle extras' },
     howto: { type: 'object', fields: HOWTO_FIELDS, hint: 'adds HowTo schema; the steps come from the one ```process-steps block flagged howto: true' },
@@ -208,15 +215,6 @@ function contractFor(pageType) {
       type: 'bool',
       default: false,
       hint: 'a page with no parent hub: omits the breadcrumb bar and BreadcrumbList; `breadcrumbs` must then be absent',
-    };
-    const ctaFields = slotFields('cta');
-    fields.cta = {
-      type: 'object',
-      required: true,
-      fields: {
-        ...ctaFields,
-        buttons: { ...ctaFields.buttons, max: 1 },
-      },
     };
     return fields;
   }

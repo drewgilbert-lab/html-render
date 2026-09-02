@@ -67,18 +67,18 @@ cta:
 
 `eyebrow` is also required on Pillar and Cluster pages. Pillar and Cluster
 additionally require `hero.stats` and `intro`; Cluster requires
-`resource_index`; Spoke requires `related`. Spoke `cta.buttons` allows one
-entry (the footer Request a Demo). Pillar and Cluster allow up to three.
+`resource_index`; Spoke requires `related`. `cta.buttons` allows one
+entry on every page class (the footer Request a Demo).
 
 ### Optional on every page
 
 ```yaml
 updated: 2026-08-11            # defaults to `published`
-eyebrow: GEO Measurement Guide # uppercase kicker above the H1
+eyebrow: GEO Measurement Guide # accepted on every page; not rendered in the hero
 breadcrumb_label: A shorter label for the current page in the trail
 page_skill_version: 0.24.0 (create-glossary-spoke)   # provenance; echoed in the output header
 component_library_version: html-render v1.3.0        # provenance; echoed in the output header
-pills:                         # small status pills under the lead (pillar/cluster; accepted but not rendered on spoke)
+pills:                         # accepted but not rendered
   - Ungated & citable
   - label: Last reviewed: August 2026
     tone: melon                # default | melon
@@ -93,8 +93,8 @@ hero:
       label: what the number counts
       source: HG Insights internal telemetry, 2026
       primary: true
-freshness:                     # the dark band under the hero; always rendered on spoke
-  label: Q3 2026               # spoke: this is the only field used (`Data last updated: {label}`)
+freshness:                     # always rendered under the hero
+  label: Q3 2026               # the only field used (`Data last updated: {label}`)
   note: What the figures reflect
   cadence: How often they refresh
   link_text: See how these figures are tracked
@@ -225,9 +225,9 @@ index when it has one: a cluster's resource index, or a pillar's list of
 | `related` | spoke | yes | The closing cross-link band |
 | `layout` | spoke | no | `article` (default) or `banded` — see [page-layouts.md](page-layouts.md) |
 | `standalone` | spoke | no | `true` = no parent hub: omits the breadcrumb bar, `BreadcrumbList`, and `isPartOf`; `breadcrumbs` must then be absent |
-| `cta.buttons` | spoke | yes (one) | Spoke allows a single button. Secondary buttons, `cta.links`, and `cta.pills` are not rendered |
-| `freshness` | spoke | no | Always rendered under the hero. `label` if supplied, otherwise a quarter derived from `updated` (else `published`). Note, cadence, and methodology link are ignored |
-| `pills` | spoke | no | Accepted but not rendered |
+| `cta.buttons` | all | yes (one) | A single footer button. Secondary buttons, `cta.links`, and `cta.pills` are not rendered |
+| `freshness` | all | no | Always rendered under the hero. `label` if supplied, otherwise a quarter derived from `updated` (else `published`). Note, cadence, and methodology link are ignored |
+| `pills` | all | no | Accepted but not rendered |
 | *(derived)* | pillar | — | Every ```` ```link-card ```` in the body becomes an entry in the pillar's `ItemList`, in body order. Nothing to author |
 
 ### Frontmatter rules

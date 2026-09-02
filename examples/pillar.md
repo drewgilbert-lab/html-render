@@ -19,12 +19,6 @@ author:
   bio: Focuses on generative engine visibility measurement and GEO program design for B2B brands
   url: https://hginsights.com/authors/jordan-lee/
 
-pills:
-  - Ungated & citable
-  - "Primary reader: GEO / AI Visibility Specialist"
-  - label: Last reviewed: August 2026
-    tone: melon
-
 hero:
   thesis: AI Search Visibility Measurement is the practice of quantifying how often a brand appears, is mentioned, or is cited inside AI generated answers across engines such as ChatGPT, Perplexity, Gemini, and Google AI Overviews.
   freshness_badge: Figures reflect 2026 telemetry
@@ -47,10 +41,6 @@ hero:
 
 freshness:
   label: 2026
-  note: Reflects HG Insights internal crawl and grounding call telemetry for the TrustRadius network
-  cadence: Refreshed as new measurement benchmarks publish
-  link_text: See how these figures are tracked
-  link_url: "#faq"
 
 intro:
   eyebrow: About This Guide
@@ -106,19 +96,9 @@ cta:
   eyebrow: Put This Data to Work
   title: See How TrustRadius GEO Monitoring Tracks Your Brand's AI Search Visibility
   body: HG Insights' TrustRadius GEO offering was built around the exact measurement gap this guide describes, tracking Mention Rate, Citation Rate, and Share of Voice for your brand across major generative engines.
-  links:
-    - label: AI visibility audits
-      url: https://hginsights.com/geo/ai-visibility-audit/
-    - label: Competitive Share of Voice tracking
-      url: https://hginsights.com/geo/share-of-voice-tracking/
-    - label: Executive GEO reporting
-      url: https://hginsights.com/geo/executive-reporting/
   buttons:
-    - label: Book a Demo
+    - label: Request a Demo
       url: https://hginsights.com/demo
-    - label: Explore Free
-      url: https://hginsights.com/geo/
-      variant: secondary
 ---
 
 ## Why Does AI Search Visibility Measurement Matter for B2B Marketing Teams Right Now?

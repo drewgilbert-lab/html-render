@@ -400,10 +400,10 @@ not their position — see [page-layouts.md](page-layouts.md).
 | Component | Design source | Fed by |
 |---|---|---|
 | `breadcrumb` | 02-breadcrumb | `breadcrumbs`, `breadcrumb_label`, `title` |
-| `hero` | 03-hero-stat-block | `eyebrow`, `title`, `description`, `pills`, `author`, `hero.*`. Spoke (banded) omits `eyebrow`, `pills`, and `thesis` |
-| `article-hero` | 34-editorial-hero (light) | `title`, `author`. Spoke does not render `pills` |
-| `freshness-bar` | 04-data-freshness-bar | `freshness`. Spoke always renders it (`Data last updated: {label}`); note, cadence, and link are ignored. Label falls back to a quarter derived from `updated` / `published` |
-| `thesis-band` | 31-thesis-block | `hero.thesis` (Cluster only). Spoke (both variants) places `hero.thesis` in the reading column |
+| `hero` | 03-hero-stat-block | `title`, `description`, `author`, `hero.*`. Omits `eyebrow`, `pills`, and `thesis` on every page class |
+| `article-hero` | 34-editorial-hero (light) | `title`, `author`. Does not render `pills` |
+| `freshness-bar` | 04-data-freshness-bar | always rendered (`Data last updated: {label}`); note, cadence, and link are ignored. Label falls back to a quarter derived from `updated` / `published` |
+| `thesis-band` | 31-thesis-block | `hero.thesis` (Cluster). Pillar and spoke place `hero.thesis` in the reading column |
 | `intro-toc` | 06-hub-intro-toc | `intro`, plus body sections for the nav |
 | `side-nav` | 30-sticky-side-nav | `side_nav`, plus body sections for the links; on spoke, also the first `cta.buttons` primary button. The spoke template always composes this rail |
 | `resource-index` | 13-data-cut-filters | `resource_index` |
@@ -411,7 +411,7 @@ not their position — see [page-layouts.md](page-layouts.md).
 | `methodology` | 16-methodology-section | `methodology` |
 | `faq` | Faq | `faq` |
 | `citations` | 60-citations-list | `citations` |
-| `cta` | 17-sticky-cta-footer | `cta`. Spoke renders one primary button and omits `links` and `pills` |
+| `cta` | 17-sticky-cta-footer | `cta`. One primary button; omits `links` and `pills` |
 
 Sub-components reused across the above — the section header (05), meta pills
 (35), stat cards (03), and the author byline — also have a single implementation,

@@ -17,7 +17,7 @@
      Meta description The vocabulary and calculation logic behind the four metrics GEO teams use to quantify AI search visibility: Share of Voice, Share of Model, Mention Rate, and Citation Rate.
      Canonical URL    https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/
      Published        2026-08-11    Updated  2026-08-11
-     Body             6 sections, ~2154 words
+     Body             6 sections, ~2143 words
 
      Paste this whole block into the target page container. It contains no
      <html>, <head>, site navigation, or footer - page body only.
@@ -190,7 +190,7 @@
   .render-page .section-header.align-left .section-subtitle { margin: 0; }
 
   /* ---- Hub intro + TOC (06) --------------------------------- */
-  .render-page .hub-intro-section { padding: 64px 0 48px; background: var(--hg-white); border-bottom: 1px solid var(--hg-border); }
+  .render-page .hub-intro-section { padding: 64px 0 48px; background: var(--hg-white); }
   .render-page .hub-intro-section .container { display: grid; grid-template-columns: 1fr 340px; gap: 64px; align-items: start; }
   .render-page .hub-intro-section.no-toc .container { grid-template-columns: 1fr; }
   .render-page .hub-intro-eyebrow { font-size: 12px; font-weight: var(--fw-bold); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--hg-dark-blue); margin-bottom: 10px; }
@@ -248,7 +248,7 @@
   .render-page .coming-soon-badge { display: inline-block; background: var(--hg-off-white); color: var(--hg-text-light); font-size: 11px; font-weight: var(--fw-bold); padding: 3px 10px; border-radius: 20px; margin-top: 14px; text-transform: uppercase; letter-spacing: 0.05em; }
 
   /* ---- Spoke / related cards (14) --------------------------- */
-  .render-page .related-hubs-section { padding: 64px 0; background: var(--hg-off-white); border-top: 1px solid var(--hg-border); border-bottom: 1px solid var(--hg-border); }
+  .render-page .related-hubs-section { padding: 64px 0; background: var(--hg-off-white); }
   .render-page .related-hubs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px; }
   .render-page .related-hub-card { background: var(--hg-white); border: 1px solid var(--hg-border-light); border-radius: 12px; padding: 20px; text-decoration: none; color: inherit; transition: border-color 0.2s, box-shadow 0.2s; display: block; }
   .render-page .related-hub-card:hover { border-color: var(--hg-blue-hover); box-shadow: 0 4px 16px rgba(0,88,163,0.08); }
@@ -258,7 +258,7 @@
   .render-page .related-hub-link { font-size: 12.5px; font-weight: var(--fw-bold); color: var(--hg-dark-blue); }
 
   /* ---- Faq section ----------------------------------------- */
-  .render-page .faq-section { padding: var(--section-pad); background: var(--hg-off-white); border-top: 1px solid var(--hg-border); }
+  .render-page .faq-section { padding: var(--section-pad); background: var(--hg-off-white); }
   .render-page .faq-section .container { display: grid; grid-template-columns: 260px 1fr; gap: 64px; align-items: start; }
   .render-page .faq-label-col .section-eyebrow { margin-bottom: 8px; }
   .render-page .faq-label-col h2 { font-weight: 900; font-size: 28px; color: var(--hg-text-dark); line-height: 1.2; margin-bottom: 16px; }
@@ -273,7 +273,7 @@
   .render-page .faq-answer strong { color: var(--hg-text-dark); font-weight: 700; }
 
   /* ---- Methodology section (16) ---------------------------- */
-  .render-page .methodology-section { padding: 56px 0; background: var(--hg-off-white); border-top: 1px solid var(--hg-border); border-bottom: 1px solid var(--hg-border); }
+  .render-page .methodology-section { padding: 56px 0; background: var(--hg-off-white); }
   .render-page .methodology-section .container { display: grid; grid-template-columns: 280px 1fr; gap: 60px; align-items: start; }
   .render-page .methodology-eyebrow { font-size: 12px; font-weight: var(--fw-bold); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--hg-dark-blue); margin-bottom: 8px; }
   .render-page .methodology-label-col h2 { font-weight: var(--fw-black); font-size: 28px; color: var(--hg-text-dark); line-height: 1.2; }
@@ -428,7 +428,7 @@
   .render-page .share-bar.no-track .share-bar-fill { height: 8px; min-width: 4px; flex-shrink: 0; }
 
   /* ---- Citations list (60) ----------------------------- */
-  .render-page .citations-section { padding: 56px 0; background: var(--hg-white); border-top: 1px solid var(--hg-border); }
+  .render-page .citations-section { padding: 56px 0; background: var(--hg-white); }
   .render-page .citations-list { padding-top: var(--space-4); }
   .render-page .citations-list-items { list-style: none; padding: 0; margin: 0; column-gap: var(--space-10); }
   .render-page .citation-item { display: flex; gap: var(--space-2); padding: var(--space-2) 0; break-inside: avoid; }
@@ -468,16 +468,9 @@
   .render-page .page-section.tinted { background: var(--hg-off-white); }
   .render-page .spoke-col .page-section { padding: 56px var(--space-8); }
 
-  /* Spoke pages have no hairline between page-level sections. FAQ item
-     rules stay: those are not section dividers. */
-  .render-page[data-page-type="spoke"] .hub-intro-section { border-bottom: none; }
-  .render-page[data-page-type="spoke"] .methodology-section,
-  .render-page[data-page-type="spoke"] .faq-section,
-  .render-page[data-page-type="spoke"] .citations-section,
-  .render-page[data-page-type="spoke"] .related-hubs-section {
-    border-top: none;
-    border-bottom: none;
-  }
+  /* No hairline between page-level sections. FAQ item rules stay: those are
+     not section dividers. Spoke column bands inset text from the gray edge;
+     cluster full-width bands already inset via .container. */
   .render-page .page-section p { font-size: 17px; color: var(--hg-text-mid); line-height: 1.75; margin-bottom: 16px; max-width: 900px; }
   .render-page .page-section p:last-child { margin-bottom: 0; }
   .render-page .page-section strong { color: var(--hg-text-dark); font-weight: var(--fw-bold); }
@@ -615,13 +608,8 @@
   <section class="hero" id="hero">
     <div class="container">
       <div class="hero-left">
-        <span class="hero-eyebrow">Cluster Hub &middot; AI Search Visibility Measurement</span>
         <h1>Core AI Visibility Metrics and Vocabulary</h1>
         <p class="hero-description">The vocabulary and calculation logic behind the four metrics GEO teams use to quantify AI search visibility: Share of Voice, Share of Model, Mention Rate, and Citation Rate.</p>
-        <div class="meta">
-          <span class="pill"><span class="dot"></span> Ungated &amp; citable</span>
-          <span class="pill melon"><span class="dot"></span> Last reviewed: August 2026</span>
-        </div>
         <div class="author-byline author-byline-dark">
           <div class="author-byline-avatar author-byline-avatar-initials">JL</div>
           <div class="author-byline-info">
@@ -655,9 +643,9 @@
       </div>
     </div>
   </section>
-  <div class="thesis-wrap">
+  <div class="freshness-bar">
     <div class="container">
-      <p class="thesis-block">Core AI Visibility Metrics and Vocabulary is the set of four measurements, Share of Voice, Share of Model, Mention Rate, and Citation Rate, used to quantify how often and how favorably a brand appears in AI-generated answers. TrustRadius tracks up to 100 real buyer prompts per product each month to produce them.</p>
+      <span class="freshness-text">Data last updated: Q3 2026</span>
     </div>
   </div>
   <section class="hub-intro-section" id="overview">
@@ -684,7 +672,11 @@
       </div>
     </div>
   </section>
-  <hr class="section-rule">
+  <div class="thesis-wrap">
+    <div class="container">
+      <p class="thesis-block">Core AI Visibility Metrics and Vocabulary is the set of four measurements, Share of Voice, Share of Model, Mention Rate, and Citation Rate, used to quantify how often and how favorably a brand appears in AI-generated answers. TrustRadius tracks up to 100 real buyer prompts per product each month to produce them.</p>
+    </div>
+  </div>
   <section class="page-section" id="scope">
     <div class="container">
       <div class="section-header">
@@ -700,7 +692,6 @@
       </div>
     </div>
   </section>
-  <hr class="section-rule">
   <section class="data-cuts-section" id="resource-index">
     <div class="container">
       <div class="section-header">
@@ -790,7 +781,6 @@
       </div>
     </div>
   </section>
-  <hr class="section-rule">
   <section class="page-section tinted" id="definitions">
     <div class="container">
       <div class="section-header">
@@ -830,7 +820,6 @@
       </div>
     </div>
   </section>
-  <hr class="section-rule">
   <section class="page-section" id="calculation">
     <div class="container">
       <div class="section-header">
@@ -846,7 +835,6 @@
       </ol>
     </div>
   </section>
-  <hr class="section-rule">
   <section class="page-section tinted" id="selection">
     <div class="container">
       <div class="section-header">
@@ -857,7 +845,6 @@
       <p>Teams reporting to a CMO or board usually need Share of Voice, because leadership questions are comparative: are named competitors ahead of us. Teams proving the return on a specific content investment need Citation Rate, because it is the only metric tied to a particular URL.</p>
     </div>
   </section>
-  <hr class="section-rule">
   <section class="page-section" id="expert-commentary">
     <div class="container">
       <div class="section-header">
@@ -877,7 +864,6 @@
       </figure>
     </div>
   </section>
-  <hr class="section-rule">
   <section class="page-section tinted" id="matrix">
     <div class="container">
       <div class="section-header">
@@ -1010,8 +996,7 @@
         <p>HG Insights tracks brand and competitor mentions across ChatGPT, Gemini, Perplexity, Claude, and Google AI Overviews for up to 100 real buyer prompts per product each month, refreshed on a recurring cycle so every metric in this cluster becomes a trend line rather than a snapshot.</p>
       </div>
       <div class="cta-buttons">
-        <a class="btn-primary" href="https://hginsights.com/demo">Book a Demo</a>
-        <a class="btn-secondary" href="https://hginsights.com/geo/how-to-measure-ai-search-visibility/">Explore the Pillar Guide</a>
+        <a class="btn-primary" href="https://hginsights.com/demo">Request a Demo</a>
       </div>
     </div>
   </section>

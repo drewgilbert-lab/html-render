@@ -130,13 +130,13 @@ function renderArticle(doc) {
   return lines(
     fm.standalone ? '' : renderSlot('breadcrumb', assemble.breadcrumbInput(fm)),
     renderSlot('article-hero', assemble.articleHeroInput(fm)),
-    renderSlot('freshness-bar', assemble.spokeFreshnessInput(fm)),
+    renderSlot('freshness-bar', assemble.freshnessInput(fm)),
     renderSpokeBody(el('div', { class: 'spoke-col article-body' }, `\n${indent(lines(blocks))}\n`), fm, doc.sections),
     fm.methodology ? renderSlot('methodology', fm.methodology) : '',
     renderSlot('faq', fm.faq),
     fm.citations ? renderSlot('citations', fm.citations) : '',
     renderSlot('related', fm.related),
-    renderSlot('cta', assemble.ctaInput(fm, { singleButton: true })),
+    renderSlot('cta', assemble.ctaInput(fm)),
   );
 }
 
@@ -151,15 +151,15 @@ function renderBanded(doc) {
   });
   return lines(
     fm.standalone ? '' : renderSlot('breadcrumb', assemble.breadcrumbInput(fm)),
-    renderSlot('hero', assemble.heroInput(fm, { eyebrow: false, pills: false, thesis: false })),
-    renderSlot('freshness-bar', assemble.spokeFreshnessInput(fm)),
+    renderSlot('hero', assemble.heroInput(fm)),
+    renderSlot('freshness-bar', assemble.freshnessInput(fm)),
     fm.intro ? renderSlot('intro-toc', assemble.introTocInput(fm, sections, { omitToc: true })) : '',
     renderSpokeBody(el('div', { class: 'spoke-col' }, `\n${indent(lines(col))}\n`), fm, sections),
     fm.methodology ? renderSlot('methodology', fm.methodology) : '',
     renderSlot('faq', fm.faq),
     fm.citations ? renderSlot('citations', fm.citations) : '',
     renderSlot('related', fm.related),
-    renderSlot('cta', assemble.ctaInput(fm, { singleButton: true })),
+    renderSlot('cta', assemble.ctaInput(fm)),
   );
 }
 

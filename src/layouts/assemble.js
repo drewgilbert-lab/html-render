@@ -13,14 +13,12 @@ function breadcrumbInput(fm) {
   return { items: fm.breadcrumbs, current: fm.breadcrumb_label || fm.title };
 }
 
-function heroInput(fm, { eyebrow = true, pills = true, thesis = true } = {}) {
+/** Gradient hero: H1, lead, byline, stats. Eyebrow, pills, and thesis are omitted. */
+function heroInput(fm) {
   const hero = fm.hero || {};
   return {
-    eyebrow: eyebrow ? fm.eyebrow : null,
     title: fm.title,
     description: fm.description,
-    pills: pills ? fm.pills : null,
-    thesis: thesis ? hero.thesis : null,
     author: fm.author,
     freshness_badge: hero.freshness_badge,
     source: hero.source,
@@ -50,8 +48,8 @@ function freshnessLabel(fm) {
   return quarterLabel(fm.updated || fm.published);
 }
 
-/** Spoke freshness bar: label only. Note, cadence, and methodology link are ignored. */
-function spokeFreshnessInput(fm) {
+/** Freshness bar: label only. Note, cadence, and methodology link are ignored. */
+function freshnessInput(fm) {
   return { label: freshnessLabel(fm) };
 }
 
@@ -102,10 +100,9 @@ function sideNavInput(fm, sections, options = {}) {
   return input;
 }
 
-/** Spoke CTA: one primary button, no use-case links or meta pills. */
-function ctaInput(fm, { singleButton = false } = {}) {
+/** Footer CTA: one primary button, no use-case links or meta pills. */
+function ctaInput(fm) {
   const source = fm.cta || {};
-  if (!singleButton) return source;
   const primary = primaryCtaButton(fm);
   return {
     eyebrow: source.eyebrow,
@@ -120,7 +117,7 @@ module.exports = {
   heroInput,
   articleHeroInput,
   thesisBandInput,
-  spokeFreshnessInput,
+  freshnessInput,
   introTocInput,
   sideNavInput,
   ctaInput,
