@@ -24,13 +24,16 @@ function typesOf(graph) {
   return graph['@graph'].map((node) => node['@type']);
 }
 
-test('every page carries Organization, Person, Article, BreadcrumbList, and FAQPage', () => {
-  for (const file of ['pillar.md', 'cluster.md', 'spoke.md', 'spoke-banded.md']) {
+test('every page carries Organization, Person, a root node, BreadcrumbList, and FAQPage', () => {
+  const roots = { 'pillar.md': 'Article', 'cluster.md': 'CollectionPage', 'spoke.md': 'Article', 'spoke-banded.md': 'Article' };
+  for (const file of Object.keys(roots)) {
     const graph = graphFor(file);
     assert.equal(graph['@context'], 'https://schema.org');
-    for (const type of ['Organization', 'Person', 'Article', 'BreadcrumbList', 'FAQPage']) {
+    for (const type of ['Organization', 'Person', roots[file], 'BreadcrumbList', 'FAQPage']) {
       assert.ok(typesOf(graph).includes(type), `${file} is missing ${type}`);
     }
+    // Exactly one root, whichever type it takes.
+    assert.equal(typesOf(graph).filter((type) => ['Article', 'TechArticle', 'CollectionPage'].includes(type)).length, 1);
   }
 });
 
@@ -55,6 +58,20 @@ test('a cluster adds an ItemList indexing every spoke', () => {
   // The in-production entry has no URL yet, so none is invented.
   const pending = list.itemListElement.find((item) => item.name === 'AI Visibility Benchmarks');
   assert.ok(pending && pending.url === undefined);
+  // Every entry carries the one-line description the index card shows.
+  assert.ok(list.itemListElement.every((item) => typeof item.description === 'string' && item.description.length));
+  // The cluster example declares itself a CollectionPage whose mainEntity is this index.
+  const root = graph['@graph'].find((node) => node['@type'] === 'CollectionPage');
+  assert.equal(root.mainEntity['@id'], list['@id']);
+});
+
+test('a pillar indexes its link-cards as an ItemList', () => {
+  const graph = graphFor('pillar.md');
+  const list = graph['@graph'].find((node) => node['@type'] === 'ItemList');
+  assert.ok(list, 'pillar has no ItemList');
+  assert.equal(list['@id'], 'https://hginsights.com/geo/how-to-measure-ai-search-visibility/#index');
+  assert.equal(list.numberOfItems, 1);
+  assert.equal(list.itemListElement[0].position, 1);
 });
 
 test('a term declaration adds DefinedTerm and points the Article at it', () => {

@@ -37,6 +37,103 @@ const TERM_FIELDS = {
   set_url: { type: 'url' },
 };
 
+/*
+ * Format-specific schema nodes. Every one is optional on every page class and
+ * feeds src/schema.js only — nothing here renders visibly. They exist so a page
+ * can carry the nested JSON-LD its format calls for (a HowTo, a Dataset, an
+ * ItemList of options, a Service, a DefinedTermSet, a SoftwareApplication)
+ * without the author writing a line of JSON-LD by hand.
+ */
+
+const ARTICLE_FIELDS = {
+  type: {
+    type: 'enum',
+    values: ['Article', 'TechArticle', 'CollectionPage'],
+    default: 'Article',
+    hint: 'the schema type of the page\'s root node; CollectionPage suits a page whose job is to index other pages',
+  },
+  proficiency_level: { type: 'plain', hint: 'TechArticle only, e.g. "Expert"' },
+  dependencies: { type: 'text', hint: 'TechArticle only: what the reader needs in place before the article applies' },
+};
+
+const HOWTO_FIELDS = {
+  name: { type: 'text', required: true, hint: 'e.g. "How to score a vendor out of 20 points"' },
+  description: { type: 'text' },
+  total_time: { type: 'plain', hint: 'an ISO 8601 duration, e.g. "P30D" or "PT4H"' },
+  tools: { type: 'list', of: { type: 'plain' }, hint: 'HowToTool names' },
+};
+
+const ITEM_LIST_FIELDS = {
+  name: { type: 'text', required: true },
+  order: {
+    type: 'enum',
+    values: ['ascending', 'unordered'],
+    default: 'ascending',
+    hint: 'ascending for a real ranking or numbered sequence, unordered for options with no rank',
+  },
+  items: {
+    type: 'list',
+    required: true,
+    min: 1,
+    fields: {
+      name: { type: 'text', required: true },
+      description: { type: 'text' },
+      url: { type: 'url', hint: 'an absolute URL, or an "#anchor" that exists on this page' },
+    },
+  },
+};
+
+const DATASET_FIELDS = {
+  name: { type: 'text', required: true },
+  description: { type: 'text', required: true },
+  variable_measured: { type: 'list', required: true, min: 1, of: { type: 'plain' }, hint: 'the measured variables, one per entry' },
+  temporal_coverage: { type: 'plain', required: true, hint: 'e.g. "2025/2026" or "2026-Q1"' },
+  spatial_coverage: { type: 'plain', required: true, hint: 'e.g. "Global (60+ countries)"' },
+  measurement_technique: { type: 'text' },
+  license: { type: 'url', hint: 'the citation-rights or license URL' },
+  free: { type: 'bool', default: true, hint: 'isAccessibleForFree' },
+  catalog: {
+    type: 'object',
+    fields: { name: { type: 'plain', required: true }, url: { type: 'url', required: true } },
+    hint: 'the DataCatalog this dataset belongs to; omit when the page has no parent catalog',
+  },
+};
+
+const SERVICE_FIELDS = {
+  name: { type: 'plain', required: true },
+  service_type: { type: 'text', required: true },
+  audience_type: { type: 'text', hint: 'Audience.audienceType, e.g. "Cybersecurity software vendors"' },
+  audience_name: { type: 'plain', hint: 'Audience.name, e.g. "Cybersecurity GTM teams"' },
+  area_served: { type: 'plain' },
+  offers: { type: 'list', of: { type: 'plain' }, hint: 'named applications; each becomes an Offer in the OfferCatalog' },
+};
+
+const TERM_SET_FIELDS = {
+  name: { type: 'plain', required: true },
+  description: { type: 'text' },
+  terms: {
+    type: 'list',
+    required: true,
+    min: 1,
+    fields: {
+      name: { type: 'plain', required: true },
+      definition: { type: 'text', required: true },
+      id: { type: 'plain', hint: 'the @id fragment, e.g. "field-product-id"; derived from the name when omitted' },
+      alternate_name: { type: 'plain' },
+      term_code: { type: 'plain' },
+    },
+  },
+};
+
+const SOFTWARE_FIELDS = {
+  name: { type: 'plain', required: true },
+  category: { type: 'plain', default: 'BusinessApplication', hint: 'schema.org applicationCategory' },
+  operating_system: { type: 'plain', hint: 'e.g. "Cloud (SaaS)"' },
+  version: { type: 'plain' },
+  url: { type: 'url' },
+  id: { type: 'plain', hint: 'the @id fragment; derived from the name when omitted' },
+};
+
 /** Fields shared by every page class. */
 function baseFields() {
   return {
@@ -68,6 +165,13 @@ function baseFields() {
     related: { type: 'object', fields: slotFields('related') },
     cta: { type: 'object', required: true, fields: slotFields('cta') },
     term: { type: 'object', fields: TERM_FIELDS },
+    article: { type: 'object', fields: ARTICLE_FIELDS, hint: 'the root schema node\'s type and TechArticle extras' },
+    howto: { type: 'object', fields: HOWTO_FIELDS, hint: 'adds HowTo schema; the steps come from the one ```process-steps block flagged howto: true' },
+    item_list: { type: 'object', fields: ITEM_LIST_FIELDS, hint: 'adds ItemList schema naming the options or items this page enumerates' },
+    dataset: { type: 'object', fields: DATASET_FIELDS, hint: 'adds Dataset schema (plus DataCatalog when `catalog` is given); for benchmark and data-report pages' },
+    service: { type: 'object', fields: SERVICE_FIELDS, hint: 'adds Service schema tying an audience to an offering; for solution briefs' },
+    term_set: { type: 'object', fields: TERM_SET_FIELDS, hint: 'adds a DefinedTermSet with one DefinedTerm per entry; for decision options and field dictionaries' },
+    software: { type: 'list', fields: SOFTWARE_FIELDS, hint: 'adds one SoftwareApplication node per entry; for integration pages' },
   };
 }
 
@@ -133,4 +237,20 @@ function applyStandalone(fields, standalone) {
   return fields;
 }
 
-module.exports = { PAGE_TYPES, SPOKE_LAYOUTS, contractFor, tightenSpoke, applyStandalone, HERO_FIELDS, SIDE_NAV_FIELDS, TERM_FIELDS };
+module.exports = {
+  PAGE_TYPES,
+  SPOKE_LAYOUTS,
+  contractFor,
+  tightenSpoke,
+  applyStandalone,
+  HERO_FIELDS,
+  SIDE_NAV_FIELDS,
+  TERM_FIELDS,
+  ARTICLE_FIELDS,
+  HOWTO_FIELDS,
+  ITEM_LIST_FIELDS,
+  DATASET_FIELDS,
+  SERVICE_FIELDS,
+  TERM_SET_FIELDS,
+  SOFTWARE_FIELDS,
+};

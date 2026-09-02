@@ -110,7 +110,7 @@ function render(source, options = {}) {
   }
   parts.push(bodyHtml);
   if (settings.schema) {
-    parts.push(renderSchema(doc.frontmatter, { pageType: doc.pageType, sections: doc.sections, config }));
+    parts.push(renderSchema(doc.frontmatter, { pageType: doc.pageType, sections: doc.sections, preamble: doc.preamble, config }));
   }
   if (settings.script) {
     parts.push(`<script>\n${behaviourScript(config.pageClass)}\n</script>`);

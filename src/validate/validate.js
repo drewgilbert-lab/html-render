@@ -128,8 +128,53 @@ function validateDocument(parsed) {
     }
   }
 
+  // ---- HowTo steps: one flagged process-steps block, and only when declared ---
+  const blocks = [...parsed.body.preamble, ...sections.flatMap((section) => section.blocks)];
+  const stepBlocks = blocks.filter((block) => block.type === 'component' && block.name === 'process-steps');
+  const flagged = stepBlocks.filter((block) => block.data && block.data.howto === true);
+  if (!isBlank(frontmatter.howto)) {
+    if (!flagged.length) {
+      report.add(
+        'howto',
+        'declares HowTo schema, but no ```process-steps block carries `howto: true`. Flag exactly one block; its steps become the HowToStep list',
+        locOf(frontmatter, 'howto'),
+      );
+    }
+    for (const block of flagged.slice(1)) {
+      report.add('```process-steps', 'a second block carries `howto: true`; only one block can supply the HowTo steps', block.line);
+    }
+  } else {
+    for (const block of flagged) {
+      report.add(
+        '```process-steps',
+        'carries `howto: true`, but the frontmatter declares no `howto`. Add a `howto` node (name, description, total_time) or remove the flag',
+        block.line,
+      );
+    }
+  }
+
+  // ---- step anchors: lowercase slugs, unique against sections and each other ---
+  const stepIds = new Set();
+  for (const block of stepBlocks) {
+    const items = block.data && Array.isArray(block.data.items) ? block.data.items : [];
+    items.forEach((item, index) => {
+      if (!item || typeof item !== 'object' || isBlank(item.id)) return;
+      const id = String(item.id);
+      const at = `\`\`\`process-steps.items[${index}].id`;
+      if (!/^[a-z0-9][a-z0-9-]*$/.test(id)) {
+        report.add(at, `"${id}" is not a usable anchor. Use lowercase letters, digits, and hyphens, e.g. "level-1"`, locOf(item, 'id') || block.line);
+      } else if (seen.has(id)) {
+        report.add(at, `"#${id}" is already the anchor of section "${seen.get(id)}". Give the step a different id`, locOf(item, 'id') || block.line);
+      } else if (stepIds.has(id)) {
+        report.add(at, `"#${id}" is already used by another step. Step ids must be unique on the page`, locOf(item, 'id') || block.line);
+      } else {
+        stepIds.add(id);
+      }
+    });
+  }
+
   // ---- table of contents resolves ---------------------------------------
-  const anchors = new Set([...seen.keys(), 'hero', 'overview', 'faq', 'citations', 'related', 'cta', 'methodology', 'resource-index']);
+  const anchors = new Set([...seen.keys(), ...stepIds, 'hero', 'overview', 'faq', 'citations', 'related', 'cta', 'methodology', 'resource-index']);
   const toc = frontmatter.intro && frontmatter.intro.toc;
   if (Array.isArray(toc)) {
     toc.forEach((item, index) => {
@@ -140,6 +185,22 @@ function validateDocument(parsed) {
           `intro.toc[${index}].anchor`,
           `"#${anchor}" does not match any section on this page. Available anchors: ${[...anchors].join(', ')}`,
           locOf(item, 'anchor') || locOf(toc, index),
+        );
+      }
+    });
+  }
+
+  // ---- item_list anchors resolve -----------------------------------------
+  const listItems = frontmatter.item_list && frontmatter.item_list.items;
+  if (Array.isArray(listItems)) {
+    listItems.forEach((item, index) => {
+      if (!item || typeof item !== 'object' || typeof item.url !== 'string' || !item.url.startsWith('#')) return;
+      const anchor = item.url.slice(1);
+      if (anchor && !anchors.has(anchor)) {
+        report.add(
+          `item_list.items[${index}].url`,
+          `"#${anchor}" does not match any anchor on this page. Available anchors: ${[...anchors].join(', ')}`,
+          locOf(item, 'url') || locOf(listItems, index),
         );
       }
     });

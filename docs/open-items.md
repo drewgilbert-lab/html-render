@@ -19,7 +19,7 @@ node bin/html-render.js --components                            # what is implem
 
 Last reviewed: **2026-09-01**, against Claude Design export build
 `HGInsightsMarketingDesignSystem_3bf70b` (the 2026-09-01 recompile — same namespace, different
-contents; see §4) and `html-render` v1.4.0.
+contents; see §4) and `html-render` v1.5.0.
 
 ---
 
@@ -57,14 +57,38 @@ the fix is something that reads the field contracts, not a narrower regex.
 
 ## 2. Consumer migration
 
-**12 of the 13 page-building skills in `geo-spoke-builder` still carry hand-written component
-manifests.** The first migration landed: `create-glossary-spoke` reads the synced contract, renders
-through this CLI, and authors no JSON-LD (geo-spoke-builder#24, plugin 0.24.0; its migration
-checklist is that repo's `docs/HTML-RENDER-MIGRATION.md`). Its gap report drove the v1.3.0 contract
-extensions (`standalone`, `knows_about`, provenance keys, citations separator). Contract delivery
-history: first sync was [geo-spoke-builder#23](https://github.com/drewgilbert-lab/geo-spoke-builder/pull/23),
-merged 2026-08-27. Rewriting each remaining skill's "Design Components" section happens
-skill-by-skill as it migrates, not in one pass.
+**All 13 page-building skills in `geo-spoke-builder` are on this renderer as of 2026-09-01.**
+The first migration landed with `create-glossary-spoke` (geo-spoke-builder#24, plugin 0.24.0), and
+its gap report drove the v1.3.0 extensions (`standalone`, `knows_about`, provenance keys, citations
+separator). The other twelve migrated on 2026-09-01, one skill per PR
+([geo-spoke-builder#31–#42](https://github.com/drewgilbert-lab/geo-spoke-builder/pulls?q=is%3Apr+is%3Amerged+html-render),
+plugin 0.28.0–0.39.0; the per-skill manifest translations are that repo's
+`docs/HTML-RENDER-MIGRATION.md`). Reconciling their schema stacks against the renderer showed that
+`geo-standards.md` §1.1's format-specific types (`HowTo`, `Dataset`, `ItemList`, `Service`,
+`DefinedTermSet`, `SoftwareApplication`, `TechArticle`, `CollectionPage`) had no renderer
+counterpart at all, and that four export components the batch named were still unimplemented.
+Both are closed in v1.5.0 — see `CHANGELOG.md`. Contract delivery history: first sync was
+[geo-spoke-builder#23](https://github.com/drewgilbert-lab/geo-spoke-builder/pull/23), merged
+2026-08-27; the v1.5.0 contract was generated locally from this repo's PR #9 branch and shipped
+downstream with geo-spoke-builder#31, so the tag-triggered sync after `v1.5.0` is cut will
+re-stamp only its `commit=` line.
+
+**Every remaining spoke format is `banded`; only the glossary is `article`.** The consumer chose the
+variant from each skill's own design specification (stat hero, freshness bar, jump nav), which is
+why [page-layouts.md](page-layouts.md) re-mapped five formats in v1.5.0. Where a format's opening
+block carries a number only when the topic has one, the skill falls back to `article` at run time
+rather than inventing a stat card.
+
+**Skill needs v1.5.0 deliberately does not meet**, each recorded in that repo's migration file as a
+translation decision rather than a renderer gap: a right-rail side nav on long spokes (the pillar
+guide, benchmark report, and data dictionary manifests want `StickySideNav`; both spoke layouts
+give them the intro jump nav instead); a code block for the two technical spokes (the export has
+no such component, so this is a design-system gap, not a renderer one — the skills express the
+structure as a table); `InteractiveTable`, `TechStackLayers`, `DisplacementFlow`, and
+`CohortSwitcher` (all JavaScript-driven web-only components the consumer's §1.3 already treats
+with suspicion; a pipe table or `bar-chart` carries the data statically); `SocialProof` (gated by
+a customer-reference audit the consumer runs, and rarely cleared); the inline `MetricHighlight` /
+`NameHighlight` pair (still blocked on the inline-syntax decision in §3, `**bold**` stands in).
 
 Cross-checking those manifests against this registry (the procedure is
 [Step 5 of the sync skill](../.claude/skills/sync-design-components/SKILL.md)) surfaces components
@@ -74,13 +98,17 @@ numbered filenames; the export name each maps to is given where known. As of 202
 | Component (skill manifests) | Export name | Skills naming it | Note |
 |---|---|---|---|
 | `53-figure-block` | `Figure` | **10** | ✅ Implemented 2026-08-26 (`figure`) |
-| `33-limitations-cards` | `LimitationsCards` | 5 | |
-| `32-approach-implication-table` | `ApproachImplicationTable` | 4 | **Blocked** — see the token ambiguity in §3 |
+| `33-limitations-cards` | `LimitationsCards` | 5 | ✅ Implemented 2026-09-01 (`limitations-cards`, v1.5.0) |
+| `32-approach-implication-table` | `ApproachImplicationTable` | 4 | **Blocked** — see the token ambiguity in §3; the migrating skills express it as a two-column pipe table meanwhile |
 | `57-share-bar` | `ShareBar` | 3 | ✅ Implemented 2026-08-26 (`share-bar`, composed in `comparison-table` cells) |
-| `58-trend-indicator` | `TrendIndicator` | 3 | Cell-level primitive; can follow `share-bar`'s composition pattern |
-| `08`, `18`, `19` | not yet mapped | 2 each | Reconcile against the export manifest by name |
-| `07`, `20`, `21`, `22`, `55` | not yet mapped | 1 each | Same |
-| `54-inline-highlight` | `NameHighlight` | 1 | Needs the inline-syntax decision in §3 |
+| `58-trend-indicator` | `TrendIndicator` | 3 | ✅ Implemented 2026-09-01 (`trend-indicator`, composed in `comparison-table` cells, v1.5.0) |
+| `08-key-insights-panel` | `KeyInsights` | 2 | ✅ Implemented 2026-09-01 (`key-insights`, v1.5.0) |
+| `07-primary-chart-bar` | `BarChart` | 1 | ✅ Implemented 2026-09-01 (`bar-chart`, v1.5.0) |
+| `19-interactive-table` | `InteractiveTable` | 2 | Web-only, JavaScript-driven; the skills use a static pipe table. Not planned |
+| `18-badges-tags-labels` | `Badge` | 2 | Named only in composition notes, never as a page element. Not planned |
+| `20-displacement-flow`, `21-tech-stack-layers`, `22-cohort-switcher` | `DisplacementFlow`, `TechStackLayers`, `CohortSwitcher` | 1 each | Web-only, JavaScript-driven; the consumer's §1.3 already excludes `22` outright. Not planned |
+| `55-social-proof-strip` | `SocialProof` | 1 | Gated by a customer-reference audit; the skill omits it. Not planned |
+| `54-inline-highlight` | `NameHighlight` / `MetricHighlight` | 1 | Needs the inline-syntax decision in §3 |
 
 Regenerate that ranking rather than trusting the table:
 
@@ -97,9 +125,8 @@ settling explicitly during migration so a skill author does not read it as one.
 **`15-faq-accordion` is named by 14 skill manifests and the accordion no longer exists.** The
 2026-09-01 export made the FAQ a static Q&A list (v1.4.0), so a skill still describing expand /
 collapse behaviour, a `+` toggle, or a first-item-open default is describing markup this renderer
-will not emit. Nothing breaks today — those skills still hand-write their own HTML — but each one's
-"Design Components" section needs the wording corrected as it migrates. The renderer's `faq`
-frontmatter contract is unchanged, so only the prose describing the rendered result is wrong.
+will not emit. The renderer's `faq` frontmatter contract is unchanged, so only the prose describing
+the rendered result is wrong. Each skill's wording is corrected as it migrates.
 
 ## 3. Component coverage
 
@@ -116,6 +143,25 @@ is reported by `--audit` in its "Legacy" bucket. Each migrates when its componen
 (`10-supporting-charts (mini bar)`) was built against a pre-refresh design the retired catalog
 never fully caught up with, so its reconciliation against the export's `MiniBarChart` needs a real
 comparison, not just a `source` rename.
+
+**The page-composition rules override component `h3` and `p` rules at equal specificity.**
+`.page-section p`, `.main-col p`, `.article-body p`, and the matching `h3` rules in the "Page
+composition" block are `(0,2,1)` selectors declared after most component blocks, so a component's
+own `(0,2,0)` or `(0,2,1)` rule for a `p` or `h3` loses to them: `concept-card-title` takes the
+section's `h3` margins, `callout-box-body` and `process-step-body` render at the section's 17px /
+1.75 rather than their own values. v1.5.0's four new blocks are placed *after* the composition
+rules and bump their `p` selectors with an ancestor class to render as designed, which is a
+workaround, not the fix. The fix is to scope the composition rules to bare prose (a `.prose`
+wrapper on section bodies, or `:not()` exclusions) and then move the four blocks back into
+component order. Touch every affected component's CSS in one reviewed pass, since it changes
+rendered output for pages already published.
+
+**`ProcessSteps` was touched in v1.5.0 without adopting the named convention.** The two fields
+added (`howto`, `id`) are renderer-owned, not design props, so the component's markup and CSS were
+left alone and its `source` stays `49-process-steps`. Reconciling it properly against the export is
+its own Changed decision: the export's `.jsx` uses an `h3.process-step-title` (this renderer emits a
+`div`), and its CSS is smaller (`--fs-body` titles, `--fs-small` bodies, 20px gap) than the values
+here. Switching to `h3` walks straight into the cascade issue above, so do the two together.
 
 **Table attribution has no component, by decision.** The 2026-09-01 export removed the
 `source`/`caption` prop from all six of its data-table components, and Drew's call was to follow it
@@ -178,6 +224,14 @@ eventually.
 
 ## Recently closed
 
+- **2026-09-01** — v1.5.0: the batch-migration release. Seven optional frontmatter keys give
+  every page format its own JSON-LD (`article.type`, `howto` with body-derived steps, `item_list`,
+  `dataset` + `DataCatalog`, `service`, `term_set`, `software`); a pillar derives an `ItemList`
+  from its `link-card` blocks (closing the `create-pillar-page` blocker in the consumer's
+  migration checklist); cluster `ItemList` entries carry descriptions; `trend-indicator`,
+  `limitations-cards`, `key-insights`, and `bar-chart` implemented from the export, taking the
+  audit from 5 to 9 covered. Opened two items rather than closing them: the composition-rule
+  cascade (§3) and the `ProcessSteps` reconciliation it blocks (§3).
 - **2026-09-01** — v1.4.0: second export recompile synced. `faq` rebuilt as the export's static
   Q&A list (accordion, `+` toggle and FAQ click handler all gone) and migrated to the named
   convention; `comparison-table` lost its `caption` field (breaking for page authors, though the

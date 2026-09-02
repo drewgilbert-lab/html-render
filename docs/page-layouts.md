@@ -132,25 +132,31 @@ cta
 
 ### Mapping the GEO spoke formats onto the two variants
 
-The eleven GEO spoke formats are content formats, not layouts. They map onto the
-two approved variants like this:
+The eleven GEO spoke formats are content formats, not layouts. The choice turns
+on one question: does the format open with a stat hero (a headline metric in a
+stat card, a freshness bar, a jump nav) or with a definition that flows straight
+into copy? Every format whose design specification opens with the stat hero is
+`banded`; only the glossary opens on the light article hero.
 
 | Spoke format | Variant | Why |
 |---|---|---|
-| Glossary / definition | `article` | Leads with a definition block, reads as one article |
-| Comparison | `article` | Built around a comparison matrix inside flowing copy |
-| Decision tree | `article` | Sequential prose gates |
-| Data dictionary | `article` | A long field table inside flowing copy |
-| Listicle | `article` | Parallel numbered items |
-| Solution brief | `article` | Problem / solution passages |
+| Glossary / definition | `article` | Leads with a definition block, reads as one article; no stat card |
+| Comparison | `banded` | Opens with the headline differentiating metric and a freshness bar; the matrix sits in its own band |
+| Decision tree | `banded` | The gate thresholds ride in the hero's stat cards; gates are sequential bands |
+| Data dictionary | `banded` | Schema-coverage stat hero, freshness bar, jump nav to the field table |
+| Listicle | `banded` | Headline metric in the hero, jump nav with one link per item |
+| Solution brief | `banded` | The vertical's headline stat leads; problem / solution bands follow |
 | Methodology | `banded` | Stat hero plus distinct framework stages |
 | Benchmark report | `banded` | Leads with proprietary numbers |
 | Evaluation guide | `banded` | Distinct scoring, red-flag, and ROI zones |
 | Integration blueprint | `banded` | Distinct architecture and deployment zones |
-| Pillar guide (spoke) | `banded` | Long, with clearly separated sub-topics |
+| Pillar guide (spoke) | `banded` | Long, with clearly separated sub-topics and a jump nav |
 
 Record the format itself in `eyebrow` and in the `tag` of the cards that link to
-the page. It is a label, not a layout.
+the page. It is a label, not a layout. (Until v1.5.0 this table mapped five of
+the `banded` rows to `article`; the consumer skills' own design specifications
+open every one of them with the stat hero, so the table now follows the
+specifications rather than the page name.)
 
 ---
 
@@ -166,3 +172,37 @@ the page. It is a label, not a layout.
   the heading.
 - **Determinism.** Band alternation, anchors, bar widths, stat-card emphasis,
   citation numbering, and the JSON-LD graph are all pure functions of the input.
+
+---
+
+## The JSON-LD graph
+
+Every page carries one `<script type="application/ld+json">` with an `@graph`.
+Nothing in it is authored by hand: every node is built from frontmatter, the
+`--config` organization, and, for the two derived lists, the body.
+
+| Node | Present when | Built from |
+|---|---|---|
+| `Organization` | always | `--config` `organization` (name, url, id, logo, sameAs) |
+| `Person` | always | `author` (`knows_about` → `knowsAbout`) |
+| `Article` | always, unless `article.type` says otherwise | `title`, `description`, dates, `author`; `isPartOf` → the last breadcrumb |
+| `TechArticle` | `article.type: TechArticle` | as `Article`, plus `proficiency_level`, `dependencies` |
+| `CollectionPage` | `article.type: CollectionPage` | as `Article` (with `name` and `url` in place of `headline` and `mainEntityOfPage`); `mainEntity` → the page's index |
+| `BreadcrumbList` | `breadcrumbs` present (never on a standalone spoke) | `breadcrumbs`, `breadcrumb_label` |
+| `FAQPage` | always | `faq.items`, verbatim |
+| `DefinedTerm` (+ `inDefinedTermSet`) | `term` | `term` |
+| `DefinedTermSet` with nested `DefinedTerm`s | `term_set` | `term_set.terms` |
+| `HowTo` with `HowToStep`s | `howto` | `howto`, plus the ```` ```process-steps ```` block flagged `howto: true` |
+| `ItemList` (`#list`) | `item_list` | `item_list.items` |
+| `Dataset` (+ `DataCatalog`) | `dataset` | `dataset`, `dataset.catalog` |
+| `Service` (+ `Audience`, `OfferCatalog`) | `service` | `service` |
+| `SoftwareApplication` | `software` | one per entry |
+| `ItemList` (`#spokes`) | cluster | `resource_index.items`, with each card's description |
+| `ItemList` (`#index`) | pillar with ```` ```link-card ```` blocks | the link-cards, in body order; in-production cards carry no URL |
+
+The root node points at what the page is about: `about` for an `Article` or
+`TechArticle`, `mainEntity` for a `CollectionPage`. The target is the first of
+`term`, `term_set`, `dataset`, `item_list`, `service`, `software[0]` the page
+declares; a `CollectionPage` prefers its own index (`#spokes` or `#index`) when
+it has one. Every `@id` is a fragment on the page URL, so the graph resolves
+across pages without any author-chosen identifiers.

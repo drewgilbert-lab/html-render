@@ -111,7 +111,7 @@ test('a directory with no manifest fails with a usable message', () => {
 test('formatAudit reports every classification', () => {
   const printed = formatAudit(fixture());
   assert.match(printed, /Export namespace: HGInsightsMarketingDesignSystem_3bf70b/);
-  assert.match(printed, /## New — not implemented here \(1\)/);
+  assert.match(printed, /## New — not implemented here \(5\)/);
   assert.match(printed, /## Removed — implemented here, gone from the export \(1\)/);
   assert.match(printed, /## Legacy numbered convention — cannot join on export names \(2\)/);
   assert.match(printed, /## Covered \(3\)/);
@@ -119,6 +119,6 @@ test('formatAudit reports every classification', () => {
 
 test('the live registry audits the fixture without throwing', () => {
   const result = auditCatalog(FIXTURE);
-  assert.equal(result.counts.catalogued, 4);
+  assert.equal(result.counts.catalogued, 8);
   assert.ok(typeof result.counts.covered === 'number');
 });

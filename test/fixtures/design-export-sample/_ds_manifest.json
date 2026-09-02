@@ -1,15 +1,45 @@
 {
   "namespace": "HGInsightsMarketingDesignSystem_3bf70b",
   "components": [
-    { "name": "Figure", "sourcePath": "components/content/Figure.jsx" },
-    { "name": "ShareBar", "sourcePath": "components/data/ShareBar.jsx" },
-    { "name": "Callout", "sourcePath": "components/panels/Callout.jsx" },
-    { "name": "ComparisonTable", "sourcePath": "components/tables/ComparisonTable.jsx" }
+    {
+      "name": "Figure",
+      "sourcePath": "components/content/Figure.jsx"
+    },
+    {
+      "name": "ShareBar",
+      "sourcePath": "components/data/ShareBar.jsx"
+    },
+    {
+      "name": "Callout",
+      "sourcePath": "components/panels/Callout.jsx"
+    },
+    {
+      "name": "ComparisonTable",
+      "sourcePath": "components/tables/ComparisonTable.jsx"
+    },
+    {
+      "name": "LimitationsCards",
+      "sourcePath": "components/panels/LimitationsCards.jsx"
+    },
+    {
+      "name": "TrendIndicator",
+      "sourcePath": "components/data/TrendIndicator.jsx"
+    },
+    {
+      "name": "KeyInsights",
+      "sourcePath": "components/panels/KeyInsights.jsx"
+    },
+    {
+      "name": "BarChart",
+      "sourcePath": "components/data/BarChart.jsx"
+    }
   ],
   "globalCssPaths": [
     "css/charts.css",
     "css/tables.css",
-    "css/content.css"
+    "css/content.css",
+    "css/editorial.css",
+    "css/panels.css"
   ],
   "source": "spa"
 }

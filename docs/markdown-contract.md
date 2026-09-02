@@ -136,6 +136,83 @@ term:                          # adds DefinedTerm schema; for glossary pages
   set_url: https://hginsights.com/geo/.../core-metrics-vocabulary/
 ```
 
+### Format-specific schema nodes
+
+A page format usually calls for more than `Article` + `FAQPage`. These keys add
+the nested nodes a format needs, and nothing here renders visibly. Every one is
+optional on every page class; the graph they produce is described in
+[page-layouts.md](page-layouts.md#the-json-ld-graph).
+
+```yaml
+article:                       # the root node's type; Article when omitted
+  type: TechArticle            # Article | TechArticle | CollectionPage
+  proficiency_level: Expert    # TechArticle only
+  dependencies: Salesforce Enterprise Edition or higher   # TechArticle only
+howto:                         # adds HowTo; the steps come from the body (see below)
+  name: How to score a technology intelligence vendor out of 20 points
+  description: A five-step scoring procedure a buying committee runs in a 30-day POC.
+  total_time: P30D             # ISO 8601 duration
+  tools:                       # HowToTool names
+    - HG Insights REST API v3 client credentials
+item_list:                     # adds ItemList: the options or items the page enumerates
+  name: Enterprise intent data approaches compared
+  order: unordered             # ascending (default) for a real ranking or numbered list
+  items:
+    - name: HG Insights Contextual Intent Data
+      description: One sentence on the option.
+      url: "#contextual-intent"     # an absolute URL or an #anchor on this page
+dataset:                       # adds Dataset (+ DataCatalog when `catalog` is given)
+  name: 2026 Global Enterprise IT Spend Benchmark
+  description: A forward-facing projection of enterprise IT spend across 128 categories.
+  variable_measured:           # all three coverage keys are required
+    - Total IT Spend
+    - Software Spend
+  temporal_coverage: 2025/2026
+  spatial_coverage: Global (60+ countries)
+  measurement_technique: Aggregation of verified install and spend signals.
+  license: https://hginsights.com/reports/it-spend-benchmark-2026/#citation-rights
+  free: true                   # isAccessibleForFree; defaults to true
+  catalog:                     # omit when the page has no parent catalog
+    name: HG Insights Research Data Catalog
+    url: https://hginsights.com/research/
+service:                       # adds Service; for solution briefs
+  name: HG Insights Technology Intelligence for Cybersecurity GTM
+  service_type: Technographic and IT spend intelligence for competitive displacement
+  audience_type: Cybersecurity software vendors and managed security service providers
+  audience_name: Cybersecurity GTM teams
+  area_served: Global
+  offers:                      # each becomes an Offer in the Service's OfferCatalog
+    - Behind-the-firewall legacy security appliance detection
+term_set:                      # adds DefinedTermSet with one DefinedTerm per entry
+  name: HG Technographics API Field Dictionary
+  description: Every field the company install endpoint returns, as of Q2 2026.
+  terms:
+    - name: product_id
+      definition: An integer that uniquely identifies a product in the taxonomy.
+      id: field-product-id     # the @id fragment; derived from the name when omitted
+      term_code: PID
+software:                      # adds one SoftwareApplication per entry
+  - name: HG Insights Revenue Growth Intelligence Fabric
+    category: BusinessApplication   # default
+    operating_system: Cloud (SaaS)
+    version: REST API v3
+    id: rgi-fabric
+```
+
+**`howto` reads its steps from the body.** The visible steps are already a
+```` ```process-steps ```` block, so the schema takes them from there rather than
+from a second copy: flag exactly one block with `howto: true`, and each of its
+items becomes a `HowToStep` in order, `text` being the item's body with
+Markdown stripped. Give an item an `id` and the step carries a `url` pointing
+at that anchor. Declaring `howto` with no flagged block, flagging a block with
+no `howto`, or flagging two blocks is an error.
+
+**What the root node is about.** `Article.about` (or `CollectionPage.mainEntity`)
+points at the first of `term`, `term_set`, `dataset`, `item_list`, `service`,
+`software[0]` that the page declares. A `CollectionPage` prefers the page's own
+index when it has one: a cluster's resource index, or a pillar's list of
+`link-card` blocks.
+
 ### Page-class-specific keys
 
 | Key | Page class | Required | What it does |
@@ -147,6 +224,7 @@ term:                          # adds DefinedTerm schema; for glossary pages
 | `related` | spoke | yes | The closing cross-link band |
 | `layout` | spoke | no | `article` (default) or `banded` — see [page-layouts.md](page-layouts.md) |
 | `standalone` | spoke | no | `true` = no parent hub: omits the breadcrumb bar, `BreadcrumbList`, and `isPartOf`; `breadcrumbs` must then be absent |
+| *(derived)* | pillar | — | Every ```` ```link-card ```` in the body becomes an entry in the pillar's `ItemList`, in body order. Nothing to author |
 
 ### Frontmatter rules
 
@@ -261,6 +339,10 @@ inputs, or run `html-render --components`.
 | An unusable link target | What forms are accepted |
 | Hero stats on an `article` spoke | A pointer to `layout: banded` |
 | `breadcrumbs` on a `standalone: true` spoke | Remove the trail or remove the flag — it is never invented |
+| `howto` with no ```` ```process-steps ```` flagged `howto: true`, a flagged block with no `howto`, or two flagged blocks | Which side to fix |
+| A step `id` that is not a lowercase slug, or collides with a section anchor or another step | The offending id |
+| An `item_list` entry whose `#anchor` matches nothing on the page | The anchors that exist |
+| A `bar-chart` whose variant lacks its legend, segments, or bars, or a `download_label` without a `download_url` | The missing key |
 | Body copy before the first `##` on a Pillar or Cluster | The line it starts on |
 
 Every problem in the file is reported at once, so one pass gets you a clean run.

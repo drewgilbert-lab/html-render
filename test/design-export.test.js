@@ -4,7 +4,7 @@
  * Ingestion proof against the Claude Design export fixture.
  *
  * `test/fixtures/design-export-sample` is a verbatim excerpt of a real export
- * (manifest, four component triads, and their CSS attributed to the files it
+ * (manifest, eight component triads, and their CSS attributed to the files it
  * actually lives in). These tests read that fixture — not inline-duplicated
  * markup — so they prove the ingestion mechanism end to end and keep the
  * fixture and the registry in agreement:
@@ -14,10 +14,11 @@
  *      every file in the manifest's `globalCssPaths` — never assumed from its
  *      category folder (Callout lives in components/panels/ but its CSS is in
  *      css/content.css; ShareBar's is in css/charts.css, and no data.css
- *      exists at all);
+ *      exists at all; LimitationsCards lives in components/panels/ but its
+ *      CSS is in css/editorial.css);
  *   3. everything a registry render emits stays within the class vocabulary
  *      of the export's own JSX, and every ported rule is scoped;
- *   4. the audit reports all four covered.
+ *   4. the audit reports all eight covered.
  */
 
 const test = require('node:test');
@@ -77,6 +78,10 @@ test('component CSS is discovered across globalCssPaths, not assumed from the ca
     Callout: 'css/content.css',
     ShareBar: 'css/charts.css',
     ComparisonTable: 'css/tables.css',
+    LimitationsCards: 'css/editorial.css',
+    TrendIndicator: 'css/charts.css',
+    KeyInsights: 'css/panels.css',
+    BarChart: 'css/charts.css',
   };
   for (const component of manifest.components) {
     for (const className of jsxClasses.get(component.name)) {
@@ -117,16 +122,62 @@ test('registry renders stay within the class vocabulary of the export JSX', () =
       block('share-bar', { width: 56, no_track: true, emphasis: 'dim' }),
     ].join('\n'),
     ComparisonTable: block('comparison-table', {
-      columns: [{ label: 'Vendor' }, { label: 'Share', align: 'center' }],
-      rows: [{ cells: ['Salesforce', { share: { width: 38.2, value: '38.2%' } }] }],
+      columns: [{ label: 'Vendor' }, { label: 'Share', align: 'center' }, { label: 'YoY' }],
+      rows: [{ cells: ['Salesforce', { share: { width: 38.2, value: '38.2%' } }, { trend: { direction: 'up', value: '+3.1pp' } }] }],
     }),
+    LimitationsCards: block('limitations-cards', {
+      items: [
+        { title: 'Install share is not revenue share', body: 'Broad adoption can mean a small revenue fraction.' },
+        { title: 'Geographic signal density varies', body: 'Coverage is strongest in North America and Western Europe.' },
+      ],
+    }),
+    TrendIndicator: [
+      block('trend-indicator', { direction: 'up', value: '+3.1pp' }),
+      block('trend-indicator', { value: 'flat' }),
+    ].join('\n'),
+    KeyInsights: block('key-insights', {
+      title: 'What the data tells us',
+      items: [{ lead: 'Salesforce is consolidating.', text: 'Install share grew from 35.1% to 38.2% YoY.', attribution: 'See primary chart' }],
+    }),
+    BarChart: [
+      block('bar-chart', {
+        title: 'CRM Install Share',
+        subtitle: '500+ employees',
+        date_badge: 'Q2 2026',
+        rows: [
+          { label: 'Salesforce', width: 82, value: '38.2%' },
+          { label: 'HubSpot', width: 28, value: '11.8%', emphasis: 'accent' },
+        ],
+        source: 'Source: HG Insights',
+      }),
+      block('bar-chart', {
+        variant: 'stacked',
+        title: 'Spend mix',
+        legend: [{ label: 'Software', series: 's1' }, { label: 'Services', series: 's2' }],
+        rows: [{ label: 'Enterprise', value: '$1.1T', segments: [{ width: 60, series: 's1' }, { width: 40, series: 's2' }] }],
+      }),
+      block('bar-chart', {
+        variant: 'grouped',
+        title: 'Two periods',
+        legend: [{ label: '2025', series: 's2' }, { label: '2026', series: 's1' }],
+        rows: [{ label: 'Salesforce', value: '+3.1pp', bars: [{ width: 70, series: 's2' }, { width: 82, series: 's1' }] }],
+      }),
+    ].join('\n'),
   };
-  // ComparisonTable composes ShareBar inside a cell, so its vocabulary is the union.
+  // ComparisonTable composes ShareBar and TrendIndicator inside cells, so its vocabulary is the union.
   const allowed = {
     Figure: jsxClasses.get('Figure'),
     Callout: jsxClasses.get('Callout'),
     ShareBar: jsxClasses.get('ShareBar'),
-    ComparisonTable: new Set([...jsxClasses.get('ComparisonTable'), ...jsxClasses.get('ShareBar')]),
+    ComparisonTable: new Set([
+      ...jsxClasses.get('ComparisonTable'),
+      ...jsxClasses.get('ShareBar'),
+      ...jsxClasses.get('TrendIndicator'),
+    ]),
+    LimitationsCards: jsxClasses.get('LimitationsCards'),
+    TrendIndicator: jsxClasses.get('TrendIndicator'),
+    KeyInsights: jsxClasses.get('KeyInsights'),
+    BarChart: jsxClasses.get('BarChart'),
   };
   for (const name of Object.keys(rendered)) {
     for (const match of rendered[name].matchAll(/class="([^"]+)"/g)) {
@@ -138,10 +189,10 @@ test('registry renders stay within the class vocabulary of the export JSX', () =
   }
 });
 
-test('the audit reports all four fixture components covered by the live registry', () => {
+test('the audit reports all eight fixture components covered by the live registry', () => {
   const result = auditCatalog(FIXTURE);
-  assert.equal(result.counts.catalogued, 4);
-  assert.equal(result.counts.covered, 4);
+  assert.equal(result.counts.catalogued, 8);
+  assert.equal(result.counts.covered, 8);
   assert.equal(result.counts.new, 0);
   for (const entry of result.entries) {
     assert.ok(

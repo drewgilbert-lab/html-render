@@ -58,6 +58,12 @@ freshness:
   link_text: See the methodology
   link_url: "#methodology"
 
+# The three moves in the framework section are this page's HowTo steps; the
+# process-steps block below is flagged `howto: true` to say so.
+howto:
+  name: How to report AI search visibility to leadership in three moves
+  description: Open with a commercial proof point, show one benchmarked trend line against named competitors, and land on a single repeatable coverage number.
+
 intro:
   eyebrow: About This Framework
   title: Why metric-first GEO reporting loses budget
@@ -169,14 +175,18 @@ subtitle: Three moves, in this order, every reporting cycle.
 ```
 
 ```process-steps
+howto: true
 items:
-  - title: Open with the commercial proof point
+  - id: open-with-proof
+    title: Open with the commercial proof point
     body: |
       Lead with the conversion or pipeline figure that makes AI visibility a revenue question rather than a marketing-hygiene question. AI-referred visitors convert at 5.1 times the rate of Google organic visitors, which reframes every subsequent number as a revenue input.
-  - title: Show one benchmarked trend line
+  - id: show-one-trend-line
+    title: Show one benchmarked trend line
     body: |
       Follow with a single chart: the brand's coverage rate against the same named competitors, across at least three reporting periods. A fixed competitor set and a fixed prompt set are what make the line readable; a shifting set makes it meaningless.
-  - title: Land on one repeatable number
+  - id: land-on-one-number
+    title: Land on one repeatable number
     body: |
       Close with a blended Citation and Mention Coverage Rate. One number, stated as a percentage of tracked buyer prompts, is what gets repeated in the meeting after yours. Everything else belongs in an appendix.
 ```
@@ -223,6 +233,30 @@ definition:
 
     **Conversion rate figures** reflect visitor-to-lead conversion by traffic source, AI-referred versus Google organic, per the Averi Multi-Source Analysis, March 2026. Figures describe aggregate population averages, not a guarantee for any single company.
 footer: Source: TrustRadius internal crawl-log data and Averi Multi-Source Analysis, March 2026 &middot; figures as reported, no independent recalculation performed.
+```
+
+```key-insights
+title: What these figures mean for a GEO reporting line
+items:
+  - lead: AI-referred visitors convert at 5.1 times the Google organic rate.
+    text: 14.2% against 2.8%, which is the proof point a leadership readout opens with.
+    attribution: See the benchmark figure above
+  - lead: Review-network presence multiplies AI crawler attention.
+    text: TrustRadius customers draw 21 times the AI crawler visits of non-customers, and Top Rated products draw 31 times.
+    attribution: See the indexed bars above
+  - lead: One coverage number survives being repeated.
+    text: A blended Citation and Mention Coverage Rate is the figure to close on; the four underlying metrics move to an appendix.
+    attribution: See the framework steps
+```
+
+```limitations-cards
+items:
+  - title: Population averages, not a guarantee
+    body: Both figures describe aggregate behaviour across the TrustRadius review network. A single brand's lift depends on its category, review density, and the citable third-party content that already exists about it.
+  - title: Two sources, two measurement bases
+    body: Conversion figures come from the Averi Multi-Source Analysis, March 2026; crawler figures come from TrustRadius internal crawl logs. They are reported side by side, not derived from one another.
+  - title: No independent recalculation
+    body: HG Insights reports both figures as published. Neither has been recomputed against hginsights.com traffic or any other first-party dataset.
 ```
 
 ```quote
