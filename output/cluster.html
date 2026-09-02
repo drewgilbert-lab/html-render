@@ -1,5 +1,5 @@
 <!-- ============================================================================
-     HG Insights page body - html-render v1.4.0
+     HG Insights page body - html-render v1.5.0
 
      Page type        cluster
      Title            Core AI Visibility Metrics and Vocabulary
@@ -469,6 +469,68 @@
   .render-page .article-body p strong { color: var(--hg-text-dark); }
   .render-page .article-body .section-subtitle { max-width: 760px; margin: 0 0 var(--space-4); }
 
+  /*
+   * The four blocks below sit after the page-composition rules on purpose: they
+   * carry their own h3 and p treatments, and the composition rules for
+   * `.page-section`, `.main-col`, and `.article-body` would otherwise win the
+   * cascade at equal specificity. Values are the export's, verbatim.
+   */
+
+  /* ---- Limitations cards ------------------------------ */
+  .render-page .limitations-cards { display: grid; gap: 14px; margin: 4px 0 0; }
+  .render-page .limitations-cards .limit { border: 1px solid var(--hg-border-light); border-left: 4px solid var(--hg-melon); border-radius: 0 var(--hg-radius) var(--hg-radius) 0; padding: 18px 22px; background: var(--hg-white); }
+  .render-page .limitations-cards .limit h3 { margin: 0 0 8px; font-size: 17px; font-weight: 800; color: var(--hg-melon); }
+  .render-page .limitations-cards .limit p { margin: 0; font-size: var(--fs-body); color: var(--hg-text-mid); line-height: 1.7; max-width: none; }
+
+  /* ---- Trend indicator -------------------------------- */
+  .render-page .trend-indicator { font-weight: 800; white-space: nowrap; }
+  .render-page .trend-indicator.up { color: var(--hg-positive); }
+  .render-page .trend-indicator.down { color: var(--hg-negative); }
+  .render-page .trend-indicator.flat { color: var(--hg-text-light); }
+
+  /* ---- Key insights panel ----------------------------- */
+  .render-page .insights-panel { background: var(--grad-subtle); border: 1px solid rgba(0,88,163,0.12); border-radius: 12px; padding: 32px; margin: 20px 0; }
+  .render-page .insights-panel-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hg-blue); margin-bottom: 20px; display: flex; align-items: center; gap: 6px; }
+  .render-page .insights-panel-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--hg-blue); flex-shrink: 0; }
+  .render-page .insights-panel h3 { font-weight: 800; font-size: 18px; color: var(--hg-text-dark); margin: 0 0 20px; line-height: 1.3; }
+  .render-page .insight-list { display: flex; flex-direction: column; gap: 16px; }
+  .render-page .insight-item { display: flex; gap: 12px; align-items: flex-start; }
+  .render-page .insight-icon { width: 24px; height: 24px; background: var(--hg-dark-blue); border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+  .render-page .insight-icon svg { width: 12px; height: 12px; }
+  .render-page .insight-item .insight-text { font-size: 14px; color: var(--hg-text-mid); line-height: 1.6; margin: 0; max-width: none; }
+  .render-page .insight-item .insight-text strong { color: var(--hg-text-dark); font-weight: 700; }
+  .render-page .insight-attribution { font-size: 12px; color: var(--hg-blue); font-weight: 600; margin-top: 4px; }
+
+  /* ---- Bar chart -------------------------------------- */
+  .render-page .chart-wrapper { background: var(--hg-white); border: 1px solid var(--hg-border-light); border-radius: 12px; padding: 32px; margin: 20px 0; }
+  .render-page .chart-title-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; gap: 16px; }
+  .render-page .chart-title { font-weight: 800; font-size: 16px; color: var(--hg-text-dark); line-height: 1.3; }
+  .render-page .chart-date-badge { font-size: 12px; color: var(--hg-text-light); background: var(--hg-off-white); padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; font-weight: 600; }
+  .render-page .bar-chart { display: flex; flex-direction: column; gap: 14px; }
+  .render-page .bar-row { display: grid; grid-template-columns: 140px 1fr 52px; align-items: center; gap: 12px; }
+  .render-page .bar-label { font-size: 14px; font-weight: 700; color: var(--hg-text-dark); text-align: right; }
+  .render-page .bar-track { background: var(--hg-off-white); border-radius: 4px; height: 32px; overflow: hidden; }
+  .render-page .bar-fill { height: 100%; border-radius: 4px; background: var(--grad-dark-blue-purple); }
+  .render-page .bar-fill.accent { background: linear-gradient(90deg, var(--hg-blue) 0%, var(--hg-light-blue) 100%); }
+  .render-page .bar-fill.dim { background: linear-gradient(90deg, var(--hg-gray) 0%, var(--hg-gray-light) 100%); }
+  .render-page .bar-seg.s1, .render-page .bar-subbar.s1, .render-page .bar-legend-swatch.s1 { background: var(--grad-dark-blue-purple); }
+  .render-page .bar-seg.s2, .render-page .bar-subbar.s2, .render-page .bar-legend-swatch.s2 { background: var(--hg-blue); }
+  .render-page .bar-seg.s3, .render-page .bar-subbar.s3, .render-page .bar-legend-swatch.s3 { background: var(--hg-light-blue); }
+  .render-page .bar-seg.dim, .render-page .bar-subbar.dim, .render-page .bar-legend-swatch.dim { background: var(--hg-gray); }
+  .render-page .bar-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 18px; }
+  .render-page .bar-legend-item { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--hg-text-mid); }
+  .render-page .bar-legend-swatch { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .render-page .bar-chart.stacked .bar-track { display: flex; }
+  .render-page .bar-seg { height: 100%; min-width: 2px; }
+  .render-page .bar-seg:first-child { border-radius: 4px 0 0 4px; }
+  .render-page .bar-seg:last-child { border-radius: 0 4px 4px 0; }
+  .render-page .bar-chart.grouped .bar-group { display: flex; flex-direction: column; gap: 5px; justify-content: center; }
+  .render-page .bar-subbar { height: 13px; border-radius: 4px; min-width: 2px; }
+  .render-page .bar-value { font-size: 14px; font-weight: 800; color: var(--hg-dark-blue); }
+  .render-page .chart-footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--hg-border); font-size: 12px; color: var(--hg-text-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .render-page .chart-footer a { color: var(--hg-blue); text-decoration: none; font-weight: 600; }
+  .render-page .chart-footer a:hover { color: var(--hg-blue-hover); }
+
   /* ---- Responsive ------------------------------------- */
   @media (max-width: 1024px) {
     .render-page .data-cuts-grid { grid-template-columns: 1fr 1fr; }
@@ -491,6 +553,7 @@
     .render-page .bf-compare { grid-template-columns: 1fr; gap: 16px; }
     .render-page .bf-compare-vs { display: none; }
     .render-page .mini-bar-row { grid-template-columns: 120px 1fr 48px; }
+    .render-page .bar-row { grid-template-columns: 110px 1fr 52px; }
   }
   @media (max-width: 720px) {
     .render-page .hero h1 { font-size: 32px; }
@@ -946,9 +1009,9 @@
         "url": "https://hginsights.com/authors/jordan-lee/"
       },
       {
-        "@type": "Article",
+        "@type": "CollectionPage",
         "@id": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/#article",
-        "headline": "Core AI Visibility Metrics and Vocabulary",
+        "name": "Core AI Visibility Metrics and Vocabulary",
         "description": "The vocabulary and calculation logic behind the four metrics GEO teams use to quantify AI search visibility: Share of Voice, Share of Model, Mention Rate, and Citation Rate.",
         "author": {
           "@id": "https://hginsights.com/authors/jordan-lee/#person"
@@ -959,7 +1022,10 @@
         "datePublished": "2026-08-11",
         "dateModified": "2026-08-11",
         "inLanguage": "en-US",
-        "mainEntityOfPage": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/",
+        "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/",
+        "mainEntity": {
+          "@id": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/#spokes"
+        },
         "isPartOf": {
           "@type": "WebPage",
           "@id": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/",
@@ -1007,77 +1073,90 @@
             "@type": "ListItem",
             "position": 1,
             "name": "Why There's No Universal AI Visibility Measurement Standard (Yet)",
+            "description": "Why Share of Voice, Share of Model, Mention Rate, and Citation Rate lack one shared definition.",
             "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/why-no-ai-visibility-measurement-standard/"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "The Core AI Visibility Metrics Glossary",
+            "description": "All four metrics defined side by side with formulas, inputs, and data sources.",
             "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/ai-visibility-metrics-glossary/"
           },
           {
             "@type": "ListItem",
             "position": 3,
             "name": "What Is Share of Voice in AI Search?",
+            "description": "Definition, formula, and a worked example of the competitive-mention metric.",
             "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/share-of-voice/"
           },
           {
             "@type": "ListItem",
             "position": 4,
             "name": "What Is Share of Model?",
+            "description": "Defines AI search's newest visibility metric and how it isolates one engine's behavior.",
             "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/share-of-model/"
           },
           {
             "@type": "ListItem",
             "position": 5,
             "name": "What Is Mention Rate in GEO and AI Search Visibility?",
+            "description": "Defines the baseline appearance metric across a tracked AI prompt set.",
             "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/mention-rate/"
           },
           {
             "@type": "ListItem",
             "position": 6,
             "name": "What Is Citation Rate in AI Search?",
+            "description": "Definition and why being credited as a source differs from being mentioned.",
             "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/citation-rate/"
           },
           {
             "@type": "ListItem",
             "position": 7,
             "name": "How to Calculate Share of Voice for AI Search",
+            "description": "Full formula plus a worked example, including competitor-set construction.",
             "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/how-to-calculate-share-of-voice/"
           },
           {
             "@type": "ListItem",
             "position": 8,
             "name": "How to Calculate Mention Rate and Citation Rate",
+            "description": "Step-by-step methodology for both appearance-based metrics.",
             "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/how-to-calculate-mention-and-citation-rate/"
           },
           {
             "@type": "ListItem",
             "position": 9,
             "name": "Share of Voice vs Share of Model",
+            "description": "Head-to-head comparison of the two competitive AI visibility metrics.",
             "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/share-of-voice-vs-share-of-model/"
           },
           {
             "@type": "ListItem",
             "position": 10,
             "name": "Choosing the Right AI Visibility Metrics for Your GEO Goals",
+            "description": "An evaluation framework mapping all four metrics against common GEO objectives.",
             "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/choosing-ai-visibility-metrics-for-your-goals/"
           },
           {
             "@type": "ListItem",
             "position": 11,
             "name": "Which AI Visibility Metric Should You Track First?",
+            "description": "A decision tree routing GEO teams to the right first metric by program maturity.",
             "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/which-metric-to-track-first/"
           },
           {
             "@type": "ListItem",
             "position": 12,
-            "name": "AI Visibility Benchmarks"
+            "name": "AI Visibility Benchmarks",
+            "description": "Reference ranges for a good Share of Voice, Mention Rate, or Citation Rate."
           },
           {
             "@type": "ListItem",
             "position": 13,
             "name": "Reporting AI Search Visibility to Leadership",
+            "description": "A GEO metrics framework for translating these terms for a non-GEO audience.",
             "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/reporting-ai-visibility-to-leadership/"
           }
         ]

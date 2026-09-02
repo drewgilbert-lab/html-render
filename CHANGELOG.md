@@ -10,6 +10,108 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
+## v1.5.0 — 2026-09-01, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
+
+The second consumer-driven release. `geo-spoke-builder` is migrating its remaining twelve
+page-building skills onto this renderer, and reconciling each skill's component manifest and
+schema stack against the v1.4.0 contract surfaced two kinds of gap: **format-specific JSON-LD** the
+skills' `geo-standards.md` §1.1 mandates and the renderer could not emit (a `HowTo` for a
+methodology, a `Dataset` for a benchmark report, an `ItemList` for a comparison or listicle, a
+`Service` for a solution brief, a `DefinedTermSet` for a field dictionary, `SoftwareApplication`
+for an integration blueprint, and a `TechArticle` or `CollectionPage` root where `Article`
+misdescribes the page), and **four exported components** those skills name that were still in the
+audit's New bucket. No catalog refresh; the export build is unchanged from v1.4.0.
+
+**Schema (pipeline).** Seven optional frontmatter keys, valid on every page class, each feeding
+`src/schema.js` only — nothing renders visibly, and no page author writes JSON-LD by hand:
+
+- **New** `article` — `type: Article | TechArticle | CollectionPage` selects the root node's type
+  (`TechArticle` adds `proficiency_level` → `proficiencyLevel` and `dependencies`; `CollectionPage`
+  emits `name`/`url` in place of `headline`/`mainEntityOfPage` and points `mainEntity` at the
+  page's own index). The `@id` stays `#article` whichever type is chosen, so `term.subjectOf` and
+  every `isPartOf` keep resolving.
+- **New** `howto` — a `HowTo` node whose `step` list is **read from the body**: the one
+  ```` ```process-steps ```` block flagged `howto: true` supplies the `HowToStep`s in order, `text`
+  being each item's body with Markdown stripped. One source for the visible steps and the schema,
+  so the two cannot drift; declaring `howto` with no flagged block, flagging with no `howto`, or
+  flagging two blocks is a validation error. `total_time` and `tools` (→ `HowToTool`) are optional.
+- **New** `item_list` — an `ItemList` (`#list`) of the options or items a page enumerates, with
+  `order: ascending | unordered`; an item `url` written as `#anchor` must exist on the page and is
+  resolved to the absolute URL.
+- **New** `dataset` — a `Dataset` (`#dataset`) with the three coverage fields a citable dataset
+  needs (`variable_measured`, `temporal_coverage`, `spatial_coverage`, all required), plus
+  `measurement_technique`, `license`, `free` (→ `isAccessibleForFree`), and an optional `catalog`
+  that emits a `DataCatalog` and links the two.
+- **New** `service` — a `Service` (`#service`) with `provider` → the organization, an `Audience`,
+  `areaServed`, and an `OfferCatalog` of one `Offer` per `offers` entry.
+- **New** `term_set` — a `DefinedTermSet` (`#termset`) carrying one nested `DefinedTerm`
+  (`#term-<id>`) per entry; coexists with the single-term `term` key.
+- **New** `software` — one `SoftwareApplication` (`#software-<id>`) per entry.
+- **New** the root node's `about` (or a `CollectionPage`'s `mainEntity`) now points at the first
+  of `term`, `term_set`, `dataset`, `item_list`, `service`, `software[0]` the page declares. Pages
+  declaring none of them are unchanged.
+- **New** a **pillar** now emits an `ItemList` (`#index`) of every ```` ```link-card ```` in its
+  body, in body order, with each card's description; an `in-production` card carries no URL.
+  Derived from the body, never authored, so the machine-readable index cannot disagree with the
+  page. Closes the gap `geo-spoke-builder`'s migration checklist recorded against
+  `create-pillar-page`.
+- **Changed** the **cluster** `ItemList` (`#spokes`) entries now carry each resource-index card's
+  `description`, matching what the card shows.
+- **Changed** `process-steps` gains two renderer-owned fields (not design props): `howto: true`
+  on the block, and `id` per item, which renders as the step's `id` attribute and becomes the
+  `HowToStep` url. Ids must be lowercase slugs, unique against section anchors and each other.
+  Markup and CSS are otherwise untouched, and its `source` deliberately stays on the retired
+  numbered name — see [open-items.md](docs/open-items.md) §3 for why.
+- **Tooling** components may declare an optional `validate(data, path, report)` hook for the
+  cross-field rules a `fields` map cannot express; `bar-chart` is its first user.
+
+**Components.** Four New, all from the export, all in the skills' manifests:
+
+- **New** `trend-indicator` (`TrendIndicator`) — a directional value (arrow plus figure; up is
+  blue, down is melon, flat is grey, never green). Composed inside `comparison-table` cells as a
+  `trend:` cell alongside `share:`, and available standalone. Resolves the second of the
+  cell-level primitives that v1.0.0 deferred; `NameHighlight` and true inline-in-prose syntax
+  remain undecided. CSS from `css/charts.css`.
+- **New** `limitations-cards` (`LimitationsCards`) — the stacked melon-accented caveat list that
+  follows a methodology section. Named by five skill manifests. CSS from `css/editorial.css`
+  (the component lives in `components/panels/` — another case of category folder ≠ CSS file).
+- **New** `key-insights` (`KeyInsights`) — the analyst-takeaways panel that sits beside a chart:
+  check-icon bullets with a bold lead, supporting text, and an attribution. The check glyph is
+  the export's inline SVG path. CSS from `css/panels.css`.
+- **New** `bar-chart` (`BarChart`) — the card-framed primary bar chart with `single`, `stacked`,
+  and `grouped` variants, a legend, date badge, source footer, and an optional data-download
+  link (`download_label` + `download_url`, both or neither; the export's `#` default is not
+  reproduced). Single-variant widths are derived from each row's leading number, indexed to the
+  largest, exactly as `bars` does, unless `width` is explicit. The subtitle's inline style is the
+  export's own. CSS from `css/charts.css`; `.chart-section` (the `1fr 380px` pairing with
+  `KeyInsights`) is a section layout, not the component, and is not ported.
+- **Changed** `comparison-table` — cells accept `trend:` in addition to `share:`.
+- **Fixture** `test/fixtures/design-export-sample/` gains the four triads plus verbatim CSS
+  excerpts in `css/editorial.css` and `css/panels.css` (new) and `css/charts.css` (extended);
+  `test/design-export.test.js` now proves eight components end to end.
+- **Stylesheet** the four new CSS blocks sit **after** the page-composition rules. Their `h3` and
+  `p` rules would otherwise lose the cascade at equal specificity to `.page-section h3`,
+  `.main-col p`, and the like. Existing components already suffer that override in places
+  (`concept-card-title`, `callout-box-body`, `process-step-body`); recorded in
+  [open-items.md](docs/open-items.md) §3 rather than fixed piecemeal here.
+
+**Docs.** [markdown-contract.md](docs/markdown-contract.md) documents the seven keys and the
+`howto` body rule; [page-layouts.md](docs/page-layouts.md) gains a table of the whole JSON-LD
+graph and **re-maps five spoke formats from `article` to `banded`** (comparison, decision tree,
+data dictionary, listicle, solution brief). Each of those formats' own design specification opens
+with the stat hero, a freshness bar, or a jump nav, none of which the `article` variant has; the
+earlier mapping followed the page names. The glossary stays `article`.
+
+**Consumer note (breaking: no; changed output: yes).** Every key is optional and every existing
+page validates and renders as before, apart from two additions to existing pages: a pillar with
+`link-card` blocks gains an `ItemList`, and cluster `ItemList` entries gain `description`. The
+published contract grows by seven frontmatter keys, four components, and two `process-steps`
+fields. `examples/cluster.md` now declares `article.type: CollectionPage` and
+`examples/spoke-banded.md` carries a `howto`, a `key-insights` panel, and a `limitations-cards`
+block, so both rendered outputs move.
+
+---
+
 ## v1.4.0 — 2026-09-01, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
 
 First sync against the **2026-09-01 recompile** of the Claude Design export (staged as

@@ -1,12 +1,12 @@
 <!-- ============================================================================
-     HG Insights page body - html-render v1.4.0
+     HG Insights page body - html-render v1.5.0
 
      Page type        spoke (banded layout)
      Title            Reporting AI Search Visibility to Leadership: A GEO Metrics Framework
      Meta description A framework for turning AI Share of Voice, Mention Rate, and Citation Rate into a leadership-ready report, including cadence, benchmarks, and what belongs in a monthly readout.
      Canonical URL    https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/reporting-ai-visibility-to-leadership/
      Published        2026-08-11    Updated  2026-08-11
-     Body             3 sections, ~1589 words
+     Body             3 sections, ~1779 words
 
      Paste this whole block into the target page container. It contains no
      <html>, <head>, site navigation, or footer - page body only.
@@ -469,6 +469,68 @@
   .render-page .article-body p strong { color: var(--hg-text-dark); }
   .render-page .article-body .section-subtitle { max-width: 760px; margin: 0 0 var(--space-4); }
 
+  /*
+   * The four blocks below sit after the page-composition rules on purpose: they
+   * carry their own h3 and p treatments, and the composition rules for
+   * `.page-section`, `.main-col`, and `.article-body` would otherwise win the
+   * cascade at equal specificity. Values are the export's, verbatim.
+   */
+
+  /* ---- Limitations cards ------------------------------ */
+  .render-page .limitations-cards { display: grid; gap: 14px; margin: 4px 0 0; }
+  .render-page .limitations-cards .limit { border: 1px solid var(--hg-border-light); border-left: 4px solid var(--hg-melon); border-radius: 0 var(--hg-radius) var(--hg-radius) 0; padding: 18px 22px; background: var(--hg-white); }
+  .render-page .limitations-cards .limit h3 { margin: 0 0 8px; font-size: 17px; font-weight: 800; color: var(--hg-melon); }
+  .render-page .limitations-cards .limit p { margin: 0; font-size: var(--fs-body); color: var(--hg-text-mid); line-height: 1.7; max-width: none; }
+
+  /* ---- Trend indicator -------------------------------- */
+  .render-page .trend-indicator { font-weight: 800; white-space: nowrap; }
+  .render-page .trend-indicator.up { color: var(--hg-positive); }
+  .render-page .trend-indicator.down { color: var(--hg-negative); }
+  .render-page .trend-indicator.flat { color: var(--hg-text-light); }
+
+  /* ---- Key insights panel ----------------------------- */
+  .render-page .insights-panel { background: var(--grad-subtle); border: 1px solid rgba(0,88,163,0.12); border-radius: 12px; padding: 32px; margin: 20px 0; }
+  .render-page .insights-panel-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hg-blue); margin-bottom: 20px; display: flex; align-items: center; gap: 6px; }
+  .render-page .insights-panel-label::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--hg-blue); flex-shrink: 0; }
+  .render-page .insights-panel h3 { font-weight: 800; font-size: 18px; color: var(--hg-text-dark); margin: 0 0 20px; line-height: 1.3; }
+  .render-page .insight-list { display: flex; flex-direction: column; gap: 16px; }
+  .render-page .insight-item { display: flex; gap: 12px; align-items: flex-start; }
+  .render-page .insight-icon { width: 24px; height: 24px; background: var(--hg-dark-blue); border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+  .render-page .insight-icon svg { width: 12px; height: 12px; }
+  .render-page .insight-item .insight-text { font-size: 14px; color: var(--hg-text-mid); line-height: 1.6; margin: 0; max-width: none; }
+  .render-page .insight-item .insight-text strong { color: var(--hg-text-dark); font-weight: 700; }
+  .render-page .insight-attribution { font-size: 12px; color: var(--hg-blue); font-weight: 600; margin-top: 4px; }
+
+  /* ---- Bar chart -------------------------------------- */
+  .render-page .chart-wrapper { background: var(--hg-white); border: 1px solid var(--hg-border-light); border-radius: 12px; padding: 32px; margin: 20px 0; }
+  .render-page .chart-title-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; gap: 16px; }
+  .render-page .chart-title { font-weight: 800; font-size: 16px; color: var(--hg-text-dark); line-height: 1.3; }
+  .render-page .chart-date-badge { font-size: 12px; color: var(--hg-text-light); background: var(--hg-off-white); padding: 4px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; font-weight: 600; }
+  .render-page .bar-chart { display: flex; flex-direction: column; gap: 14px; }
+  .render-page .bar-row { display: grid; grid-template-columns: 140px 1fr 52px; align-items: center; gap: 12px; }
+  .render-page .bar-label { font-size: 14px; font-weight: 700; color: var(--hg-text-dark); text-align: right; }
+  .render-page .bar-track { background: var(--hg-off-white); border-radius: 4px; height: 32px; overflow: hidden; }
+  .render-page .bar-fill { height: 100%; border-radius: 4px; background: var(--grad-dark-blue-purple); }
+  .render-page .bar-fill.accent { background: linear-gradient(90deg, var(--hg-blue) 0%, var(--hg-light-blue) 100%); }
+  .render-page .bar-fill.dim { background: linear-gradient(90deg, var(--hg-gray) 0%, var(--hg-gray-light) 100%); }
+  .render-page .bar-seg.s1, .render-page .bar-subbar.s1, .render-page .bar-legend-swatch.s1 { background: var(--grad-dark-blue-purple); }
+  .render-page .bar-seg.s2, .render-page .bar-subbar.s2, .render-page .bar-legend-swatch.s2 { background: var(--hg-blue); }
+  .render-page .bar-seg.s3, .render-page .bar-subbar.s3, .render-page .bar-legend-swatch.s3 { background: var(--hg-light-blue); }
+  .render-page .bar-seg.dim, .render-page .bar-subbar.dim, .render-page .bar-legend-swatch.dim { background: var(--hg-gray); }
+  .render-page .bar-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 18px; }
+  .render-page .bar-legend-item { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--hg-text-mid); }
+  .render-page .bar-legend-swatch { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .render-page .bar-chart.stacked .bar-track { display: flex; }
+  .render-page .bar-seg { height: 100%; min-width: 2px; }
+  .render-page .bar-seg:first-child { border-radius: 4px 0 0 4px; }
+  .render-page .bar-seg:last-child { border-radius: 0 4px 4px 0; }
+  .render-page .bar-chart.grouped .bar-group { display: flex; flex-direction: column; gap: 5px; justify-content: center; }
+  .render-page .bar-subbar { height: 13px; border-radius: 4px; min-width: 2px; }
+  .render-page .bar-value { font-size: 14px; font-weight: 800; color: var(--hg-dark-blue); }
+  .render-page .chart-footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--hg-border); font-size: 12px; color: var(--hg-text-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .render-page .chart-footer a { color: var(--hg-blue); text-decoration: none; font-weight: 600; }
+  .render-page .chart-footer a:hover { color: var(--hg-blue-hover); }
+
   /* ---- Responsive ------------------------------------- */
   @media (max-width: 1024px) {
     .render-page .data-cuts-grid { grid-template-columns: 1fr 1fr; }
@@ -491,6 +553,7 @@
     .render-page .bf-compare { grid-template-columns: 1fr; gap: 16px; }
     .render-page .bf-compare-vs { display: none; }
     .render-page .mini-bar-row { grid-template-columns: 120px 1fr 48px; }
+    .render-page .bar-row { grid-template-columns: 110px 1fr 52px; }
   }
   @media (max-width: 720px) {
     .render-page .hero h1 { font-size: 32px; }
@@ -633,21 +696,21 @@
         <p class="section-subtitle">Three moves, in this order, every reporting cycle.</p>
       </div>
       <div class="process-steps">
-        <div class="process-step">
+        <div class="process-step" id="open-with-proof">
           <div class="process-step-badge">1</div>
           <div>
             <div class="process-step-title">Open with the commercial proof point</div>
             <p class="process-step-body">Lead with the conversion or pipeline figure that makes AI visibility a revenue question rather than a marketing-hygiene question. AI-referred visitors convert at 5.1 times the rate of Google organic visitors, which reframes every subsequent number as a revenue input.</p>
           </div>
         </div>
-        <div class="process-step">
+        <div class="process-step" id="show-one-trend-line">
           <div class="process-step-badge">2</div>
           <div>
             <div class="process-step-title">Show one benchmarked trend line</div>
             <p class="process-step-body">Follow with a single chart: the brand's coverage rate against the same named competitors, across at least three reporting periods. A fixed competitor set and a fixed prompt set are what make the line readable; a shifting set makes it meaningless.</p>
           </div>
         </div>
-        <div class="process-step">
+        <div class="process-step" id="land-on-one-number">
           <div class="process-step-badge">3</div>
           <div>
             <div class="process-step-title">Land on one repeatable number</div>
@@ -712,6 +775,47 @@
           <p><strong>Conversion rate figures</strong> reflect visitor-to-lead conversion by traffic source, AI-referred versus Google organic, per the Averi Multi-Source Analysis, March 2026. Figures describe aggregate population averages, not a guarantee for any single company.</p>
         </div>
         <div class="bf-footer">Source: TrustRadius internal crawl-log data and Averi Multi-Source Analysis, March 2026 &middot; figures as reported, no independent recalculation performed.</div>
+      </div>
+      <div class="insights-panel">
+        <div class="insights-panel-label">Analyst Insights</div>
+        <h3>What these figures mean for a GEO reporting line</h3>
+        <div class="insight-list">
+          <div class="insight-item">
+            <div class="insight-icon"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+            <div>
+              <p class="insight-text"><strong>AI-referred visitors convert at 5.1 times the Google organic rate.</strong> 14.2% against 2.8%, which is the proof point a leadership readout opens with.</p>
+              <div class="insight-attribution">See the benchmark figure above</div>
+            </div>
+          </div>
+          <div class="insight-item">
+            <div class="insight-icon"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+            <div>
+              <p class="insight-text"><strong>Review-network presence multiplies AI crawler attention.</strong> TrustRadius customers draw 21 times the AI crawler visits of non-customers, and Top Rated products draw 31 times.</p>
+              <div class="insight-attribution">See the indexed bars above</div>
+            </div>
+          </div>
+          <div class="insight-item">
+            <div class="insight-icon"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+            <div>
+              <p class="insight-text"><strong>One coverage number survives being repeated.</strong> A blended Citation and Mention Coverage Rate is the figure to close on; the four underlying metrics move to an appendix.</p>
+              <div class="insight-attribution">See the framework steps</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="limitations-cards">
+        <div class="limit">
+          <h3>Population averages, not a guarantee</h3>
+          <p>Both figures describe aggregate behaviour across the TrustRadius review network. A single brand's lift depends on its category, review density, and the citable third-party content that already exists about it.</p>
+        </div>
+        <div class="limit">
+          <h3>Two sources, two measurement bases</h3>
+          <p>Conversion figures come from the Averi Multi-Source Analysis, March 2026; crawler figures come from TrustRadius internal crawl logs. They are reported side by side, not derived from one another.</p>
+        </div>
+        <div class="limit">
+          <h3>No independent recalculation</h3>
+          <p>HG Insights reports both figures as published. Neither has been recomputed against hginsights.com traffic or any other first-party dataset.</p>
+        </div>
       </div>
       <figure class="expert-quote-card">
         <span class="expert-quote-mark" aria-hidden="true">&ldquo;</span>
@@ -869,6 +973,35 @@
           "@id": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/",
           "name": "Core Metrics and Vocabulary"
         }
+      },
+      {
+        "@type": "HowTo",
+        "@id": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/reporting-ai-visibility-to-leadership/#howto",
+        "name": "How to report AI search visibility to leadership in three moves",
+        "description": "Open with a commercial proof point, show one benchmarked trend line against named competitors, and land on a single repeatable coverage number.",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "position": 1,
+            "name": "Open with the commercial proof point",
+            "text": "Lead with the conversion or pipeline figure that makes AI visibility a revenue question rather than a marketing-hygiene question. AI-referred visitors convert at 5.1 times the rate of Google organic visitors, which reframes every subsequent number as a revenue input.",
+            "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/reporting-ai-visibility-to-leadership/#open-with-proof"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 2,
+            "name": "Show one benchmarked trend line",
+            "text": "Follow with a single chart: the brand's coverage rate against the same named competitors, across at least three reporting periods. A fixed competitor set and a fixed prompt set are what make the line readable; a shifting set makes it meaningless.",
+            "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/reporting-ai-visibility-to-leadership/#show-one-trend-line"
+          },
+          {
+            "@type": "HowToStep",
+            "position": 3,
+            "name": "Land on one repeatable number",
+            "text": "Close with a blended Citation and Mention Coverage Rate. One number, stated as a percentage of tracked buyer prompts, is what gets repeated in the meeting after yours. Everything else belongs in an appendix.",
+            "url": "https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/reporting-ai-visibility-to-leadership/#land-on-one-number"
+          }
+        ]
       },
       {
         "@type": "BreadcrumbList",

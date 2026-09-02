@@ -109,7 +109,7 @@ fields, followed by a single `<div>`:
   <style> /* the scoped design system stylesheet */ </style>
   <nav class="breadcrumb-bar"> ... </nav>
   ...
-  <script type="application/ld+json"> /* Article, FAQPage, BreadcrumbList, ... */ </script>
+  <script type="application/ld+json"> /* Article, FAQPage, BreadcrumbList, HowTo, Dataset, ... */ </script>
   <script> /* FAQ disclosure + side-nav scroll spy */ </script>
 </div>
 ```
@@ -213,8 +213,8 @@ only file here that carries a specific organization's data.
 | [docs/open-items.md](docs/open-items.md) | What is outstanding, why, and what unblocks it |
 | [CHANGELOG.md](CHANGELOG.md) | What changed in component coverage, and why, per catalog refresh |
 
-`examples/pillar.md`, `examples/cluster.md`, and `examples/spoke.md` are the
-working reference for valid input, rendered against
+`examples/pillar.md`, `examples/cluster.md`, `examples/spoke.md`, and
+`examples/spoke-banded.md` are the working reference for valid input, rendered against
 `examples/html-render.config.json`. `output/` holds their rendered HTML plus a
 `.preview.html` wrapper for each, for visual review against the design. A test
 asserts the committed output still matches a fresh render, so it cannot go stale.
@@ -281,7 +281,8 @@ src/
   index.js                 the pipeline: parse -> validate -> layout -> HTML
   config.js                configuration: loading, defaults, and validation
   html.js                  escaping and element primitives
-  schema.js                the JSON-LD graph
+  schema.js                the JSON-LD graph (Article/TechArticle/CollectionPage root, HowTo,
+                           ItemList, Dataset, Service, DefinedTermSet, SoftwareApplication)
   describe.js              --contract output, generated from the live contracts
   audit.js                 --audit output: catalog coverage, from the live registry
   parse/
@@ -302,9 +303,9 @@ src/
   assets/
     styles.css             the design system stylesheet, scoped to pageClass
     script.js              FAQ disclosure + scroll spy
-examples/                  pillar.md, cluster.md, spoke.md + this repo's config
+examples/                  pillar.md, cluster.md, spoke.md, spoke-banded.md + this repo's config
 output/                    rendered examples + preview wrappers
-test/                      82 tests
+test/                      137 tests
 docs/                      the contracts
 CHANGELOG.md               component coverage, per catalog refresh
 .claude/skills/            the design-system sync procedure
