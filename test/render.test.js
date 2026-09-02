@@ -71,13 +71,18 @@ test('valid Spoke Markdown renders the article variant', () => {
   assert.match(html, /<div class="nav-cta">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
   assert.match(html, /class="cta-section" id="cta"/);
   assert.match(html, /<div class="cta-buttons">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
+  assert.doesNotMatch(html, /class="btn-secondary"/);
+  assert.match(html, /class="freshness-bar"/);
+  assert.match(html, /Data last updated: Q3 2026/);
+  assert.doesNotMatch(html, /section-rule/);
+  assert.doesNotMatch(html, /class="pill"/);
   // The article variant does not use the gradient hero or a jump nav.
   assert.doesNotMatch(html, /class="hero" id="hero"/);
   assert.doesNotMatch(html, /class="hub-toc"/);
 });
 
 test('the banded Spoke variant uses the gradient hero, section bands, and the side-nav rail', () => {
-  const { html, layout } = body(bandedSpoke(`${INTRO}\n`));
+  const { html, layout } = body(bandedSpoke(`${INTRO}\n`, HERO_WITH_THESIS));
   assert.equal(layout, 'banded');
   assert.match(html, /class="hero" id="hero"/);
   assert.match(html, /<section class="page-section" id="why">/);
@@ -88,6 +93,19 @@ test('the banded Spoke variant uses the gradient hero, section bands, and the si
   assert.match(html, /<div class="nav-cta">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
   assert.doesNotMatch(html, /class="article-hero"/);
   assert.doesNotMatch(html, /class="hub-toc"/);
+  assert.doesNotMatch(html, /hero-eyebrow/);
+  assert.doesNotMatch(html, /class="pill"/);
+  assert.match(html, /class="freshness-bar"/);
+  assert.match(html, /Data last updated: Q3 2026/);
+  assert.doesNotMatch(html, /freshness-cadence|methodology-link/);
+  assert.doesNotMatch(html, /section-rule/);
+  // Thesis lives in the reading column, not inside the hero.
+  const heroEnd = html.indexOf('</section>', html.indexOf('class="hero" id="hero"'));
+  const spokeCol = html.indexOf('class="spoke-col"');
+  const thesis = html.indexOf('class="thesis-block"');
+  assert.ok(thesis > heroEnd && thesis > spokeCol, 'banded thesis should sit in .spoke-col, not the hero');
+  assert.match(html, /<div class="cta-buttons">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
+  assert.doesNotMatch(html, /class="btn-secondary"/);
 });
 
 test('a hero thesis renders inside the Pillar hero and as a band on a Cluster', () => {

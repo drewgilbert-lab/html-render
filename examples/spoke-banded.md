@@ -27,11 +27,6 @@ author:
   bio: Works with B2B marketing leaders on GEO reporting and executive measurement narratives
   url: https://hginsights.com/authors/dana-whitfield/
 
-pills:
-  - Ungated & citable
-  - label: Last reviewed: August 2026
-    tone: melon
-
 hero:
   thesis: A GEO reporting framework translates four AI visibility metrics into one leadership narrative: a pipeline proof point, a benchmarked trend line against named competitors, and a single coverage number a CMO can repeat.
   freshness_badge: Data as of Q3 2026
@@ -53,10 +48,6 @@ hero:
 
 freshness:
   label: Q3 2026
-  note: Conversion and crawler figures as reported, no independent recalculation performed
-  cadence: Refreshed as new benchmark data publishes
-  link_text: See the methodology
-  link_url: "#methodology"
 
 # The three moves in the framework section are this page's HowTo steps; the
 # process-steps block below is flagged `howto: true` to say so.
@@ -126,11 +117,8 @@ cta:
   title: Track Citation and Mention Coverage Rate on autopilot, then report it in one number
   body: HG Insights tracks brand and competitor mentions across ChatGPT, Gemini, Perplexity, Claude, and Google AI Overviews for up to 100 real buyer prompts per product each month, so the coverage number at the centre of this framework arrives already calculated.
   buttons:
-    - label: Book a Demo
+    - label: Request a Demo
       url: https://hginsights.com/demo
-    - label: See the Metrics Cluster
-      url: https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/
-      variant: secondary
 ---
 
 ## How Do You Report AI Search Visibility Metrics to a CMO or VP Marketing?

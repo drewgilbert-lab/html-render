@@ -90,22 +90,28 @@ glossary / definition spokes.
 
 ```
 breadcrumb                  (omitted when standalone: true)
-article-hero                H1 + byline + pills on white
+article-hero                H1 + byline on white (no pills)
+freshness-bar               always; `Data last updated: {label}`
 spoke-body-section
   spoke-col article-body    thesis? + lead copy? + "##" sections
+                            (no section rules)
   side-nav                  sticky right-rail nav with scroll-spy;
-                            footer Book a Demo from cta primary
+                            footer Request a Demo from cta primary
 methodology                 (optional)
 faq
 citations                   (optional)
 related
-cta
+cta                         single primary button
 ```
 
 This variant has no gradient hero and no stat grid. Supplying `hero.stats` is an
 error that points you at `layout: banded`. The rail is always present; authors
 may set optional `side_nav.label` / `side_nav.note` and optional `intro.toc` to
-control the link list (there is no visible jump nav).
+control the link list (there is no visible jump nav). `pills` is accepted but
+not rendered. The freshness bar always sits under the article hero: `freshness.label`
+if supplied, otherwise a quarter derived from `updated` (else `published`).
+`cta.buttons` allows one entry; secondary buttons, `cta.links`, and `cta.pills`
+are not rendered. `hero.thesis` sits at the top of the reading column.
 
 A spoke in either variant may declare `standalone: true` — a page with no
 parent hub. It renders no breadcrumb bar and emits no `BreadcrumbList` and no
@@ -122,25 +128,32 @@ table).
 
 ```
 breadcrumb                  (omitted when standalone: true)
-hero                        gradient band with the stat grid
-freshness-bar               (optional)
+hero                        gradient band with the stat grid; no eyebrow,
+                            pills, or thesis
+freshness-bar               always; `Data last updated: {label}`
 intro copy                  (optional) eyebrow, title, body; no jump-nav column
 spoke-body-section
-  spoke-col                 "##" sections as bands, alternating white / tinted,
-                            left-aligned section headers, not full-bleed under
-                            the rail
+  spoke-col                 thesis? then "##" sections as bands, alternating
+                            white / tinted, left-aligned section headers, not
+                            full-bleed under the rail
   side-nav                  sticky right-rail nav with scroll-spy;
-                            footer Book a Demo from cta primary
+                            footer Request a Demo from cta primary
 methodology                 (optional)
 faq
 citations                   (optional)
 related
-cta
+cta                         single primary button
 ```
 
 The rail is the only on-page section nav. `intro.toc`, when supplied, feeds the
 rail's link list rather than a visible hub-toc. Intro copy stays when `intro` is
-present.
+present. `pills` and the page `eyebrow` are accepted but not rendered in the
+hero. `hero.thesis` sits at the top of the reading column, not inside the hero.
+The freshness bar always sits under the hero: `freshness.label` if supplied,
+otherwise a quarter derived from `updated` (else `published`); note, cadence,
+and methodology link are ignored. `cta.buttons` allows one entry. Tinted bands
+inset text from the gray edge with the same horizontal padding as white bands.
+There are no section-rule hairlines between body sections.
 
 ### Mapping the GEO spoke formats onto the two variants
 

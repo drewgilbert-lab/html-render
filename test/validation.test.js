@@ -147,6 +147,27 @@ test('the article spoke variant refuses hero stats', () => {
   assert.match(error.message, /layout: banded/);
 });
 
+test('a spoke rejects a second CTA button', () => {
+  const extra = [
+    'cta:',
+    '  title: Book a demo of GEO monitoring',
+    '  body: One sentence of CTA body copy.',
+    '  buttons:',
+    '    - label: Request a Demo',
+    '      url: https://hginsights.com/demo',
+    '    - label: See the cluster',
+    '      url: https://hginsights.com/geo/',
+    '      variant: secondary',
+    '',
+  ].join('\n');
+  // SHARED already has a cta; duplicate key is a parse error. Replace the helper CTA instead.
+  const source = spoke().replace(
+    /cta:\n  title: Book a demo of GEO monitoring\n  body: One sentence of CTA body copy.\n  buttons:\n    - label: Book a Demo\n      url: https:\/\/hginsights.com\/demo/,
+    extra.trimEnd(),
+  );
+  assert.match(messageFor(source, 'cta.buttons').message, /allows at most 1/);
+});
+
 test('optional side_nav on a spoke is valid and does not replace the CTA-assembled demo button', () => {
   const source = spoke('side_nav:\n  label: On this spoke\n  note: Optional note.\n');
   assert.doesNotThrow(() => render(source, { config: EXAMPLE_CONFIG }));

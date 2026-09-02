@@ -10,6 +10,36 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
+## Unreleased
+
+A template change, not a catalog refresh. Spoke chrome is quieter: no hero eyebrow or
+meta pills, the thesis sits in the reading column, a freshness bar always sits under
+the hero, section hairlines are gone, tinted bands inset text from the gray edge, and
+the footer CTA is a single primary button. Pillar and cluster are unchanged. Breaking
+for `geo-spoke-builder` consumers that still emit spoke pills, a secondary CTA, or
+expect the freshness bar to be optional.
+
+**Layout (pipeline).** Both spoke variants.
+
+- **Changed** banded spoke hero omits `eyebrow`, `pills`, and `hero.thesis`. Thesis
+  renders at the top of `.spoke-col`. Article hero omits `pills`. `pills` remains a
+  valid frontmatter key and is not rendered.
+- **Changed** both variants always emit `freshness-bar` immediately under the hero.
+  Copy is `Data last updated: {label}` with no highlighted span. Spoke passes only
+  `label` (`freshness.label`, else a quarter derived from `updated` / `published`);
+  note, cadence, and methodology link are ignored. Pillar/cluster still render those
+  extras when supplied. The inner label `<span>` is gone for every page class.
+- **Changed** article spokes no longer emit `<hr class="section-rule">` between
+  sections. Spoke-scoped CSS drops hairline borders on intro, methodology, FAQ,
+  citations, and related. FAQ item rules stay.
+- **Changed** `.spoke-col .page-section` uses `padding: 56px var(--space-8)` so
+  tinted bands inset text from the gray edge without shifting white-band alignment.
+  Cluster full-width bands are untouched.
+- **Changed** spoke `cta.buttons` max is 1. Secondary buttons, `cta.links`, and
+  `cta.pills` are not rendered. Side-nav footer still reuses that primary.
+
+---
+
 ## v1.6.0 — 2026-09-02, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
 
 A template release, not a catalog refresh. Both spoke layouts now always compose

@@ -25,11 +25,6 @@ author:
   bio: Published August 11, 2026 &middot; Reviewed quarterly
   url: https://hginsights.com/authors/devon-marsh/
 
-pills:
-  - Ungated & citable
-  - label: Last reviewed: August 2026
-    tone: melon
-
 hero:
   thesis: AI Share of Voice is the percentage of tracked brand mentions, a brand's mentions plus every named competitor's mentions, appearing across AI answer engines for a set of tracked prompts. A brand with 40 of 100 mentions holds 40% AI Share of Voice, a share that shifts month over month.
 
@@ -99,12 +94,8 @@ cta:
   eyebrow: Put This Metric to Work
   title: See your brand's AI Share of Voice against named competitors
   body: HG Insights tracks brand and competitor mentions across ChatGPT, Gemini, Perplexity, Claude, and Google AI Overviews for a defined set of tracked prompts, refreshed monthly so GEO teams can report a moving number instead of a one-time snapshot.
-  pills:
-    - Ungated & citable
-    - label: Last reviewed: August 2026
-      tone: melon
   buttons:
-    - label: Book a Demo
+    - label: Request a Demo
       url: https://hginsights.com/demo
 ---
 

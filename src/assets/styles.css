@@ -438,6 +438,18 @@
 
 .__page_class__ .page-section { padding: 56px 0; background: var(--hg-white); }
 .__page_class__ .page-section.tinted { background: var(--hg-off-white); }
+.__page_class__ .spoke-col .page-section { padding: 56px var(--space-8); }
+
+/* Spoke pages have no hairline between page-level sections. FAQ item
+   rules stay: those are not section dividers. */
+.__page_class__[data-page-type="spoke"] .hub-intro-section { border-bottom: none; }
+.__page_class__[data-page-type="spoke"] .methodology-section,
+.__page_class__[data-page-type="spoke"] .faq-section,
+.__page_class__[data-page-type="spoke"] .citations-section,
+.__page_class__[data-page-type="spoke"] .related-hubs-section {
+  border-top: none;
+  border-bottom: none;
+}
 .__page_class__ .page-section p { font-size: 17px; color: var(--hg-text-mid); line-height: 1.75; margin-bottom: 16px; max-width: 900px; }
 .__page_class__ .page-section p:last-child { margin-bottom: 0; }
 .__page_class__ .page-section strong { color: var(--hg-text-dark); font-weight: var(--fw-bold); }

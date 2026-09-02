@@ -209,6 +209,15 @@ function contractFor(pageType) {
       default: false,
       hint: 'a page with no parent hub: omits the breadcrumb bar and BreadcrumbList; `breadcrumbs` must then be absent',
     };
+    const ctaFields = slotFields('cta');
+    fields.cta = {
+      type: 'object',
+      required: true,
+      fields: {
+        ...ctaFields,
+        buttons: { ...ctaFields.buttons, max: 1 },
+      },
+    };
     return fields;
   }
 

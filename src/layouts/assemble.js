@@ -13,14 +13,14 @@ function breadcrumbInput(fm) {
   return { items: fm.breadcrumbs, current: fm.breadcrumb_label || fm.title };
 }
 
-function heroInput(fm) {
+function heroInput(fm, { eyebrow = true, pills = true, thesis = true } = {}) {
   const hero = fm.hero || {};
   return {
-    eyebrow: fm.eyebrow,
+    eyebrow: eyebrow ? fm.eyebrow : null,
     title: fm.title,
     description: fm.description,
-    pills: fm.pills,
-    thesis: hero.thesis,
+    pills: pills ? fm.pills : null,
+    thesis: thesis ? hero.thesis : null,
     author: fm.author,
     freshness_badge: hero.freshness_badge,
     source: hero.source,
@@ -30,12 +30,29 @@ function heroInput(fm) {
 }
 
 function articleHeroInput(fm) {
-  return { title: fm.title, author: fm.author, pills: fm.pills };
+  return { title: fm.title, author: fm.author };
 }
 
 function thesisBandInput(fm) {
   const thesis = fm.hero && fm.hero.thesis;
   return thesis ? { text: thesis } : null;
+}
+
+/** `2026-08-11` → `Q3 2026`. Returns the trimmed input when it is not an ISO date. */
+function quarterLabel(isoDate) {
+  const match = /^(\d{4})-(\d{2})/.exec(String(isoDate || '').trim());
+  if (!match) return String(isoDate || '').trim();
+  return `Q${Math.ceil(Number(match[2]) / 3)} ${match[1]}`;
+}
+
+function freshnessLabel(fm) {
+  if (fm.freshness && fm.freshness.label) return fm.freshness.label;
+  return quarterLabel(fm.updated || fm.published);
+}
+
+/** Spoke freshness bar: label only. Note, cadence, and methodology link are ignored. */
+function spokeFreshnessInput(fm) {
+  return { label: freshnessLabel(fm) };
 }
 
 /**
@@ -85,4 +102,27 @@ function sideNavInput(fm, sections, options = {}) {
   return input;
 }
 
-module.exports = { breadcrumbInput, heroInput, articleHeroInput, thesisBandInput, introTocInput, sideNavInput };
+/** Spoke CTA: one primary button, no use-case links or meta pills. */
+function ctaInput(fm, { singleButton = false } = {}) {
+  const source = fm.cta || {};
+  if (!singleButton) return source;
+  const primary = primaryCtaButton(fm);
+  return {
+    eyebrow: source.eyebrow,
+    title: source.title,
+    body: source.body,
+    buttons: primary ? [{ label: primary.label, url: primary.url, variant: 'primary' }] : [],
+  };
+}
+
+module.exports = {
+  breadcrumbInput,
+  heroInput,
+  articleHeroInput,
+  thesisBandInput,
+  spokeFreshnessInput,
+  introTocInput,
+  sideNavInput,
+  ctaInput,
+  quarterLabel,
+};
