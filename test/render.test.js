@@ -7,7 +7,7 @@ const path = require('node:path');
 
 const { render } = require('../src/index');
 const { DEFAULTS, PAGE_CLASS_TOKEN } = require('../src/config');
-const { pillar, cluster, spoke, bandedSpoke, body, EXAMPLE_CONFIG, HERO_WITH_THESIS } = require('./helpers');
+const { pillar, cluster, spoke, bandedSpoke, body, EXAMPLE_CONFIG, HERO_WITH_THESIS, INTRO } = require('./helpers');
 
 test('valid Pillar Markdown renders the Pillar layout', () => {
   const { html, pageType } = body(pillar());
@@ -55,6 +55,8 @@ test('valid Cluster Markdown renders the Cluster layout with the resource index 
   assert.match(html, /<section class="page-section tinted" id="program">/);
   // The thesis band is absent when no hero thesis is supplied.
   assert.doesNotMatch(html, /thesis-wrap/);
+  // Cluster has no right-rail nav.
+  assert.doesNotMatch(html, /class="sidenav"/);
 });
 
 test('valid Spoke Markdown renders the article variant', () => {
@@ -62,19 +64,30 @@ test('valid Spoke Markdown renders the article variant', () => {
   assert.equal(pageType, 'spoke');
   assert.equal(layout, 'article');
   assert.match(html, /class="container article-hero"/);
-  assert.match(html, /class="container article-body"/);
+  assert.match(html, /class="spoke-body-section"/);
+  assert.match(html, /class="spoke-col article-body"/);
   assert.match(html, /class="related-hubs-section" id="related"/);
-  // The article variant does not use the gradient hero or the side nav.
+  assert.match(html, /class="sidenav"/);
+  assert.match(html, /<div class="nav-cta">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
+  assert.match(html, /class="cta-section" id="cta"/);
+  assert.match(html, /<div class="cta-buttons">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
+  // The article variant does not use the gradient hero or a jump nav.
   assert.doesNotMatch(html, /class="hero" id="hero"/);
-  assert.doesNotMatch(html, /class="sidenav"/);
+  assert.doesNotMatch(html, /class="hub-toc"/);
 });
 
-test('the banded Spoke variant uses the gradient hero and section bands', () => {
-  const { html, layout } = body(bandedSpoke());
+test('the banded Spoke variant uses the gradient hero, section bands, and the side-nav rail', () => {
+  const { html, layout } = body(bandedSpoke(`${INTRO}\n`));
   assert.equal(layout, 'banded');
   assert.match(html, /class="hero" id="hero"/);
   assert.match(html, /<section class="page-section" id="why">/);
+  assert.match(html, /class="spoke-body-section"/);
+  assert.match(html, /class="sidenav"/);
+  assert.match(html, /class="hub-intro-section no-toc" id="overview"/);
+  assert.match(html, /<h2 class="hub-intro-title">What this guide covers<\/h2>/);
+  assert.match(html, /<div class="nav-cta">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
   assert.doesNotMatch(html, /class="article-hero"/);
+  assert.doesNotMatch(html, /class="hub-toc"/);
 });
 
 test('a hero thesis renders inside the Pillar hero and as a band on a Cluster', () => {

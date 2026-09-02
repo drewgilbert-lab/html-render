@@ -17,7 +17,7 @@
      Meta description AI Share of Voice is the percentage of tracked brand mentions a brand and its named competitors hold across AI answer engines. Definition, formula, and a worked example.
      Canonical URL    https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/share-of-voice/
      Published        2026-08-11    Updated  2026-08-11
-     Body             3 sections, ~1323 words
+     Body             3 sections, ~1360 words
 
      Paste this whole block into the target page container. It contains no
      <html>, <head>, site navigation, or footer - page body only.
@@ -192,6 +192,7 @@
   /* ---- Hub intro + TOC (06) --------------------------------- */
   .render-page .hub-intro-section { padding: 64px 0 48px; background: var(--hg-white); border-bottom: 1px solid var(--hg-border); }
   .render-page .hub-intro-section .container { display: grid; grid-template-columns: 1fr 340px; gap: 64px; align-items: start; }
+  .render-page .hub-intro-section.no-toc .container { grid-template-columns: 1fr; }
   .render-page .hub-intro-eyebrow { font-size: 12px; font-weight: var(--fw-bold); letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--hg-dark-blue); margin-bottom: 10px; }
   .render-page .hub-intro-title { font-weight: var(--fw-black); font-size: 32px; color: var(--hg-text-dark); line-height: var(--lh-tight); margin-bottom: 20px; }
   .render-page .hub-intro-text p { font-size: 17px; color: var(--hg-text-mid); line-height: 1.75; margin-bottom: 16px; }
@@ -309,6 +310,8 @@
   .render-page .nav-card ul li a:hover { color: var(--hg-dark-blue); background: var(--hg-bg); }
   .render-page .nav-card ul li a.active { border-left-color: var(--hg-light-blue); color: var(--hg-dark-blue); background: rgba(184,221,241,0.3); font-weight: 800; }
   .render-page .nav-foot { border-top: 1px solid var(--hg-border); padding: 10px 16px; font-size: 12.5px; color: var(--hg-text-mid); line-height: 1.55; font-style: italic; }
+  .render-page .nav-cta { border-top: 1px solid var(--hg-border); padding: 12px 16px; }
+  .render-page .nav-cta .btn-primary { display: block; width: 100%; box-sizing: border-box; }
 
   /* ---- Thesis block (31) ----------------------------------- */
   .render-page .thesis-wrap { background: var(--hg-white); padding: 40px 0 8px; }
@@ -458,6 +461,9 @@
   .render-page .main-col p strong { color: var(--hg-text-dark); font-weight: var(--fw-bold); }
   .render-page .main-col h3 { font-size: var(--fs-h3); font-weight: var(--fw-black); color: var(--hg-dark-blue); margin: 24px 0 12px; line-height: 1.3; }
 
+  .render-page .spoke-body-section .container { display: grid; grid-template-columns: 1fr 260px; gap: var(--space-12); align-items: start; }
+  .render-page .spoke-col { min-width: 0; }
+
   .render-page .page-section { padding: 56px 0; background: var(--hg-white); }
   .render-page .page-section.tinted { background: var(--hg-off-white); }
   .render-page .page-section p { font-size: 17px; color: var(--hg-text-mid); line-height: 1.75; margin-bottom: 16px; max-width: 900px; }
@@ -559,6 +565,8 @@
     .render-page .article-body-section .container { display: flex; flex-direction: column; }
     .render-page .main-col { max-width: none; }
     .render-page .sidenav { position: static; width: 100%; margin-top: 32px; }
+    .render-page .spoke-body-section .container { display: flex; flex-direction: column; }
+    .render-page .spoke-body-section .sidenav { order: -1; }
     .render-page .before-after { grid-template-columns: 1fr; }
     .render-page .bf-figure { font-size: 64px; }
     .render-page .bf-compare { grid-template-columns: 1fr; gap: 16px; }
@@ -609,95 +617,113 @@
       <span class="pill melon"><span class="dot"></span> Last reviewed: August 2026</span>
     </div>
   </div>
-  <div class="container article-body">
-    <p class="thesis-block">AI Share of Voice is the percentage of tracked brand mentions, a brand's mentions plus every named competitor's mentions, appearing across AI answer engines for a set of tracked prompts. A brand with 40 of 100 mentions holds 40% AI Share of Voice, a share that shifts month over month.</p>
-    <section id="how-does-ai-share-of-voice-work-as-a-measurement">
-      <h2>How Does AI Share of Voice Work as a Measurement?</h2>
-      <p>AI Share of Voice measurement starts with a fixed set of tracked prompts: the exact questions buyers type into ChatGPT, Gemini, Perplexity, Claude, and Google AI Overviews while researching a category. GEO teams run each tracked prompt on a recurring schedule and record every brand name that appears in the returned answer text, across every AI answer source in the tracked set.</p>
-      <p>The AI Share of Voice formula divides one brand's mention count by the combined mention count of every brand named in the same answer set, then multiplies by 100. As of Q3 2026, most GEO monitoring platforms calculate the figure per AI answer source first, then blend the sources into one composite score for reporting.<sup><a href="#citation-2">[2]</a></sup></p>
-      <div class="formula-block">AI Share of Voice = (brand mentions ÷ total mentions across the brand and every named competitor) × 100</div>
-      <p>A simple example: across 50 tracked prompts, a vendor earns 80 total brand mentions, and two named competitors earn 60 and 40 mentions respectively, for 180 total mentions across the set. Dividing 80 by 180 yields a 44% AI Share of Voice. The full step-by-step formula, including weighted and per-engine variants, is covered in the companion methodology page linked below.</p>
-      <div class="callout-box">
-        <div class="callout-box-label">Why It Matters</div>
-        <p class="callout-box-body">AI Share of Voice depends on AI crawlers reaching a brand's pages in the first place. TrustRadius customers receive 21 times more AI crawler visits than non-customers, according to TrustRadius internal data, because verified customer review content gives generative engines more citable material to draw on when constructing an answer.</p>
+  <section class="spoke-body-section">
+    <div class="container">
+      <div class="spoke-col article-body">
+        <p class="thesis-block">AI Share of Voice is the percentage of tracked brand mentions, a brand's mentions plus every named competitor's mentions, appearing across AI answer engines for a set of tracked prompts. A brand with 40 of 100 mentions holds 40% AI Share of Voice, a share that shifts month over month.</p>
+        <section id="how-does-ai-share-of-voice-work-as-a-measurement">
+          <h2>How Does AI Share of Voice Work as a Measurement?</h2>
+          <p>AI Share of Voice measurement starts with a fixed set of tracked prompts: the exact questions buyers type into ChatGPT, Gemini, Perplexity, Claude, and Google AI Overviews while researching a category. GEO teams run each tracked prompt on a recurring schedule and record every brand name that appears in the returned answer text, across every AI answer source in the tracked set.</p>
+          <p>The AI Share of Voice formula divides one brand's mention count by the combined mention count of every brand named in the same answer set, then multiplies by 100. As of Q3 2026, most GEO monitoring platforms calculate the figure per AI answer source first, then blend the sources into one composite score for reporting.<sup><a href="#citation-2">[2]</a></sup></p>
+          <div class="formula-block">AI Share of Voice = (brand mentions ÷ total mentions across the brand and every named competitor) × 100</div>
+          <p>A simple example: across 50 tracked prompts, a vendor earns 80 total brand mentions, and two named competitors earn 60 and 40 mentions respectively, for 180 total mentions across the set. Dividing 80 by 180 yields a 44% AI Share of Voice. The full step-by-step formula, including weighted and per-engine variants, is covered in the companion methodology page linked below.</p>
+          <div class="callout-box">
+            <div class="callout-box-label">Why It Matters</div>
+            <p class="callout-box-body">AI Share of Voice depends on AI crawlers reaching a brand's pages in the first place. TrustRadius customers receive 21 times more AI crawler visits than non-customers, according to TrustRadius internal data, because verified customer review content gives generative engines more citable material to draw on when constructing an answer.</p>
+          </div>
+        </section>
+        <hr class="section-rule">
+        <section id="why-do-geo-teams-track-ai-share-of-voice">
+          <h2>Why Do GEO Teams Track AI Share of Voice?</h2>
+          <p>A GEO or AI Visibility Specialist building a measurement practice for the first time needs a number that translates cleanly into a leadership report and a content roadmap. AI Share of Voice does both: the metric names a competitive gap in a single percentage and points to the specific tracked prompts driving that gap.<sup><a href="#citation-1">[1]</a></sup></p>
+          <div class="concept-card-grid">
+            <div class="concept-card">
+              <h3 class="concept-card-title">Competitive Benchmarking</h3>
+              <p class="concept-card-body">GEO teams compare AI Share of Voice against every named competitor inside the same tracked prompt set, turning a vague sense of "AI presence" into a specific percentage gap a content team can close prompt by prompt.</p>
+            </div>
+            <div class="concept-card">
+              <h3 class="concept-card-title">Monthly Trend Reporting</h3>
+              <p class="concept-card-body">Because AI Share of Voice shifts month over month as answer engines regenerate responses, GEO teams chart the metric on a rolling basis and flag any month where a named competitor's share jumps or a brand's own share drops.</p>
+            </div>
+            <div class="concept-card">
+              <h3 class="concept-card-title">Prompt-Level Prioritization</h3>
+              <p class="concept-card-body">Breaking AI Share of Voice down by individual tracked prompt shows exactly which buyer questions a brand is losing, so content teams can prioritize the specific pages most likely to move the number next cycle.</p>
+            </div>
+          </div>
+        </section>
+        <hr class="section-rule">
+        <section id="how-does-ai-share-of-voice-differ-from-ai">
+          <h2>How Does AI Share of Voice Differ From AI Mention Rate?</h2>
+          <p>AI Share of Voice and AI Mention Rate get confused constantly because both come from the same underlying tracked-prompt data set. AI Mention Rate answers a simpler question: did a brand appear at all. AI Share of Voice answers a comparative question: how much of the total conversation a brand holds against every named competitor.<sup><a href="#citation-4">[4]</a></sup></p>
+          <div class="table-wrapper">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Criterion</th>
+                  <th>AI Share of Voice</th>
+                  <th>AI Mention Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="vendor-name">What Is Measured</td>
+                  <td>Relative percentage of total tracked mentions a brand holds against every named competitor</td>
+                  <td>Percentage of tracked prompts in which a brand appears at all</td>
+                </tr>
+                <tr>
+                  <td class="vendor-name">Denominator</td>
+                  <td>Total mentions across the brand and all named competitors combined</td>
+                  <td>Total number of tracked prompts in the set</td>
+                </tr>
+                <tr>
+                  <td class="vendor-name">Competitor Data Required</td>
+                  <td>Yes, competitor mentions must be counted</td>
+                  <td>No, competitor presence is not required</td>
+                </tr>
+                <tr>
+                  <td class="vendor-name">Primary Use</td>
+                  <td>Competitive benchmarking and market-position tracking</td>
+                  <td>Baseline visibility and coverage tracking</td>
+                </tr>
+                <tr>
+                  <td class="vendor-name">Typical Reporting Cadence</td>
+                  <td>Monthly, to show share shifts over time</td>
+                  <td>Per tracked-prompt-set refresh</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-caption">Source: HG Insights GEO monitoring methodology &middot; As of Q3 2026 &middot; Figures illustrate the comparison, not a specific brand's live metrics.</p>
+          <figure class="expert-quote-card">
+            <span class="expert-quote-mark" aria-hidden="true">&ldquo;</span>
+            <blockquote class="expert-quote-text">Most GEO and AI Visibility Specialists can recite a brand's organic ranking position from memory. Almost none can state a brand's AI Share of Voice, because until recently no shared definition of what to count existed. Standardizing that one number is the first job of any GEO measurement practice.</blockquote>
+            <figcaption class="expert-quote-attribution">
+              <span class="expert-quote-avatar">DM</span>
+              <span class="expert-quote-attribution-text">
+                <span class="expert-quote-name">Devon Marsh</span>
+                <span class="expert-quote-title">Director of GEO Research, HG Insights</span>
+                <a class="expert-quote-reference" href="https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/how-to-calculate-share-of-voice/">See the calculation methodology &rarr;</a>
+              </span>
+            </figcaption>
+          </figure>
+        </section>
       </div>
-    </section>
-    <hr class="section-rule">
-    <section id="why-do-geo-teams-track-ai-share-of-voice">
-      <h2>Why Do GEO Teams Track AI Share of Voice?</h2>
-      <p>A GEO or AI Visibility Specialist building a measurement practice for the first time needs a number that translates cleanly into a leadership report and a content roadmap. AI Share of Voice does both: the metric names a competitive gap in a single percentage and points to the specific tracked prompts driving that gap.<sup><a href="#citation-1">[1]</a></sup></p>
-      <div class="concept-card-grid">
-        <div class="concept-card">
-          <h3 class="concept-card-title">Competitive Benchmarking</h3>
-          <p class="concept-card-body">GEO teams compare AI Share of Voice against every named competitor inside the same tracked prompt set, turning a vague sense of "AI presence" into a specific percentage gap a content team can close prompt by prompt.</p>
-        </div>
-        <div class="concept-card">
-          <h3 class="concept-card-title">Monthly Trend Reporting</h3>
-          <p class="concept-card-body">Because AI Share of Voice shifts month over month as answer engines regenerate responses, GEO teams chart the metric on a rolling basis and flag any month where a named competitor's share jumps or a brand's own share drops.</p>
-        </div>
-        <div class="concept-card">
-          <h3 class="concept-card-title">Prompt-Level Prioritization</h3>
-          <p class="concept-card-body">Breaking AI Share of Voice down by individual tracked prompt shows exactly which buyer questions a brand is losing, so content teams can prioritize the specific pages most likely to move the number next cycle.</p>
-        </div>
-      </div>
-    </section>
-    <hr class="section-rule">
-    <section id="how-does-ai-share-of-voice-differ-from-ai">
-      <h2>How Does AI Share of Voice Differ From AI Mention Rate?</h2>
-      <p>AI Share of Voice and AI Mention Rate get confused constantly because both come from the same underlying tracked-prompt data set. AI Mention Rate answers a simpler question: did a brand appear at all. AI Share of Voice answers a comparative question: how much of the total conversation a brand holds against every named competitor.<sup><a href="#citation-4">[4]</a></sup></p>
-      <div class="table-wrapper">
-        <table class="comparison-table">
-          <thead>
-            <tr>
-              <th>Criterion</th>
-              <th>AI Share of Voice</th>
-              <th>AI Mention Rate</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="vendor-name">What Is Measured</td>
-              <td>Relative percentage of total tracked mentions a brand holds against every named competitor</td>
-              <td>Percentage of tracked prompts in which a brand appears at all</td>
-            </tr>
-            <tr>
-              <td class="vendor-name">Denominator</td>
-              <td>Total mentions across the brand and all named competitors combined</td>
-              <td>Total number of tracked prompts in the set</td>
-            </tr>
-            <tr>
-              <td class="vendor-name">Competitor Data Required</td>
-              <td>Yes, competitor mentions must be counted</td>
-              <td>No, competitor presence is not required</td>
-            </tr>
-            <tr>
-              <td class="vendor-name">Primary Use</td>
-              <td>Competitive benchmarking and market-position tracking</td>
-              <td>Baseline visibility and coverage tracking</td>
-            </tr>
-            <tr>
-              <td class="vendor-name">Typical Reporting Cadence</td>
-              <td>Monthly, to show share shifts over time</td>
-              <td>Per tracked-prompt-set refresh</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="table-caption">Source: HG Insights GEO monitoring methodology &middot; As of Q3 2026 &middot; Figures illustrate the comparison, not a specific brand's live metrics.</p>
-      <figure class="expert-quote-card">
-        <span class="expert-quote-mark" aria-hidden="true">&ldquo;</span>
-        <blockquote class="expert-quote-text">Most GEO and AI Visibility Specialists can recite a brand's organic ranking position from memory. Almost none can state a brand's AI Share of Voice, because until recently no shared definition of what to count existed. Standardizing that one number is the first job of any GEO measurement practice.</blockquote>
-        <figcaption class="expert-quote-attribution">
-          <span class="expert-quote-avatar">DM</span>
-          <span class="expert-quote-attribution-text">
-            <span class="expert-quote-name">Devon Marsh</span>
-            <span class="expert-quote-title">Director of GEO Research, HG Insights</span>
-            <a class="expert-quote-reference" href="https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/how-to-calculate-share-of-voice/">See the calculation methodology &rarr;</a>
-          </span>
-        </figcaption>
-      </figure>
-    </section>
-  </div>
+      <aside class="sidenav">
+        <nav class="nav-card" aria-label="On this page">
+          <div class="nav-head">On this page</div>
+          <ul>
+            <li><a href="#how-does-ai-share-of-voice-work-as-a-measurement">How Does AI Share of Voice Work as a Measurement?</a></li>
+            <li><a href="#why-do-geo-teams-track-ai-share-of-voice">Why Do GEO Teams Track AI Share of Voice?</a></li>
+            <li><a href="#how-does-ai-share-of-voice-differ-from-ai">How Does AI Share of Voice Differ From AI Mention Rate?</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+          <div class="nav-cta">
+            <a class="btn-primary" href="https://hginsights.com/demo">Book a Demo</a>
+          </div>
+        </nav>
+      </aside>
+    </div>
+  </section>
   <section class="faq-section" id="faq">
     <div class="container">
       <div class="faq-label-col">

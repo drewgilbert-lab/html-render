@@ -10,6 +10,29 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
+## Unreleased — 2026-09-02
+
+**Layout (pipeline).** Both spoke variants now compose the sticky right-rail
+`side-nav`. This is a template change, not a new design component: nav-card
+chrome (colors, type, 10px radius, light-blue active accent) is unchanged.
+
+- **Changed** `layout: article` and `layout: banded` always emit `side-nav`.
+  Links stay derived from body sections (or explicit `intro.toc`). The footer
+  Book a Demo button is assembled from the first `cta.buttons` entry with
+  `variant: primary` (default); `cta` was already required, so there is no new
+  required frontmatter key. Optional `side_nav` on spoke may override `label`
+  and `note` only.
+- **Changed** banded spokes no longer render the intro jump-nav column
+  (`.hub-toc`). Intro copy (`intro.eyebrow`, `title`, `body`) still renders
+  when `intro` is present; the rail is the only on-page section nav.
+- **Changed** spoke reading column is the leftover width inside the 1340px
+  container (gutters 24px, 48px gap, 260px rail ≈ 984px), not pillar's 780px
+  `.main-col`. Spokes use `.spoke-body-section` / `.spoke-col` so pillar's
+  narrow column is untouched. Wide in-flow blocks (comparison tables) live in
+  that column.
+
+---
+
 ## v1.5.0 — 2026-09-01, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
 
 The second consumer-driven release. `geo-spoke-builder` is migrating its remaining twelve

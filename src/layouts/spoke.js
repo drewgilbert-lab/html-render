@@ -6,18 +6,20 @@
  * The approved designs contain two legitimate spoke variants, selected with
  * `layout:` in frontmatter:
  *
- *   article (default) — light article hero, then one flowing narrow column.
- *                       Definition, glossary, comparison, and decision-tree
- *                       spokes use this.
- *   banded            — gradient stat hero, then full-width alternating section
- *                       bands. Methodology, benchmark-report, and reporting
- *                       framework spokes use this.
+ *   article (default) — light article hero, then a reading column plus a
+ *                       sticky right-rail nav. Glossary / definition spokes
+ *                       use this.
+ *   banded            — gradient stat hero, then alternating section bands in
+ *                       the reading column plus the same rail. Methodology,
+ *                       benchmark-report, and reporting-framework spokes use
+ *                       this (every remaining GEO format maps here).
  *
  * Component order (fixed per variant):
- *   article: breadcrumb -> article hero -> article body -> methodology? ->
- *            FAQ -> citations? -> related -> CTA
- *   banded:  breadcrumb -> gradient hero -> intro + TOC? -> section bands ->
+ *   article: breadcrumb -> article hero -> article body + side-nav ->
  *            methodology? -> FAQ -> citations? -> related -> CTA
+ *   banded:  breadcrumb -> gradient hero -> freshness? -> intro copy? ->
+ *            section bands + side-nav -> methodology? -> FAQ -> citations? ->
+ *            related -> CTA
  */
 
 const { el, lines, indent, container } = require('../html');
@@ -36,7 +38,7 @@ const describe = () => ({
     article: [
       'breadcrumb (omitted when standalone: true)',
       'article-hero',
-      'article body (thesis + sections)',
+      'article body + side-nav',
       'methodology (optional)',
       'faq',
       'citations (optional)',
@@ -46,8 +48,9 @@ const describe = () => ({
     banded: [
       'breadcrumb (omitted when standalone: true)',
       'hero',
-      'intro-toc (optional)',
-      'section bands',
+      'freshness-bar (optional)',
+      'intro copy (optional)',
+      'section bands + side-nav',
       'methodology (optional)',
       'faq',
       'citations (optional)',
@@ -56,6 +59,21 @@ const describe = () => ({
     ],
   },
 });
+
+function renderSpokeBody(readingColHtml, fm, sections) {
+  return el(
+    'section',
+    { class: 'spoke-body-section' },
+    `\n${indent(
+      container(
+        lines(
+          readingColHtml,
+          renderSlot('side-nav', assemble.sideNavInput(fm, sections, { withCtaButton: true })),
+        ),
+      ),
+    )}\n`,
+  );
+}
 
 function renderArticleSection(section) {
   const meta = section.meta || {};
@@ -80,11 +98,9 @@ function renderBandedSection(section, index) {
     'section',
     { class: tinted ? 'page-section tinted' : 'page-section', id: section.anchor },
     `\n${indent(
-      container(
-        lines(
-          renderSectionHeader({ eyebrow: meta.eyebrow, title: section.titleHtml, subtitle: meta.subtitle, align: 'left' }),
-          renderNodes(section.blocks, {}),
-        ),
+      lines(
+        renderSectionHeader({ eyebrow: meta.eyebrow, title: section.titleHtml, subtitle: meta.subtitle, align: 'left' }),
+        renderNodes(section.blocks, {}),
       ),
     )}\n`,
   );
@@ -108,7 +124,7 @@ function renderArticle(doc) {
   return lines(
     fm.standalone ? '' : renderSlot('breadcrumb', assemble.breadcrumbInput(fm)),
     renderSlot('article-hero', assemble.articleHeroInput(fm)),
-    el('div', { class: 'container article-body' }, `\n${indent(lines(blocks))}\n`),
+    renderSpokeBody(el('div', { class: 'spoke-col article-body' }, `\n${indent(lines(blocks))}\n`), fm, doc.sections),
     fm.methodology ? renderSlot('methodology', fm.methodology) : '',
     renderSlot('faq', fm.faq),
     fm.citations ? renderSlot('citations', fm.citations) : '',
@@ -120,12 +136,13 @@ function renderArticle(doc) {
 function renderBanded(doc) {
   const fm = doc.frontmatter;
   const sections = doc.sections;
+  const bands = sections.map((section, index) => renderBandedSection(section, index));
   return lines(
     fm.standalone ? '' : renderSlot('breadcrumb', assemble.breadcrumbInput(fm)),
     renderSlot('hero', assemble.heroInput(fm)),
     fm.freshness ? renderSlot('freshness-bar', fm.freshness) : '',
-    fm.intro ? renderSlot('intro-toc', assemble.introTocInput(fm, sections)) : '',
-    sections.map((section, index) => renderBandedSection(section, index)),
+    fm.intro ? renderSlot('intro-toc', assemble.introTocInput(fm, sections, { omitToc: true })) : '',
+    renderSpokeBody(el('div', { class: 'spoke-col' }, `\n${indent(lines(bands))}\n`), fm, sections),
     fm.methodology ? renderSlot('methodology', fm.methodology) : '',
     renderSlot('faq', fm.faq),
     fm.citations ? renderSlot('citations', fm.citations) : '',

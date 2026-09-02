@@ -74,21 +74,28 @@ downstream with geo-spoke-builder#31, so the tag-triggered sync after `v1.5.0` i
 re-stamp only its `commit=` line.
 
 **Every remaining spoke format is `banded`; only the glossary is `article`.** The consumer chose the
-variant from each skill's own design specification (stat hero, freshness bar, jump nav), which is
+variant from each skill's own design specification (stat hero, freshness bar), which is
 why [page-layouts.md](page-layouts.md) re-mapped five formats in v1.5.0. Where a format's opening
 block carries a number only when the topic has one, the skill falls back to `article` at run time
-rather than inventing a stat card.
+rather than inventing a stat card. Both spoke variants now always emit the sticky side-nav rail
+(see Unreleased in `CHANGELOG.md`); skill copy that still describes an "On This Page jump nav"
+is a follow-up after the next contract stamp, not a renderer gap.
 
-**Skill needs v1.5.0 deliberately does not meet**, each recorded in that repo's migration file as a
-translation decision rather than a renderer gap: a right-rail side nav on long spokes (the pillar
-guide, benchmark report, and data dictionary manifests want `StickySideNav`; both spoke layouts
-give them the intro jump nav instead); a code block for the two technical spokes (the export has
-no such component, so this is a design-system gap, not a renderer one — the skills express the
-structure as a table); `InteractiveTable`, `TechStackLayers`, `DisplacementFlow`, and
-`CohortSwitcher` (all JavaScript-driven web-only components the consumer's §1.3 already treats
-with suspicion; a pipe table or `bar-chart` carries the data statically); `SocialProof` (gated by
-a customer-reference audit the consumer runs, and rarely cleared); the inline `MetricHighlight` /
-`NameHighlight` pair (still blocked on the inline-syntax decision in §3, `**bold**` stands in).
+**Closed — right-rail side nav on all spokes.** Previously recorded as a v1.5.0 translation
+decision (the pillar guide, benchmark report, and data dictionary manifests wanted
+`StickySideNav`; both spoke layouts gave them the intro jump nav instead). The spoke template
+now always composes the rail, and banded spokes no longer emit `.hub-toc`. Done for every spoke,
+not only long ones.
+
+**Skill needs the current renderer still does not meet**, each recorded in that repo's migration
+file as a translation decision rather than a renderer gap: a code block for the two technical
+spokes (the export has no such component, so this is a design-system gap, not a renderer one —
+the skills express the structure as a table); `InteractiveTable`, `TechStackLayers`,
+`DisplacementFlow`, and `CohortSwitcher` (all JavaScript-driven web-only components the
+consumer's §1.3 already treats with suspicion; a pipe table or `bar-chart` carries the data
+statically); `SocialProof` (gated by a customer-reference audit the consumer runs, and rarely
+cleared); the inline `MetricHighlight` / `NameHighlight` pair (still blocked on the
+inline-syntax decision in §3, `**bold**` stands in).
 
 Cross-checking those manifests against this registry (the procedure is
 [Step 5 of the sync skill](../.claude/skills/sync-design-components/SKILL.md)) surfaces components

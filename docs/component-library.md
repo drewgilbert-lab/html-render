@@ -405,7 +405,7 @@ not their position — see [page-layouts.md](page-layouts.md).
 | `freshness-bar` | 04-data-freshness-bar | `freshness` |
 | `thesis-band` | 31-thesis-block | `hero.thesis` (Cluster only) |
 | `intro-toc` | 06-hub-intro-toc | `intro`, plus body sections for the nav |
-| `side-nav` | 30-sticky-side-nav | `side_nav`, plus body sections for the links |
+| `side-nav` | 30-sticky-side-nav | `side_nav`, plus body sections for the links; on spoke, also the first `cta.buttons` primary button. The spoke template always composes this rail |
 | `resource-index` | 13-data-cut-filters | `resource_index` |
 | `related` | 14-spoke-page-cards | `related` |
 | `methodology` | 16-methodology-section | `methodology` |

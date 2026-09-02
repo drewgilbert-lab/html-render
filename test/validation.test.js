@@ -147,6 +147,20 @@ test('the article spoke variant refuses hero stats', () => {
   assert.match(error.message, /layout: banded/);
 });
 
+test('optional side_nav on a spoke is valid and does not replace the CTA-assembled demo button', () => {
+  const source = spoke('side_nav:\n  label: On this spoke\n  note: Optional note.\n');
+  assert.doesNotThrow(() => render(source, { config: EXAMPLE_CONFIG }));
+  const html = render(source, { config: EXAMPLE_CONFIG, styles: false, script: false, schema: false, font: false }).html;
+  assert.match(html, /<div class="nav-head">On this spoke<\/div>/);
+  assert.match(html, /<div class="nav-foot">Optional note\.<\/div>/);
+  assert.match(html, /<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
+});
+
+test('an unknown key on spoke side_nav is rejected', () => {
+  const error = messageFor(spoke('side_nav:\n  label: On this page\n  buttons: nope\n'), 'side_nav.buttons');
+  assert.match(error.message, /is not a recognized key/);
+});
+
 test('malformed input fails with a clear parse error', () => {
   assert.match(errorsFor('no frontmatter here\n')[0].message, /must begin with a "---" fence/);
   assert.match(errorsFor('---\npage_type: pillar\nstill open\n')[0].message, /never closed/);

@@ -57,20 +57,32 @@ function tocItems(fm, sections, { resourceIndexAfterFirst = false } = {}) {
   return items;
 }
 
-function introTocInput(fm, sections, options) {
+function introTocInput(fm, sections, options = {}) {
   const intro = fm.intro || {};
   return {
     eyebrow: intro.eyebrow,
     title: intro.title,
     body: intro.body,
     toc_label: intro.toc_label,
-    toc: tocItems(fm, sections, options),
+    toc: options.omitToc ? [] : tocItems(fm, sections, options),
   };
 }
 
-function sideNavInput(fm, sections, options) {
+/** First CTA button whose variant is primary (the default when omitted). */
+function primaryCtaButton(fm) {
+  const buttons = (fm.cta && fm.cta.buttons) || [];
+  const primary = buttons.find((button) => button.variant !== 'secondary');
+  return primary ? { label: primary.label, url: primary.url } : undefined;
+}
+
+function sideNavInput(fm, sections, options = {}) {
   const sideNav = fm.side_nav || {};
-  return { label: sideNav.label, items: tocItems(fm, sections, options), note: sideNav.note };
+  const input = { label: sideNav.label, items: tocItems(fm, sections, options), note: sideNav.note };
+  if (options.withCtaButton) {
+    const button = primaryCtaButton(fm);
+    if (button) input.button = button;
+  }
+  return input;
 }
 
 module.exports = { breadcrumbInput, heroInput, articleHeroInput, thesisBandInput, introTocInput, sideNavInput };
