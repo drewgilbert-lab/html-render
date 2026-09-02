@@ -10,7 +10,13 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
-## Unreleased — 2026-09-02
+## v1.6.0 — 2026-09-02, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
+
+A template release, not a catalog refresh. Both spoke layouts now always compose
+the sticky right-rail `side-nav` that pillar already had; banded spokes drop the
+intro jump-nav column. Markdown (`intro` / `cta`) is unchanged; rendered chrome
+on spokes is not. No new design-system component: nav-card colors, type, 10px
+radius, and the light-blue active accent are untouched.
 
 **Layout (pipeline).** Both spoke variants now compose the sticky right-rail
 `side-nav`. This is a template change, not a new design component: nav-card

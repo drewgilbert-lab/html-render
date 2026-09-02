@@ -17,9 +17,9 @@ node bin/html-render.js --audit /path/to/claude-design-export   # coverage vs. t
 node bin/html-render.js --components                            # what is implemented now
 ```
 
-Last reviewed: **2026-09-01**, against Claude Design export build
+Last reviewed: **2026-09-02**, against Claude Design export build
 `HGInsightsMarketingDesignSystem_3bf70b` (the 2026-09-01 recompile — same namespace, different
-contents; see §4) and `html-render` v1.5.0.
+contents; see §4) and `html-render` v1.6.0.
 
 ---
 
@@ -78,8 +78,8 @@ variant from each skill's own design specification (stat hero, freshness bar), w
 why [page-layouts.md](page-layouts.md) re-mapped five formats in v1.5.0. Where a format's opening
 block carries a number only when the topic has one, the skill falls back to `article` at run time
 rather than inventing a stat card. Both spoke variants now always emit the sticky side-nav rail
-(see Unreleased in `CHANGELOG.md`); skill copy that still describes an "On This Page jump nav"
-is a follow-up after the next contract stamp, not a renderer gap.
+(see `CHANGELOG.md` v1.6.0); skill copy that still describes an "On This Page jump nav"
+is a follow-up after the v1.6.0 contract stamp, not a renderer gap.
 
 **Closed — right-rail side nav on all spokes.** Previously recorded as a v1.5.0 translation
 decision (the pillar guide, benchmark report, and data dictionary manifests wanted
@@ -231,6 +231,14 @@ eventually.
 
 ## Recently closed
 
+- **2026-09-02** — v1.6.0: spoke template always composes the sticky right-rail
+  `side-nav` (article and banded); banded jump nav (`.hub-toc`) is gone; the
+  rail footer Book a Demo button is assembled from `cta` primary; spoke reading
+  column is leftover width inside the 1340px container (~984px), not pillar's
+  780px `.main-col`. Markdown (`intro` / `cta`) is unchanged; rendered chrome
+  on spokes is breaking for `geo-spoke-builder` skills that still describe an
+  On This Page jump nav — that copy is a follow-up after the contract stamp.
+  No catalog refresh.
 - **2026-09-01** — v1.5.0: the batch-migration release. Seven optional frontmatter keys give
   every page format its own JSON-LD (`article.type`, `howto` with body-derived steps, `item_list`,
   `dataset` + `DataCatalog`, `service`, `term_set`, `software`); a pillar derives an `ItemList`
