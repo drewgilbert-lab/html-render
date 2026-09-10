@@ -31,6 +31,7 @@ const { renderSlot } = require('../components');
 const { renderNodes } = require('./section-body');
 const { renderSectionHeader } = require('../components/page');
 const assemble = require('./assemble');
+const { bodyBand, pageSectionClass, renderTrailingSlots } = require('./bands');
 const { normalizeField } = require('../validate/fields');
 
 const pageType = 'spoke';
@@ -96,12 +97,11 @@ function renderArticleSection(section) {
   );
 }
 
-function renderBandedSection(section, index) {
+function renderBandedSection(section, isDark) {
   const meta = section.meta || {};
-  const tinted = meta.band ? meta.band === 'tinted' : index % 2 === 1;
   return el(
     'section',
-    { class: tinted ? 'page-section tinted' : 'page-section', id: section.anchor },
+    { class: pageSectionClass(isDark), id: section.anchor },
     `\n${indent(
       lines(
         renderSectionHeader({ eyebrow: meta.eyebrow, title: section.titleHtml, subtitle: meta.subtitle, align: 'left' }),
@@ -118,12 +118,13 @@ function thesisBlock(fm) {
 
 function renderArticle(doc) {
   const fm = doc.frontmatter;
+  const sections = assemble.visibleSections(fm, doc.sections);
   const blocks = [];
   const thesis = thesisBlock(fm);
   if (thesis) blocks.push(thesis);
   const preamble = renderNodes(doc.preamble, {});
   if (preamble) blocks.push(preamble);
-  doc.sections.forEach((section) => {
+  sections.forEach((section) => {
     blocks.push(renderArticleSection(section));
   });
 
@@ -131,23 +132,23 @@ function renderArticle(doc) {
     fm.standalone ? '' : renderSlot('breadcrumb', assemble.breadcrumbInput(fm)),
     renderSlot('article-hero', assemble.articleHeroInput(fm)),
     renderSlot('freshness-bar', assemble.freshnessInput(fm)),
-    renderSpokeBody(el('div', { class: 'spoke-col article-body' }, `\n${indent(lines(blocks))}\n`), fm, doc.sections),
-    fm.methodology ? renderSlot('methodology', fm.methodology) : '',
-    renderSlot('faq', fm.faq),
-    fm.citations ? renderSlot('citations', fm.citations) : '',
-    renderSlot('related', fm.related),
+    renderSpokeBody(el('div', { class: 'spoke-col article-body' }, `\n${indent(lines(blocks))}\n`), fm, sections),
+    ...renderTrailingSlots(fm, false),
     renderSlot('cta', assemble.ctaInput(fm)),
   );
 }
 
 function renderBanded(doc) {
   const fm = doc.frontmatter;
-  const sections = doc.sections;
+  const sections = assemble.visibleSections(fm, doc.sections);
   const col = [];
   const thesis = thesisBlock(fm);
   if (thesis) col.push(thesis);
+  let previousDark = false;
   sections.forEach((section, index) => {
-    col.push(renderBandedSection(section, index));
+    const isDark = bodyBand(section, index, previousDark);
+    col.push(renderBandedSection(section, isDark));
+    previousDark = isDark;
   });
   return lines(
     fm.standalone ? '' : renderSlot('breadcrumb', assemble.breadcrumbInput(fm)),
@@ -155,10 +156,7 @@ function renderBanded(doc) {
     renderSlot('freshness-bar', assemble.freshnessInput(fm)),
     fm.intro ? renderSlot('intro-toc', assemble.introTocInput(fm, sections, { omitToc: true })) : '',
     renderSpokeBody(el('div', { class: 'spoke-col' }, `\n${indent(lines(col))}\n`), fm, sections),
-    fm.methodology ? renderSlot('methodology', fm.methodology) : '',
-    renderSlot('faq', fm.faq),
-    fm.citations ? renderSlot('citations', fm.citations) : '',
-    renderSlot('related', fm.related),
+    ...renderTrailingSlots(fm, previousDark),
     renderSlot('cta', assemble.ctaInput(fm)),
   );
 }

@@ -80,7 +80,9 @@ Notes:
   hairlines between body sections. Full-width bands inset copy via `.container`.
 - `###` headings become grouping blocks — a heavy sub-heading with its copy and
   any card grid beneath it.
-- Section bands alternate automatically; `band:` in a `section` block overrides.
+- Section bands alternate automatically. Two dark (tinted / off-white) bands
+  cannot sit next to each other: the second is forced to white. Consecutive
+  white bands are allowed. `band:` in a `section` block yields to that rule.
 
 ---
 
@@ -159,7 +161,8 @@ The freshness bar always sits under the hero: `freshness.label` if supplied,
 otherwise a quarter derived from `updated` (else `published`); note, cadence,
 and methodology link are ignored. `cta.buttons` allows one entry. Tinted bands
 inset text from the gray edge with the same horizontal padding as white bands.
-There are no section-rule hairlines between body sections.
+There are no section-rule hairlines between body sections. Two dark bands cannot
+be adjacent; `band: tinted` yields to that rule.
 
 ### Mapping the GEO spoke formats onto the two variants
 
@@ -202,6 +205,15 @@ specifications rather than the page name.)
   `citations`, `related`, and `cta` are reserved for the page slots. Body
   sections take the `id` from their `section` block, or an anchor derived from
   the heading.
+- **Section bands.** Two dark (tinted / off-white) bands cannot be adjacent. If
+  they would be, the second is forced to white. Consecutive white bands are
+  allowed. `band: tinted` yields to this rule. Hero, freshness-bar, and CTA keep
+  their required-dark colors; a dark slot immediately before the CTA is forced
+  to white instead.
+- **Citations.** Only the formatted `citations` slot renders. When that slot is
+  present, a body section titled Citations, References, or Sources (or whose
+  `id` is `citations`) is omitted. CommonMark `[^n]:` definition lines are
+  ignored; `[^n]` in the body is a reference only.
 - **Determinism.** Band alternation, anchors, bar widths, stat-card emphasis,
   citation numbering, and the JSON-LD graph are all pure functions of the input.
 

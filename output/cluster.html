@@ -195,17 +195,17 @@
   .render-page .hub-toc-dot { display: inline-block; width: 4px; height: 4px; background: var(--hg-blue); border-radius: 50%; flex-shrink: 0; }
 
   /* ---- Comparison table ------------------------------------- */
-  .render-page .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid var(--hg-border); margin: 20px 0; }
-  .render-page table.comparison-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .render-page .table-wrapper { overflow: visible; border-radius: 12px; border: 1px solid var(--hg-border); margin: 20px 0; }
+  .render-page table.comparison-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 14px; }
   .render-page .comparison-table thead tr { background: var(--grad-dark-blue-purple); }
-  .render-page .comparison-table thead th { color: var(--hg-white); padding: 14px 18px; text-align: left; font-weight: 800; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+  .render-page .comparison-table thead th { color: var(--hg-white); padding: 14px 18px; text-align: left; font-weight: 800; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; white-space: normal; overflow-wrap: anywhere; }
   .render-page .comparison-table thead th:first-child { border-radius: 12px 0 0 0; }
   .render-page .comparison-table thead th:last-child { border-radius: 0 12px 0 0; }
   .render-page .comparison-table tbody tr { background: var(--hg-white); border-top: 1px solid var(--hg-border); transition: background 0.15s; }
   .render-page .comparison-table tbody tr:first-child { border-top: none; }
   .render-page .comparison-table tbody tr:hover { background: rgba(0,88,163,0.03); }
   .render-page .comparison-table td { padding: 14px 18px; text-align: left; color: var(--hg-text-mid); vertical-align: middle; }
-  .render-page .comparison-table td.vendor-name { font-weight: 800; color: var(--hg-dark-blue); white-space: nowrap; }
+  .render-page .comparison-table td.vendor-name { font-weight: 800; color: var(--hg-dark-blue); white-space: normal; overflow-wrap: anywhere; }
   .render-page .table-caption { font-size: 12px; color: var(--hg-text-light); margin-top: 14px; font-weight: 600; }
 
   /* ---- Expert quote card (12) ------------------------------- */
@@ -291,7 +291,7 @@
   .render-page .btn-secondary:hover { background: rgba(255,255,255,0.2); color: var(--hg-white); }
 
   /* ---- Sticky side nav (30) -------------------------------- */
-  .render-page .sidenav { position: sticky; top: 28px; width: 260px; flex-shrink: 0; }
+  .render-page .sidenav { position: sticky; top: 80px; width: 260px; flex-shrink: 0; }
   .render-page .nav-card { border: 1px solid var(--hg-border-light); border-radius: 10px; overflow: hidden; background: var(--hg-white); }
   .render-page .nav-head { background: var(--hg-dark-blue); padding: 10px 16px; font-size: 12px; font-weight: 700; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; color: var(--hg-white); }
   .render-page .nav-card ul { list-style: none; padding: 8px 0; }
@@ -450,12 +450,16 @@
   .render-page .main-col p strong { color: var(--hg-text-dark); font-weight: var(--fw-bold); }
   .render-page .main-col h3 { font-size: var(--fs-h3); font-weight: var(--fw-black); color: var(--hg-dark-blue); margin: 24px 0 12px; line-height: 1.3; }
 
+  .render-page .spoke-body-section { padding: 56px 0 64px; }
   .render-page .spoke-body-section .container { display: grid; grid-template-columns: 1fr 260px; gap: var(--space-12); align-items: start; }
   .render-page .spoke-col { min-width: 0; }
 
   .render-page .page-section { padding: 56px 0; background: var(--hg-white); }
   .render-page .page-section.tinted { background: var(--hg-off-white); }
   .render-page .spoke-col .page-section { padding: 56px var(--space-8); }
+  .render-page .methodology-section.on-white,
+  .render-page .faq-section.on-white,
+  .render-page .related-hubs-section.on-white { background: var(--hg-white); }
 
   /* No hairline between page-level sections. FAQ item rules stay: those are
      not section dividers. Spoke column bands inset text from the gray edge;
@@ -920,7 +924,7 @@
       <p class="table-caption">Source: HG Insights / TrustRadius GEO Monitoring methodology &middot; Illustrative routing matrix, not a benchmark or vendor ranking &middot; Q3 2026</p>
     </div>
   </section>
-  <section class="faq-section" id="faq">
+  <section class="faq-section on-white" id="faq">
     <div class="container">
       <div class="faq-label-col">
         <div class="section-eyebrow">FAQ</div>
@@ -1247,7 +1251,7 @@
           });
         });
       },
-      { rootMargin: '0px 0px -60% 0px', threshold: 0 }
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
     );
     sections.forEach(function (section) { observer.observe(section); });
   })();

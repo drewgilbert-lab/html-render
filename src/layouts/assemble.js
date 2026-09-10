@@ -100,6 +100,25 @@ function sideNavInput(fm, sections, options = {}) {
   return input;
 }
 
+const CITATION_DUMP_TITLES = new Set(['citations', 'references', 'sources']);
+
+function isCitationDumpSection(section) {
+  const title = String(section.title || '').trim().toLowerCase();
+  if (CITATION_DUMP_TITLES.has(title)) return true;
+  return section.anchor === 'citations';
+}
+
+/**
+ * Drop a body section that restates the formatted citations slot. Frontmatter
+ * `citations` is the only list that renders; a heading of Citations /
+ * References / Sources, or an explicit `id: citations`, is a duplicate.
+ */
+function visibleSections(fm, sections) {
+  const hasList = fm.citations && Array.isArray(fm.citations.items) && fm.citations.items.length;
+  if (!hasList) return sections;
+  return sections.filter((section) => !isCitationDumpSection(section));
+}
+
 /** Footer CTA: one primary button, no use-case links or meta pills. */
 function ctaInput(fm) {
   const source = fm.cta || {};
@@ -122,4 +141,6 @@ module.exports = {
   sideNavInput,
   ctaInput,
   quarterLabel,
+  isCitationDumpSection,
+  visibleSections,
 };

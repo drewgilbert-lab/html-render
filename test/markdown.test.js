@@ -41,6 +41,18 @@ test('citation references become superscript links and are collected', () => {
   assert.deepEqual([...context.citationRefs.keys()], ['12']);
 });
 
+test('footnote definition lines are skipped and do not become paragraphs', () => {
+  const { sections, citationRefs } = parseBody(
+    ['## Heading', '', 'A claim.[^1]', '', '[^1]: Google Search Central: dumped definition.', ''].join('\n'),
+    1,
+  );
+  assert.equal(sections[0].blocks.length, 1);
+  assert.equal(sections[0].blocks[0].type, 'paragraph');
+  assert.match(sections[0].blocks[0].html, /href="#citation-1"/);
+  assert.doesNotMatch(sections[0].blocks[0].html, /dumped definition/);
+  assert.deepEqual([...citationRefs.keys()], ['1']);
+});
+
 test('text is escaped but pre-written character references survive', () => {
   assert.equal(renderInline('A & B', ctx()), 'A &amp; B');
   assert.equal(renderInline('Q3 &middot; 2026', ctx()), 'Q3 &middot; 2026');

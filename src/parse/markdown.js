@@ -17,6 +17,8 @@
  *
  * Inline level: **strong**, *emphasis*, `code`, [text](url), [^3] citation
  * reference, backslash escapes, and pre-written character references.
+ * A CommonMark footnote definition (`[^n]: ...`) is ignored; citations are
+ * defined in frontmatter, not in the body.
  *
  * Nothing else is recognized. Unknown constructs are reported by the validator
  * rather than guessed at, so the same Markdown always produces the same HTML.
@@ -78,6 +80,14 @@ function parseBody(body, lineOffset = 0) {
     const trimmed = raw.trim();
 
     if (trimmed === '') {
+      i += 1;
+      continue;
+    }
+
+    // CommonMark footnote definitions. Citations live in frontmatter; `[^n]`
+    // in the body is a reference only. A `[^1]: ...` line is dropped so it
+    // cannot render as a second, unformatted list.
+    if (/^\[\^\d+\]:/.test(trimmed)) {
       i += 1;
       continue;
     }
@@ -242,6 +252,7 @@ function parseBody(body, lineOffset = 0) {
       if (/^>\s?/.test(value)) break;
       if (/^[-*+]\s+/.test(value) || /^\d+[.)]\s+/.test(value)) break;
       if (/^(-{3,}|\*{3,}|_{3,})$/.test(value)) break;
+      if (/^\[\^\d+\]:/.test(value)) break;
       paragraph.push(value);
       j += 1;
     }

@@ -21,7 +21,7 @@
         });
       });
     },
-    { rootMargin: '0px 0px -60% 0px', threshold: 0 }
+    { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
   );
   sections.forEach(function (section) { observer.observe(section); });
 })();
