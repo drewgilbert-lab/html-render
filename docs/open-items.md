@@ -17,9 +17,9 @@ node bin/html-render.js --audit /path/to/claude-design-export   # coverage vs. t
 node bin/html-render.js --components                            # what is implemented now
 ```
 
-Last reviewed: **2026-09-02**, against Claude Design export build
+Last reviewed: **2026-09-10**, against Claude Design export build
 `HGInsightsMarketingDesignSystem_3bf70b` (the 2026-09-01 recompile — same namespace, different
-contents; see §4) and `html-render` v1.7.0.
+contents; see §4) and `html-render` v1.8.0.
 
 ---
 
@@ -231,6 +231,10 @@ eventually.
 
 ## Recently closed
 
+- **2026-09-10** — v1.8.0: page-wide layout rules — sticky side-nav offset
+  80px, no two dark bands in a row, comparison tables wrap instead of
+  scrolling, citations only in the formatted slot. Output changes; not
+  breaking for geo-spoke-builder Markdown. No catalog refresh.
 - **2026-09-02** — v1.7.0: every page class is quieter chrome — no hero eyebrow
   or meta pills, thesis in the body, freshness bar always under the hero
   (`Data last updated: {label}`), no section-rule hairlines, single primary
