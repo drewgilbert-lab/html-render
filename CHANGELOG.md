@@ -10,6 +10,35 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
+## Unreleased — 2026-09-10, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
+
+A template change, not a catalog refresh. Four page-wide layout rules: more
+clearance under the sticky side-nav, no two dark section bands in a row, tables
+that wrap instead of scrolling, and a single formatted citations list.
+
+**Layout (pipeline).** Pillar, cluster, and both spoke variants.
+
+- **Changed** `.sidenav` sticky offset is `80px`, matching `.hub-toc`, and
+  `.spoke-body-section` now has `padding: 56px 0 64px` so the rail is not flush
+  against the header chrome. Scroll-spy `rootMargin` uses the same 80px offset.
+- **Changed** two dark (tinted / off-white) bands cannot sit next to each other.
+  The second is forced to white; consecutive white bands are allowed. `band:
+  tinted` yields to the rule. Hero, freshness-bar, and CTA keep their
+  required-dark colors; a dark slot immediately before the CTA is forced to
+  white instead. Methodology, FAQ, and related gain `.on-white` when lightened.
+- **Changed** comparison tables (pipe tables and `comparison-table`) no longer
+  use `overflow-x: auto`. Cells wrap so the full table is visible at 100% width.
+- **Changed** CommonMark `[^n]:` footnote definition lines are ignored. A body
+  section titled Citations, References, or Sources is omitted when frontmatter
+  `citations` is present, so only the formatted `.citations-section` renders.
+
+**Consumer note (breaking: no; changed output: yes).** Every page's inline
+stylesheet changes (sticky offset, table wrapping, `.on-white`). Banded cluster
+and spoke pages, plus trailing methodology / FAQ / related slots, may shift from
+off-white to white where two dark bands would have been adjacent.
+
+---
+
 ## v1.7.0 — 2026-09-02, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
 
 A template change, not a catalog refresh. Every page class is quieter: no hero

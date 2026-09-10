@@ -18,6 +18,7 @@ const { renderSlot } = require('../components');
 const { renderNodes } = require('./section-body');
 const { renderSectionHeader } = require('../components/page');
 const assemble = require('./assemble');
+const { renderTrailingSlots } = require('./bands');
 const { normalizeField } = require('../validate/fields');
 
 const pageType = 'pillar';
@@ -60,7 +61,7 @@ function thesisBlock(fm) {
 
 function render(doc) {
   const fm = doc.frontmatter;
-  const sections = doc.sections;
+  const sections = assemble.visibleSections(fm, doc.sections);
 
   const col = [];
   const thesis = thesisBlock(fm);
@@ -88,10 +89,7 @@ function render(doc) {
     renderSlot('freshness-bar', assemble.freshnessInput(fm)),
     renderSlot('intro-toc', assemble.introTocInput(fm, sections)),
     articleBody,
-    fm.methodology ? renderSlot('methodology', fm.methodology) : '',
-    renderSlot('faq', fm.faq),
-    fm.citations ? renderSlot('citations', fm.citations) : '',
-    fm.related ? renderSlot('related', fm.related) : '',
+    ...renderTrailingSlots(fm, false),
     renderSlot('cta', assemble.ctaInput(fm)),
   );
 }

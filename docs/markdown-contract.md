@@ -273,7 +273,7 @@ The optional `section` block sets:
 | `subtitle` | One line under the heading |
 | `id` | The anchor. Set it — auto-generated anchors are derived from the heading and are long |
 | `nav_label` | A shorter label for the table of contents and side nav |
-| `band` | `white` or `tinted`, overriding the alternating band colour (Cluster and banded Spoke only) |
+| `band` | `white` or `tinted`, overriding the alternating band colour (Cluster and banded Spoke only). Two dark bands cannot be adjacent; if `tinted` would sit next to another dark band, the second is forced to white. |
 
 `###` inside a section renders a sub-heading. On a Cluster page each `###` and
 the copy beneath it becomes a grouping block.
@@ -287,7 +287,7 @@ the copy beneath it becomes a grouping block.
 | `*emphasis*` or `_emphasis_` | `<em>` |
 | `` `code` `` | `<code>` |
 | `[text](url)` | A link. External hosts get `target="_blank" rel="noopener"` |
-| `[^3]` | A superscript citation link to the third entry in `citations` |
+| `[^3]` | A superscript citation link to the third entry in frontmatter `citations`. A CommonMark definition line (`[^3]: ...`) is ignored and does not render |
 | `- item` | The branded bullet list |
 | `1. item` | The branded numbered list |
 | `> statement` | The thesis block |

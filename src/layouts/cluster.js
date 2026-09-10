@@ -23,6 +23,7 @@ const { renderSlot } = require('../components');
 const { renderNodes } = require('./section-body');
 const { renderSectionHeader } = require('../components/page');
 const assemble = require('./assemble');
+const { bodyBand, pageSectionClass, renderTrailingSlots } = require('./bands');
 
 const pageType = 'cluster';
 
@@ -46,12 +47,11 @@ const describe = () => ({
   ],
 });
 
-function renderSection(section, index) {
+function renderSection(section, isDark) {
   const meta = section.meta || {};
-  const tinted = meta.band ? meta.band === 'tinted' : index % 2 === 1;
   return el(
     'section',
-    { class: tinted ? 'page-section tinted' : 'page-section', id: section.anchor },
+    { class: pageSectionClass(isDark), id: section.anchor },
     `\n${indent(
       container(
         lines(
@@ -65,7 +65,7 @@ function renderSection(section, index) {
 
 function render(doc) {
   const fm = doc.frontmatter;
-  const sections = doc.sections;
+  const sections = assemble.visibleSections(fm, doc.sections);
   const tocOptions = { resourceIndexAfterFirst: true };
 
   const parts = [
@@ -77,15 +77,18 @@ function render(doc) {
   const thesis = assemble.thesisBandInput(fm);
   if (thesis) parts.push(renderSlot('thesis-band', thesis));
 
+  let previousDark = false;
   sections.forEach((section, index) => {
-    parts.push(renderSection(section, index));
-    if (index === 0) parts.push(renderSlot('resource-index', fm.resource_index));
+    const isDark = bodyBand(section, index, previousDark);
+    parts.push(renderSection(section, isDark));
+    previousDark = isDark;
+    if (index === 0) {
+      parts.push(renderSlot('resource-index', fm.resource_index));
+      previousDark = false;
+    }
   });
 
-  if (fm.methodology) parts.push(renderSlot('methodology', fm.methodology));
-  parts.push(renderSlot('faq', fm.faq));
-  if (fm.citations) parts.push(renderSlot('citations', fm.citations));
-  if (fm.related) parts.push(renderSlot('related', fm.related));
+  parts.push(...renderTrailingSlots(fm, previousDark));
   parts.push(renderSlot('cta', assemble.ctaInput(fm)));
 
   return lines(parts);

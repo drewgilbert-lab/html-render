@@ -22,7 +22,7 @@ test('valid Pillar Markdown renders the Pillar layout', () => {
     'class="article-body-section"',
     'class="main-col"',
     'class="sidenav"',
-    'class="faq-section" id="faq"',
+    'class="faq-section',
     'class="cta-section" id="cta"',
   ];
   let cursor = -1;
@@ -79,7 +79,7 @@ test('valid Spoke Markdown renders the article variant', () => {
   assert.match(html, /class="container article-hero"/);
   assert.match(html, /class="spoke-body-section"/);
   assert.match(html, /class="spoke-col article-body"/);
-  assert.match(html, /class="related-hubs-section" id="related"/);
+  assert.match(html, /class="related-hubs-section(?: on-white)?" id="related"/);
   assert.match(html, /class="sidenav"/);
   assert.match(html, /<div class="nav-cta">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
   assert.match(html, /class="cta-section" id="cta"/);
@@ -211,4 +211,80 @@ test('the wrapper class is written in exactly one place', () => {
   const scoped = (html.match(new RegExp(`\\.${DEFAULTS.pageClass}\\b`, 'g')) || []).length;
   assert.ok(scoped > 300, `stylesheet is not scoped to .${DEFAULTS.pageClass} — found ${scoped} selectors`);
   assert.match(html, new RegExp(`querySelector\\('\\.${DEFAULTS.pageClass}'\\)`));
+});
+
+test('the sticky side-nav clears the header and spoke body is padded', () => {
+  const { stylesheet, behaviourScript } = require('../src/index');
+  const css = stylesheet();
+  assert.match(css, /\.sidenav \{ position: sticky; top: 80px;/);
+  assert.match(css, /\.spoke-body-section \{ padding: 56px 0 64px;/);
+  assert.match(behaviourScript(), /rootMargin: '-80px 0px -60% 0px'/);
+});
+
+test('tables wrap in place and never use a horizontal slider', () => {
+  const { stylesheet } = require('../src/index');
+  const css = stylesheet();
+  assert.match(css, /\.table-wrapper \{ overflow: visible;/);
+  assert.match(css, /table\.comparison-table \{ width: 100%; table-layout: fixed;/);
+  assert.doesNotMatch(css, /overflow-x:\s*auto/);
+  assert.doesNotMatch(css, /\.comparison-table thead th \{[^}]*white-space: nowrap/);
+});
+
+test('consecutive tinted body sections force the second onto white', () => {
+  const source = bandedSpoke()
+    .replace('id: why\nnav_label: Why It Matters', 'id: why\nnav_label: Why It Matters\nband: tinted')
+    .replace('id: program', 'id: program\nband: tinted');
+  const html = body(source).html;
+  assert.match(html, /<section class="page-section tinted" id="why">/);
+  assert.match(html, /<section class="page-section" id="program">/);
+});
+
+test('methodology followed by FAQ forces FAQ onto white', () => {
+  const html = body(
+    pillar('methodology:\n  title: How we measure this\n  body: One paragraph explaining the method.\n'),
+  ).html;
+  assert.match(html, /class="methodology-section" id="methodology"/);
+  assert.doesNotMatch(html, /methodology-section on-white/);
+  assert.match(html, /class="faq-section on-white" id="faq"/);
+});
+
+test('related is forced onto white so it does not sit against the CTA', () => {
+  const html = body(spoke()).html;
+  assert.match(html, /class="related-hubs-section on-white" id="related"/);
+});
+
+test('a body Citations section is omitted when the formatted slot is present', () => {
+  const extras = [
+    'citations:',
+    '  items:',
+    '    - source: Google Search Central',
+    '      title: AI Features and Your Website',
+    '      url: https://developers.google.com/search/docs/appearance/ai-features',
+    '',
+  ].join('\n');
+  const source = `${pillar(extras)}\n## Citations\n\n1. Google Search Central: a dumped list item.\n`;
+  const html = body(source).html;
+  assert.match(html, /class="citations-section" id="citations"/);
+  assert.equal((html.match(/id="citations"/g) || []).length, 1);
+  assert.doesNotMatch(html, /a dumped list item/);
+  assert.match(html, /citation-source">Google Search Central<\/span>/);
+});
+
+test('footnote definition lines are not rendered next to the formatted citations slot', () => {
+  const extras = [
+    'citations:',
+    '  items:',
+    '    - source: Google Search Central',
+    '      title: AI Features and Your Website',
+    '      url: https://developers.google.com/search/docs/appearance/ai-features',
+    '',
+  ].join('\n');
+  const source = pillar(extras).replace(
+    'A body paragraph in the first section.',
+    'A body paragraph in the first section.[^1]\n\n[^1]: Google Search Central: dumped definition.\n',
+  );
+  const html = body(source).html;
+  assert.match(html, /href="#citation-1"/);
+  assert.doesNotMatch(html, /dumped definition/);
+  assert.match(html, /class="citations-section" id="citations"/);
 });
