@@ -10,7 +10,7 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
-## Unreleased — 2026-09-10, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
+## v1.8.0 — 2026-09-10, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
 
 A template change, not a catalog refresh. Four page-wide layout rules: more
 clearance under the sticky side-nav, no two dark section bands in a row, tables
