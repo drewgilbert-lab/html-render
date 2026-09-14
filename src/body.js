@@ -24,28 +24,42 @@ function flag(value) {
 }
 
 /**
- * A banded full-width section. `band: tinted` paints it; nothing overrides the
- * author's choice, including the band before it.
+ * A section. With no `band` it is a bare wrapper that paints nothing — the
+ * reading-column section. `band: white` or `band: tinted` makes it one of the
+ * full-width page bands. Nothing overrides the author's choice, including the
+ * band before it: two tinted bands in a row are the author's to make.
  */
+const SECTION_BANDS = { white: 'page-section', tinted: 'page-section tinted' };
+
 function renderSection(region, children) {
   const attrs = region.attrs || {};
-  const classes = attrs.band === 'tinted' ? 'page-section tinted' : 'page-section';
+  const band = String(attrs.band || '').trim();
   const inner = flag(attrs.container) ? container(children) : children;
-  return el('section', { class: classes, id: attrs.id || null }, `\n${indent(inner)}\n`);
+  return el('section', { class: SECTION_BANDS[band] || null, id: attrs.id || null }, `\n${indent(inner)}\n`);
 }
 
 /**
  * The reading column plus its rail. Any `side-nav` among the children is the
  * rail and sits as the grid's second child; everything else is the column.
  *
- * `variant: article` selects the narrower pillar column; the default is the
- * wider spoke column. Both are grids declared in the stylesheet.
+ * Three grids exist in the stylesheet, and `variant` names which one:
+ *   spoke (default)  the wide reading column
+ *   article          the narrow 780px column
+ *   reading          the wide column in its prose measure
  */
+const TWO_COLUMN_VARIANTS = {
+  spoke: { wrapper: 'spoke-body-section', column: 'spoke-col' },
+  article: { wrapper: 'article-body-section', column: 'main-col' },
+  reading: { wrapper: 'spoke-body-section', column: 'spoke-col article-body' },
+};
+
 function renderTwoColumn(region, rendered) {
-  const variant = String((region.attrs || {}).variant || '').trim();
-  const article = variant === 'article';
-  const wrapper = article ? 'article-body-section' : 'spoke-body-section';
-  const columnClass = article ? 'main-col' : 'spoke-col';
+  const variant = String((region.attrs || {}).variant || '').trim() || 'spoke';
+  const shape = TWO_COLUMN_VARIANTS[variant];
+  if (!shape) {
+    throw new Error(`Unknown two-column variant "${variant}". Use one of: ${Object.keys(TWO_COLUMN_VARIANTS).join(', ')}`);
+  }
+  const { wrapper, column: columnClass } = shape;
 
   const rail = [];
   const column = [];

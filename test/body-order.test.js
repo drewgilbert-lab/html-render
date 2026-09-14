@@ -85,9 +85,16 @@ test('a section region carries its own id and band, and the band is never overri
   assert.match(output, /<section class="page-section tinted" id="two">/);
 });
 
+test('a section paints nothing unless the author names a band', () => {
+  // No band: a bare wrapper for a reading-column section.
+  assert.match(html([':::section', 'id: plain', '', 'Copy.', ':::'].join('\n')), /<section id="plain">/);
+  assert.match(html([':::section', 'band: white', '', 'Copy.', ':::'].join('\n')), /<section class="page-section">/);
+  assert.match(html([':::section', 'band: tinted', '', 'Copy.', ':::'].join('\n')), /<section class="page-section tinted">/);
+});
+
 test('a section region can inset its content in the container column', () => {
-  assert.match(html([':::section', 'container: true', '', 'Inset copy.', ':::'].join('\n')), /<section class="page-section">\s*<div class="container">/);
-  assert.doesNotMatch(html([':::section', '', 'Full bleed copy.', ':::'].join('\n')), /<section class="page-section">\s*<div class="container">/);
+  assert.match(html([':::section', 'band: white', 'container: true', '', 'Inset copy.', ':::'].join('\n')), /<section class="page-section">\s*<div class="container">/);
+  assert.doesNotMatch(html([':::section', 'band: white', '', 'Full bleed copy.', ':::'].join('\n')), /<section class="page-section">\s*<div class="container">/);
 });
 
 test('two-column puts side-nav in the rail and everything else in the column', () => {
@@ -124,7 +131,7 @@ test('regions nest, and a heading keeps its section block metadata', () => {
     [':::two-column', '', ':::section', 'id: inner', '', '## Nested', '', '```section', 'eyebrow: Why It Matters', '```', ':::', ':::'].join('\n'),
   );
   assert.match(output, /<section class="spoke-body-section">/);
-  assert.match(output, /<section class="page-section" id="inner">/);
+  assert.match(output, /<section id="inner">/);
   assert.match(output, /<div class="section-eyebrow">Why It Matters<\/div>\s*<h2>Nested<\/h2>/);
 });
 
