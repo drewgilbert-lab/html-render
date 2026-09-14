@@ -55,7 +55,7 @@ function join(path, key) {
 }
 
 /** Validate `value` against a `fields` map. Adds errors to `report`. */
-function validateFields(fields, value, path, report, parentLine) {
+function validateFields(fields, value, path, report, parentLine, options = {}) {
   if (value == null) value = {};
   if (typeof value !== 'object' || Array.isArray(value)) {
     report.add(path, `expected a set of keys but found ${describe(value)}`, parentLine);
@@ -76,6 +76,7 @@ function validateFields(fields, value, path, report, parentLine) {
     validateField(spec, raw, join(path, key), report, line);
   }
 
+  if (options.strict === false) return;
   for (const key of Object.keys(value)) {
     if (!known.has(key)) {
       report.add(

@@ -3,7 +3,10 @@
 const path = require('node:path');
 
 /**
- * Minimal valid documents per page class. Tests start from these and remove or
+ * Fixtures for a renderer with no page classes.
+ *
+ * `page()` builds one body-order document: frontmatter carrying only what has
+ * no pixels, and a body that composes itself. Tests start from it and add or
  * corrupt one thing at a time, so each failure case is isolated.
  */
 
@@ -13,108 +16,169 @@ const path = require('node:path');
  */
 const EXAMPLE_CONFIG = path.join(__dirname, '..', 'examples', 'html-render.config.json');
 
-const SHARED = `title: A Test Page About AI Visibility
-eyebrow: GEO Measurement Guide
+/** Frontmatter: page identity. Everything visible lives in the body. */
+const IDENTITY = `title: A Test Page About AI Visibility
 url: https://hginsights.com/geo/test-page/
 description: A one sentence lead paragraph describing what this test page covers.
-published: 2026-08-11
-breadcrumbs:
+published: 2026-08-11`;
+
+const F = '```';
+
+const BREADCRUMB = `${F}breadcrumb
+items:
   - label: Home
     url: https://hginsights.com/
   - label: GEO Resources
     url: https://hginsights.com/geo/
+current: A Test Page
+${F}`;
+
+const HERO = `${F}hero
+title: A Test Page About AI Visibility
+description: A one sentence lead paragraph describing what this test page covers.
 author:
   name: Jordan Lee
   title: Principal Analyst, HG Insights
-faq:
-  eyebrow: FAQ
-  title: Common questions about this test page
-  items:
-    - q: What is this?
-      a: A fixture used by the renderer test suite.
-cta:
-  title: Book a demo of GEO monitoring
-  body: One sentence of CTA body copy.
-  buttons:
-    - label: Book a Demo
-      url: https://hginsights.com/demo`;
+stats:
+  - value: 60
+    unit: M
+    label: annual AI engine crawls
+    source: HG Insights telemetry, 2026
+${F}`;
 
-const HERO = `hero:
-  stats:
-    - value: 60
-      unit: M
-      label: annual AI engine crawls
-      source: HG Insights telemetry, 2026`;
+const ARTICLE_HERO = `${F}article-hero
+title: A Test Page About AI Visibility
+author:
+  name: Jordan Lee
+  title: Principal Analyst, HG Insights
+${F}`;
 
-const HERO_WITH_THESIS = `hero:
-  thesis: A forty word statement engineered to be quoted verbatim by an answer engine.
-  stats:
-    - value: 4
-      label: core metrics anchor the vocabulary`;
+const INTRO = `${F}intro-toc
+eyebrow: About This Guide
+title: What this guide covers
+body: |
+  First intro paragraph.
 
-const INTRO = `intro:
-  eyebrow: About This Guide
-  toc_label: On This Page
-  title: What this guide covers
-  body: |
-    First intro paragraph.
+  Second intro paragraph.
+toc:
+  - label: Why It Matters
+    anchor: why
+${F}`;
 
-    Second intro paragraph.`;
+const SECTIONS = `:::section
+id: why
 
-const BODY = `
 ## Why Does This Matter Right Now?
 
-\`\`\`section
+${F}section
 eyebrow: Why It Matters
-id: why
-nav_label: Why It Matters
-\`\`\`
+${F}
 
 A body paragraph in the first section.
+:::
+
+:::section
+id: program
+band: tinted
 
 ## What Should A Program Include?
 
-\`\`\`section
-eyebrow: Program Design
-id: program
-\`\`\`
-
 A body paragraph in the second section.
-`;
+:::`;
 
-const RESOURCE_INDEX = `resource_index:
-  eyebrow: Full Resource Index
-  title: Which guides cover this cluster?
-  items:
-    - group: Definitions
-      title: What Is Share of Voice?
-      description: Definition and formula.
-      url: https://hginsights.com/geo/test-page/share-of-voice/`;
+const SIDE_NAV = `${F}side-nav
+label: On this page
+items:
+  - label: Why It Matters
+    anchor: why
+${F}`;
 
-const RELATED = `related:
-  eyebrow: Keep Going
-  title: Where to go next
-  items:
-    - tag: Cluster Hub
-      title: Core Metrics and Vocabulary
-      url: https://hginsights.com/geo/test-page/core-metrics/
-      description: The parent cluster for this page.
-      link_text: Read the guide`;
+const FAQ = `${F}faq
+eyebrow: FAQ
+title: Common questions about this test page
+items:
+  - q: What is this?
+    a: A fixture used by the renderer test suite.
+${F}`;
 
-function pillar(extra = '', hero = HERO) {
-  return `---\npage_type: pillar\n${SHARED}\n${hero}\n${INTRO}\n${extra}---\n${BODY}`;
+const CTA = `${F}cta
+title: Book a demo of GEO monitoring
+body: One sentence of CTA body copy.
+buttons:
+  - label: Book a Demo
+    url: https://hginsights.com/demo
+${F}`;
+
+const RELATED = `${F}related
+eyebrow: Keep Going
+title: Where to go next
+items:
+  - tag: Cluster Hub
+    title: Core Metrics and Vocabulary
+    url: https://hginsights.com/geo/test-page/core-metrics/
+    description: The parent cluster for this page.
+    link_text: Read the guide
+${F}`;
+
+const RESOURCE_INDEX = `${F}resource-index
+eyebrow: Full Resource Index
+title: Which guides cover this cluster?
+items:
+  - group: Definitions
+    title: What Is Share of Voice?
+    description: Definition and formula.
+    url: https://hginsights.com/geo/test-page/share-of-voice/
+${F}`;
+
+/**
+ * One document. `frontmatter` is appended to the identity block; `body`
+ * replaces the default composition when given.
+ */
+function page({ frontmatter = '', body: composition = null } = {}) {
+  const fm = frontmatter ? `${IDENTITY}\n${frontmatter}` : IDENTITY;
+  const composed =
+    composition === null
+      ? [BREADCRUMB, HERO, INTRO, ':::two-column', SECTIONS, SIDE_NAV, ':::', FAQ, RELATED, CTA].join('\n\n')
+      : composition;
+  return `---\n${fm}\n---\n\n${composed}\n`;
 }
 
-function cluster(extra = '', hero = HERO) {
-  return `---\npage_type: cluster\n${SHARED}\n${hero}\n${INTRO}\n${RESOURCE_INDEX}\n${extra}---\n${BODY}`;
+/*
+ * Four named compositions, for tests that need a document of a particular
+ * shape rather than a particular page class. The renderer has no page classes;
+ * these are just different bodies.
+ */
+
+/** Gradient hero, banded sections, rail. */
+function bandedSpoke(frontmatter = '') {
+  return page({
+    frontmatter,
+    body: [BREADCRUMB, HERO, INTRO, ':::two-column', SECTIONS, SIDE_NAV, ':::', FAQ, RELATED, CTA].join('\n\n'),
+  });
 }
 
-function spoke(extra = '') {
-  return `---\npage_type: spoke\n${SHARED}\n${RELATED}\n${extra}---\n${BODY}`;
+/** Light article hero, reading column, rail. */
+function spoke(frontmatter = '') {
+  return page({
+    frontmatter,
+    body: [BREADCRUMB, ARTICLE_HERO, ':::two-column\nvariant: reading', SECTIONS, SIDE_NAV, ':::', FAQ, RELATED, CTA].join('\n\n'),
+  });
 }
 
-function bandedSpoke(extra = '', hero = HERO) {
-  return `---\npage_type: spoke\nlayout: banded\n${SHARED}\n${hero}\n${RELATED}\n${extra}---\n${BODY}`;
+/** Gradient hero, narrow reading column, rail. */
+function pillar(frontmatter = '') {
+  return page({
+    frontmatter,
+    body: [BREADCRUMB, HERO, INTRO, ':::two-column\nvariant: article', SECTIONS, SIDE_NAV, ':::', FAQ, CTA].join('\n\n'),
+  });
+}
+
+/** A hub that indexes what sits beneath it: a resource-index in the body. */
+function cluster(frontmatter = '') {
+  return page({
+    frontmatter,
+    body: [BREADCRUMB, HERO, INTRO, SECTIONS, RESOURCE_INDEX, FAQ, CTA].join('\n\n'),
+  });
 }
 
 /** Replace a line in a document by prefix, or drop it when `to` is null. */
@@ -138,17 +202,22 @@ function body(source) {
 
 module.exports = {
   EXAMPLE_CONFIG,
+  IDENTITY,
+  BREADCRUMB,
+  HERO,
+  ARTICLE_HERO,
+  INTRO,
+  SECTIONS,
+  SIDE_NAV,
+  FAQ,
+  CTA,
+  RELATED,
+  RESOURCE_INDEX,
+  page,
   pillar,
   cluster,
   spoke,
   bandedSpoke,
-  body,
   editLine,
-  SHARED,
-  HERO,
-  HERO_WITH_THESIS,
-  INTRO,
-  BODY,
-  RESOURCE_INDEX,
-  RELATED,
+  body,
 };

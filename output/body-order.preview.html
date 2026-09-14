@@ -8,7 +8,7 @@
 <style>body{margin:0}.preview-note{font:600 12px/1.4 system-ui,sans-serif;background:#212121;color:#fff;padding:10px 16px;letter-spacing:.04em}</style>
 </head>
 <body>
-<div class="preview-note">PREVIEW ONLY — visual review wrapper. The deliverable is the page body inside, page type: .</div>
+<div class="preview-note">PREVIEW ONLY — visual review wrapper. The deliverable is the page body inside.</div>
 <!-- ============================================================================
      HG Insights page body - html-render v1.8.0
 
@@ -624,7 +624,7 @@
   <section class="spoke-body-section">
     <div class="container">
       <div class="spoke-col">
-        <section class="page-section" id="definition">
+        <section id="definition">
           <h2>What Does Share of Voice Measure?</h2>
           <p>Share of Voice is the percentage of all brand mentions in AI answers to a tracked prompt set that name a given brand. It is a relative metric: it moves when a competitor's mentions move, even if your own count is unchanged.</p>
         </section>
@@ -688,6 +688,15 @@
         ]
       },
       {
+        "@type": "Person",
+        "@id": "https://hginsights.com/authors/jordan-lee/#person",
+        "name": "Jordan Lee",
+        "jobTitle": "Principal Analyst, HG Insights",
+        "worksFor": {
+          "@id": "https://hginsights.com/#organization"
+        }
+      },
+      {
         "@type": "DefinedTerm",
         "@id": "https://hginsights.com/geo/share-of-voice/#term",
         "name": "Share of Voice",
@@ -701,6 +710,9 @@
         "@id": "https://hginsights.com/geo/share-of-voice/#article",
         "headline": "What Is Share of Voice in AI Search?",
         "description": "Share of Voice measures how often a brand is named in AI answers to a tracked prompt set, as a percentage of all brand mentions.",
+        "author": {
+          "@id": "https://hginsights.com/authors/jordan-lee/#person"
+        },
         "publisher": {
           "@id": "https://hginsights.com/#organization"
         },
@@ -710,7 +722,50 @@
         "mainEntityOfPage": "https://hginsights.com/geo/share-of-voice/",
         "about": {
           "@id": "https://hginsights.com/geo/share-of-voice/#term"
+        },
+        "isPartOf": {
+          "@type": "WebPage",
+          "@id": "https://hginsights.com/geo/",
+          "name": "GEO Resources"
         }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://hginsights.com/geo/share-of-voice/#breadcrumb",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://hginsights.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "GEO Resources",
+            "item": "https://hginsights.com/geo/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Share of Voice",
+            "item": "https://hginsights.com/geo/share-of-voice/"
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://hginsights.com/geo/share-of-voice/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is Share of Voice the same as Share of Model?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Share of Voice counts mentions in answers to a tracked prompt set; Share of Model estimates presence in the model's training data."
+            }
+          }
+        ]
       }
     ]
   }

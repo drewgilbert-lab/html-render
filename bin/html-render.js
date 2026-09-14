@@ -16,7 +16,6 @@
  *       --no-script        omit the FAQ / side-nav behaviour script
  *       --no-schema        omit the JSON-LD block
  *       --no-font          omit the configured webfont @import
- *       --contract <type>  print the Markdown contract for pillar|cluster|spoke
  *       --components       list every available component
  *       --audit <dir>      classify a Claude Design export against this registry
  *   -h, --help
@@ -27,14 +26,12 @@ const path = require('path');
 
 const { renderFile, parseDocument, previewDocument, ValidationError } = require('../src/index');
 const { resolveConfig, ConfigError, CONFIG_FILENAME } = require('../src/config');
-const { layouts, layoutFor } = require('../src/layouts');
 const { components } = require('../src/components');
-const { contractFor, PAGE_TYPES } = require('../src/validate/document-contract');
-const { describeContract } = require('../src/describe');
+const { REGION_FIELDS, REGION_NAMES } = require('../src/body');
 const { auditCatalog, formatAudit } = require('../src/audit');
 
 function parseArgs(argv) {
-  const options = { inputs: [], config: null, out: null, outDir: null, check: false, stdout: false, preview: false, styles: true, script: true, schema: true, font: true, help: false, contract: null, components: false, audit: null };
+  const options = { inputs: [], config: null, out: null, outDir: null, check: false, stdout: false, preview: false, styles: true, script: true, schema: true, font: true, help: false, components: false, audit: null };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     switch (arg) {
@@ -72,9 +69,6 @@ function parseArgs(argv) {
         break;
       case '--no-font':
         options.font = false;
-        break;
-      case '--contract':
-        options.contract = argv[++i];
         break;
       case '--components':
         options.components = true;
@@ -116,12 +110,12 @@ function usage() {
       '      --no-script       omit the behaviour script',
       '      --no-schema       omit the JSON-LD block',
       '      --no-font         omit the configured webfont @import',
-      `      --contract <type> print the Markdown contract (${PAGE_TYPES.join('|')})`,
       '      --components      list every available component',
       '      --audit <dir>     classify a Claude Design export against this registry',
       '  -h, --help            show this message',
       '',
-      `Page classes: ${[...layouts.keys()].join(', ')}`,
+      'The document decides what it contains and in what order. Every component',
+      'is placed in the body with a ```name block; ":::name" opens a region.',
       '',
     ].join('\n'),
   );
@@ -131,18 +125,14 @@ function listComponents() {
   const rows = [...components.values()]
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((component) => `  \`\`\`${component.name}\n      ${component.summary}\n      design source: ${component.source}`);
-  process.stdout.write(`Author-invokable components (use inside a page section):\n\n${rows.join('\n\n')}\n\n`);
-  for (const [name, layout] of layouts) {
-    const described = layout.describe();
-    process.stdout.write(`${name} layout — ${described.summary}\n`);
-    if (described.order) process.stdout.write(`  order: ${described.order.join(' -> ')}\n`);
-    if (described.variants) {
-      for (const key of Object.keys(described.variants)) {
-        process.stdout.write(`  ${key}: ${described.variants[key].join(' -> ')}\n`);
-      }
-    }
-    process.stdout.write('\n');
-  }
+  process.stdout.write(`Components (place one in the body with a \`\`\`name block):\n\n${rows.join('\n\n')}\n\n`);
+  const regions = REGION_NAMES.map((name) => {
+    const fields = Object.entries(REGION_FIELDS[name])
+      .map(([key, spec]) => `      ${key}${spec.type === 'enum' ? ` (${spec.values.join(' | ')})` : ` <${spec.type}>`}${spec.hint ? ` — ${spec.hint}` : ''}`)
+      .join('\n');
+    return `  :::${name}\n${fields}`;
+  });
+  process.stdout.write(`Regions (open with ":::name", close with ":::"):\n\n${regions.join('\n\n')}\n\n`);
 }
 
 function main() {
@@ -154,11 +144,6 @@ function main() {
   }
   if (options.components) {
     listComponents();
-    return;
-  }
-  if (options.contract) {
-    if (!PAGE_TYPES.includes(options.contract)) fail(`--contract expects one of: ${PAGE_TYPES.join(', ')}`);
-    process.stdout.write(`${describeContract(options.contract, contractFor(options.contract), layoutFor(options.contract))}\n`);
     return;
   }
   if (options.audit) {
@@ -197,7 +182,7 @@ function main() {
     try {
       if (options.check) {
         const doc = parseDocument(fs.readFileSync(resolved, 'utf8'), { file: input });
-        process.stdout.write(`ok    ${input} — ${doc.pageType ? `${doc.pageType}${doc.layout ? ` (${doc.layout})` : ''}, ` : ''}${doc.sections.length} sections\n`);
+        process.stdout.write(`ok    ${input} — ${doc.sections.length} sections\n`);
         continue;
       }
 
@@ -224,7 +209,7 @@ function main() {
         fs.writeFileSync(target.replace(/\.html$/, '.preview.html'), previewDocument(result), 'utf8');
       }
       process.stdout.write(
-        `wrote ${path.relative(process.cwd(), target)} — ${result.meta.pageType ? `${result.meta.pageType}${result.layout ? ` (${result.layout})` : ''}, ` : ''}${result.meta.sections} sections, ~${result.meta.words} words\n`,
+        `wrote ${path.relative(process.cwd(), target)} — ${result.meta.sections} sections, ~${result.meta.words} words\n`,
       );
     } catch (error) {
       failures += 1;

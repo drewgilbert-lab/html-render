@@ -358,15 +358,6 @@ test('a blockquote becomes the thesis block and lists get their branded classes'
   assert.match(html, /<ol class="numbered-list">/);
 });
 
-test('a cluster wraps ### groups in a grouping block', () => {
-  const { cluster } = require('./helpers');
-  const source = cluster().replace(
-    'A body paragraph in the first section.',
-    ['### A grouping heading', '', 'Copy under the grouping.'].join('\n'),
-  );
-  const { html } = body(source);
-  assert.match(html, /<div class="grouping-block">\s*<h3 class="grouping-h2">A grouping heading<\/h3>/);
-});
 
 test('every component renders from nothing: no requirement, no throw, no leaked null', () => {
   // The contract of the component layer after the requirement strip: a

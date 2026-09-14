@@ -16,7 +16,7 @@
 
 const { el, lines, indent, container } = require('./html');
 const { renderBlock } = require('./components');
-const { renderNode } = require('./layouts/section-body');
+const { renderNode } = require('./section-body');
 
 /** True for an attribute written as YAML `true`, or as the string "true". */
 function flag(value) {
@@ -81,8 +81,27 @@ const REGIONS = {
   'two-column': renderTwoColumn,
 };
 
+/**
+ * What each region accepts. Shapes only — a region requires nothing, the same
+ * way a component does.
+ */
+const REGION_FIELDS = {
+  section: {
+    id: { type: 'plain', hint: 'the anchor for this section' },
+    band: { type: 'enum', values: ['white', 'tinted'], hint: 'omit for a section that paints nothing' },
+    container: { type: 'bool', hint: 'inset the content in the container column' },
+  },
+  'two-column': {
+    variant: { type: 'enum', values: Object.keys(TWO_COLUMN_VARIANTS), hint: 'which reading column, default: spoke' },
+  },
+};
+
 /** Region names the renderer has a wrapper for. */
 const REGION_NAMES = Object.keys(REGIONS);
+
+function isKnownRegion(name) {
+  return Object.prototype.hasOwnProperty.call(REGIONS, name);
+}
 
 function renderRegion(region) {
   const build = REGIONS[region.name];
@@ -94,10 +113,12 @@ function renderRegion(region) {
 function renderNodeOrRegion(node) {
   if (node.type === 'region') return renderRegion(node);
   if (node.type === 'heading2') {
+    // The anchor belongs to the enclosing region, not to the heading: two
+    // elements carrying the same id is invalid HTML.
     const meta = node.meta || {};
     return lines(
       meta.eyebrow ? el('div', { class: 'section-eyebrow' }, meta.eyebrow) : '',
-      el('h2', { id: meta.id || null }, node.html),
+      el('h2', null, node.html),
       meta.subtitle ? el('p', { class: 'section-subtitle' }, meta.subtitle) : '',
     );
   }
@@ -110,4 +131,4 @@ function renderBody(nodes) {
   return lines((nodes || []).map((node) => renderNodeOrRegion(node)));
 }
 
-module.exports = { renderBody, renderNodeOrRegion, REGION_NAMES };
+module.exports = { renderBody, renderNodeOrRegion, REGION_FIELDS, REGION_NAMES, isKnownRegion };

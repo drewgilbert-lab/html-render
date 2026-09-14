@@ -142,7 +142,9 @@ test('an unbalanced region is a parse error naming the region', () => {
 });
 
 test('a region the renderer has no wrapper for is refused, not guessed at', () => {
-  assert.throws(() => html([':::nonesuch', '', 'copy', ':::'].join('\n')), /Unresolved region ":::nonesuch"/);
+  const [error] = errorsFor([':::nonesuch', '', 'copy', ':::'].join('\n'));
+  assert.equal(error.path, ':::nonesuch');
+  assert.match(error.message, /is not a region this renderer can wrap\. Available regions: section, two-column/);
 });
 
 test('a ":::" closer directly after a paragraph closes the region', () => {
