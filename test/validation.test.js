@@ -17,6 +17,18 @@ function errorsFor(source) {
   throw new assert.AssertionError({ message: 'expected validation to fail, but rendering succeeded' });
 }
 
+/** Render, asserting that it did NOT fail validation. Returns the HTML. */
+function rendersCleanly(source) {
+  try {
+    return render(source, { config: EXAMPLE_CONFIG }).html;
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      throw new assert.AssertionError({ message: `expected a clean render, got: ${error.message}` });
+    }
+    throw error;
+  }
+}
+
 function messageFor(source, path) {
   const match = errorsFor(source).find((error) => error.path === path);
   assert.ok(match, `expected an error on "${path}", got: ${JSON.stringify(errorsFor(source))}`);
@@ -44,10 +56,13 @@ test('missing required metadata is reported per key, with a line number', () => 
   assert.match(messageFor(editLine(pillar(), 'url:', null), 'url').message, /is required/);
 });
 
-test('missing required component content is reported at its own path', () => {
-  // A CTA with no buttons.
+test('a missing page-class slot is reported at its own path', () => {
+  // A component states no requirement of its own: a CTA with no buttons renders
+  // the band without them rather than failing.
   const noButtons = pillar().replace(/  buttons:\n    - label: Book a Demo\n      url: https:\/\/hginsights\.com\/demo\n/, '');
-  assert.match(messageFor(noButtons, 'cta.buttons').message, /is required/);
+  const cta = rendersCleanly(noButtons);
+  assert.match(cta, /<div class="cta-buttons">\s*<\/div>/);
+  assert.doesNotMatch(cta, /class="btn-primary"/);
 
   // A cluster with no resource index.
   const noIndex = cluster().replace(/resource_index:\n(  .*\n|    .*\n|      .*\n)+/, '');
@@ -66,14 +81,14 @@ test('a required page class slot names the layout it belongs to', () => {
 
 test('a malformed repeated structure is reported rather than silently skipped', () => {
   const stringsNotMaps = pillar().replace(
-    /faq:\n  title: .*\n  items:\n    - q: .*\n      a: .*/,
+    /faq:\n  eyebrow: .*\n  title: .*\n  items:\n    - q: .*\n      a: .*/,
     'faq:\n  title: Common questions\n  items:\n    - What is this?\n    - And this?',
   );
   const error = messageFor(stringsNotMaps, 'faq.items[0]');
   assert.match(error.message, /is malformed: each entry needs keys \(q, a\)/);
 
   const notAList = pillar().replace(
-    /faq:\n  title: .*\n  items:\n    - q: .*\n      a: .*/,
+    /faq:\n  eyebrow: .*\n  title: .*\n  items:\n    - q: .*\n      a: .*/,
     'faq:\n  title: Common questions\n  items: just a string',
   );
   assert.match(messageFor(notAList, 'faq.items').message, /must be a list/);
@@ -223,21 +238,20 @@ test('the error message lists every problem at once', () => {
   }
 });
 
-test('bar-chart cross-field rules are reported at the block', () => {
+test('a chart with no legend or segments renders what it was given, and states no requirement', () => {
+  // These combinations used to be cross-field validation errors. A component
+  // renders what it is given; whether a stacked chart should carry a legend is
+  // the authoring skill's rule, not the renderer's.
   const chart = (yaml) => spoke().replace('A body paragraph in the first section.', ['```bar-chart', ...yaml, '```'].join('\n'));
 
-  const noLegend = errorsFor(chart(['variant: stacked', 'title: Mix', 'rows:', '  - label: A', '    segments:', '      - width: 50', '        series: s1']));
-  assert.ok(noLegend.some((error) => error.path === '```bar-chart.legend' && /required for the stacked variant/.test(error.message)), JSON.stringify(noLegend));
+  const noLegend = rendersCleanly(chart(['variant: stacked', 'title: Mix', 'rows:', '  - label: A', '    segments:', '      - width: 50', '        series: s1']));
+  assert.match(noLegend, /class="bar-chart stacked"/);
+  assert.doesNotMatch(noLegend, /class="bar-legend"/);
 
-  const noSegments = errorsFor(chart(['variant: stacked', 'title: Mix', 'legend:', '  - label: A', '    series: s1', 'rows:', '  - label: A', '    value: 1']));
-  assert.ok(noSegments.some((error) => error.path === '```bar-chart.rows[0].segments'), JSON.stringify(noSegments));
+  const noWidth = rendersCleanly(chart(['title: Ranking', 'rows:', '  - label: A', '    value: n/a']));
+  assert.match(noWidth, /class="bar-fill" style="width:3%"/);
 
-  const noWidth = errorsFor(chart(['title: Ranking', 'rows:', '  - label: A', '    value: n/a']));
-  assert.ok(noWidth.some((error) => error.path === '```bar-chart.rows[0].width'), JSON.stringify(noWidth));
-
-  const halfDownload = errorsFor(chart(['title: Ranking', 'rows:', '  - label: A', '    value: 10%', 'download_label: Download']));
-  assert.ok(halfDownload.some((error) => /download_label and download_url go together/.test(error.message)), JSON.stringify(halfDownload));
-
+  // An unsupported enum value is still structural: the renderer has no class for it.
   const wrongSeries = errorsFor(chart(['variant: grouped', 'title: G', 'legend:', '  - label: A', '    series: s9', 'rows:', '  - label: A', '    bars:', '      - width: 10', '        series: s1']));
   assert.ok(wrongSeries.some((error) => error.path === '```bar-chart.legend[0].series' && /must be one of/.test(error.message)), JSON.stringify(wrongSeries));
 });

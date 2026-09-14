@@ -47,13 +47,16 @@ hero:
       source: HG Insights GEO reporting framework
 
 freshness:
-  label: Q3 2026
+  label: "Data last updated: Q3 2026"
 
 # The three moves in the framework section are this page's HowTo steps; the
 # process-steps block below is flagged `howto: true` to say so.
 howto:
   name: How to report AI search visibility to leadership in three moves
   description: Open with a commercial proof point, show one benchmarked trend line against named competitors, and land on a single repeatable coverage number.
+
+side_nav:
+  label: On this page
 
 intro:
   eyebrow: About This Framework
@@ -73,6 +76,7 @@ methodology:
   caveat: These are population averages, not a guarantee for any single company. A brand's own conversion lift and crawler volume depend on its category, its review density, and how much citable third-party content already exists about it.
 
 faq:
+  eyebrow: FAQ
   title: Common questions about reporting AI search visibility to leadership
   intro: Questions written the way marketing leaders and GEO practitioners actually phrase them.
   items:
@@ -86,6 +90,8 @@ faq:
       a: A tie-back to pipeline or conversion. A GEO line item competing on visibility alone loses to requests that quantify revenue impact, which is why the conversion proof point belongs first in the narrative rather than in an appendix.
 
 citations:
+  eyebrow: References
+  title: Citations
   items:
     - source: Search Engine Land
       title: Measuring GEO: What's Trackable Now and What's Still Missing
@@ -224,6 +230,7 @@ footer: Source: TrustRadius internal crawl-log data and Averi Multi-Source Analy
 ```
 
 ```key-insights
+label: Analyst Insights
 title: What these figures mean for a GEO reporting line
 items:
   - lead: AI-referred visitors convert at 5.1 times the Google organic rate.

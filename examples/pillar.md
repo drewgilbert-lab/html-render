@@ -40,10 +40,11 @@ hero:
       source: Industry citation decay research, 2026
 
 freshness:
-  label: 2026
+  label: "Data last updated: 2026"
 
 intro:
   eyebrow: About This Guide
+  toc_label: On This Page
   title: What This Guide Covers, and Where Deeper Measurement Detail Lives
   body: |
     Most GEO and AEO programs can describe generative engines in the abstract, but very few can put a number on how visible a brand actually is inside them. AI Search Visibility Measurement closes that gap, giving SEO managers, GEO specialists, and marketing leadership a shared, repeatable way to quantify brand presence across ChatGPT, Perplexity, Gemini, Google AI Overviews, and Microsoft Copilot.
@@ -53,9 +54,11 @@ intro:
     Full calculation methodology, metric definitions, and benchmarking detail for Share of Voice, Share of Model, Mention Rate, and Citation Rate live in the **Core AI Visibility Metrics and Vocabulary** cluster referenced below.
 
 side_nav:
+  label: On this page
   note: Written for readers who already know GEO and AEO; every claim here is independently citable.
 
 faq:
+  eyebrow: FAQ
   title: Common questions about AI Search Visibility Measurement
   intro: Questions written to match how GEO practitioners actually search, and how AI answer engines surface information about this topic.
   items:
@@ -73,6 +76,8 @@ faq:
       a: Start with a one time AI visibility audit against a fixed set of ten to twenty real buyer questions across ChatGPT, Google AI Overviews, and Perplexity. Establish a baseline Mention Rate and Citation Rate against two or three named competitors, then convert that audit into a recurring weekly to biweekly measurement cycle with one named owner.
 
 citations:
+  eyebrow: References
+  title: Citations
   subtitle: External sources supporting the statistics and standards referenced throughout this guide.
   items:
     - source: Google Search Central
