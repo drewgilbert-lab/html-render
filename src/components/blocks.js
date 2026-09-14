@@ -188,7 +188,7 @@ const beforeAfter = {
       el(
         'div',
         { class: `ba-col ba-${side}` },
-        `\n${indent(lines(el('div', { class: 'ba-label' }, data.label), el('p', { class: 'ba-body' }, data.body)))}\n`,
+        `\n${indent(lines(el('div', { class: 'ba-label' }, data && data.label), el('p', { class: 'ba-body' }, data && data.body)))}\n`,
       );
     return el('div', { class: 'before-after' }, `\n${indent(lines(col('before', value.before), col('after', value.after)))}\n`);
   },

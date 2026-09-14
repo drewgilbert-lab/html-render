@@ -3,7 +3,9 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { blocks, page, renderBlock } = require('../src/components');
+const { blocks, page, components, renderBlock } = require('../src/components');
+const { normalizeFields } = require('../src/validate/fields');
+const { initials } = require('../src/html');
 const { body, pillar } = require('./helpers');
 
 /** Render a single in-flow component block. */
@@ -364,4 +366,16 @@ test('a cluster wraps ### groups in a grouping block', () => {
   );
   const { html } = body(source);
   assert.match(html, /<div class="grouping-block">\s*<h3 class="grouping-h2">A grouping heading<\/h3>/);
+});
+
+test('every component renders from nothing: no requirement, no throw, no leaked null', () => {
+  // The contract of the component layer after the requirement strip: a
+  // component renders what it is given and omits what it is not. Nothing here
+  // states what a page *should* contain — that is the authoring skill's rule.
+  const ctx = { helpers: { initialsOf: initials } };
+  for (const [name, component] of components) {
+    const html = component.render(normalizeFields(component.fields, {}), ctx);
+    assert.equal(typeof html, 'string', `${name} did not render a string`);
+    assert.doesNotMatch(html, /null|undefined|NaN/, `${name} leaked an absent value into its output`);
+  }
 });
