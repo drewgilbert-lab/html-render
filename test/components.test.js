@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { blocks, page, components, renderBlock } = require('../src/components');
+const { components, renderBlock } = require('../src/components');
 const { normalizeFields } = require('../src/validate/fields');
 const { initials } = require('../src/html');
 const { body, pillar } = require('./helpers');
@@ -14,7 +14,7 @@ function block(name, data) {
 }
 
 test('every component declares a contract and a design source', () => {
-  for (const component of [...blocks.values(), ...page.values()]) {
+  for (const component of components.values()) {
     assert.ok(component.summary, `${component.name} has no summary`);
     assert.ok(component.source, `${component.name} has no design source`);
     assert.ok(component.fields && Object.keys(component.fields).length, `${component.name} has no fields`);
@@ -148,7 +148,7 @@ test('related-cards and the related page band share one card implementation', ()
   assert.match(inline, /class="related-hub-card" href="\/geo\/calc\/"/);
   assert.match(inline, /class="related-hub-link">Read the guide &rarr;</);
 
-  const slot = page.get('related').render({
+  const slot = components.get('related').render({
     eyebrow: 'Keep Going',
     title: 'Where to go next',
     items: [{ tag: 'Methodology', title: 'How to calculate', url: '/geo/calc/', description: 'The formula.', link_text: 'See it' }],

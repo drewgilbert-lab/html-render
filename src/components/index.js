@@ -22,14 +22,6 @@ const { initials } = require('../html');
 
 const components = new Map([...blockList, ...pageComponents].map((component) => [component.name, component]));
 
-/**
- * Transitional aliases. `layouts/` and `validate/document-contract.js` still
- * address components as "page slots"; both are removed in a later step, and
- * these go with them. They are the same registry, not two.
- */
-const blocks = components;
-const page = components;
-
 const RENDER_CTX = { helpers: { initialsOf: initials } };
 
 /** Validate one ```name block from the body. */
@@ -53,24 +45,4 @@ function renderBlock(node) {
   return component.render(normalizeFields(component.fields, node.data), RENDER_CTX);
 }
 
-/** Validate a component's input by name. */
-function validateSlot(name, value, path, report, line) {
-  const component = components.get(name);
-  if (!component) throw new Error(`Unresolved component "${name}"`);
-  validateFields(component.fields, value, path, report, line);
-}
-
-/** Render a component by name. Assumes validation already passed. */
-function renderSlot(name, value) {
-  const component = components.get(name);
-  if (!component) throw new Error(`Unresolved component "${name}"`);
-  return component.render(normalizeFields(component.fields, value), RENDER_CTX);
-}
-
-function slotFields(name) {
-  const component = components.get(name);
-  if (!component) throw new Error(`Unresolved component "${name}"`);
-  return component.fields;
-}
-
-module.exports = { components, blocks, page, validateBlock, renderBlock, validateSlot, renderSlot, slotFields };
+module.exports = { components, validateBlock, renderBlock };

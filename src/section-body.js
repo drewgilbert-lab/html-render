@@ -77,33 +77,4 @@ function renderTable(node) {
   return lines(table, node.caption ? el('p', { class: 'table-caption' }, node.caption) : '');
 }
 
-/**
- * Render a list of body nodes. When `groupByH3` is set, each `###` heading and
- * the nodes beneath it are wrapped in a `.grouping-block` — the cluster page's
- * grouping pattern.
- */
-function renderNodes(nodes, options = {}) {
-  if (!options.groupByH3) return lines(nodes.map((node) => renderNode(node, options)));
-
-  const out = [];
-  let group = null;
-  const flush = () => {
-    if (group) {
-      out.push(el('div', { class: 'grouping-block' }, `\n${indent(lines(group))}\n`));
-      group = null;
-    }
-  };
-  for (const node of nodes) {
-    if (node.type === 'heading3') {
-      flush();
-      group = [renderNode(node, options)];
-      continue;
-    }
-    if (group) group.push(renderNode(node, options));
-    else out.push(renderNode(node, options));
-  }
-  flush();
-  return lines(out);
-}
-
-module.exports = { SECTION_FIELDS, renderNode, renderNodes };
+module.exports = { SECTION_FIELDS, renderNode };

@@ -131,4 +131,4 @@ function renderBody(nodes) {
   return lines((nodes || []).map((node) => renderNodeOrRegion(node)));
 }
 
-module.exports = { renderBody, renderNodeOrRegion, REGION_FIELDS, REGION_NAMES, isKnownRegion };
+module.exports = { renderBody, REGION_FIELDS, REGION_NAMES, isKnownRegion };

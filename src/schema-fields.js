@@ -122,15 +122,4 @@ const FRONTMATTER_FIELDS = {
   software: { type: 'list', fields: SOFTWARE_FIELDS, hint: 'adds one SoftwareApplication node per entry' },
 };
 
-module.exports = {
-  FRONTMATTER_FIELDS,
-  IDENTITY_FIELDS,
-  ARTICLE_FIELDS,
-  TERM_FIELDS,
-  HOWTO_FIELDS,
-  ITEM_LIST_FIELDS,
-  DATASET_FIELDS,
-  SERVICE_FIELDS,
-  TERM_SET_FIELDS,
-  SOFTWARE_FIELDS,
-};
+module.exports = { FRONTMATTER_FIELDS };

@@ -102,4 +102,4 @@ function formatCatalog() {
   return [componentSection(), regionSection(), headingSection(), frontmatterSection()].join('\n\n\n');
 }
 
-module.exports = { formatCatalog, describeFields };
+module.exports = { formatCatalog };
