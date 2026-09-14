@@ -8,10 +8,12 @@
  *   node scripts/generate-contract.js [--out <path>]
  *   node scripts/generate-contract.js --changelog-since <commit>
  *
- * Every section below is captured from the live CLI (`--contract pillar|cluster|spoke`,
- * `--components`), never hand-copied. That is the whole point: the old per-skill component
- * manifests in `geo-spoke-builder` drifted because they were transcribed by hand. If the registry
- * changes, this file changes with it or not at all.
+ * The document has two halves and neither is hand-copied here. `docs/authoring.md` is included
+ * verbatim (how a document is assembled: the split, components, regions, the assembly order, the
+ * named-element vocabulary), and the catalog is captured from the live CLI (`--components`). That
+ * is the whole point: the old per-skill component manifests and assembly instructions in
+ * `geo-spoke-builder` drifted because they were transcribed by hand, 16 times over. If the
+ * registry or the authoring guide changes, this file changes with it or not at all.
  *
  * INVARIANT — the output must be a pure function of the repo's committed state.
  * No timestamps, no "generated on", no run IDs, nothing that varies between two runs at the same
@@ -27,6 +29,7 @@ const { execFileSync } = require('child_process');
 const ROOT = path.resolve(__dirname, '..');
 const BIN = path.join(ROOT, 'bin', 'html-render.js');
 const CHANGELOG = path.join(ROOT, 'CHANGELOG.md');
+const AUTHORING = path.join(ROOT, 'docs', 'authoring.md');
 
 /** The CLI capture that makes up the document. */
 const SECTIONS = [{ heading: 'Catalog', args: ['--components'] }];
@@ -58,7 +61,7 @@ function header(pkg, commit) {
     // this file to work out which changelog entries are new. Keep this line's shape stable.
     `<!-- html-render:contract version=${pkg.version} commit=${commit} catalog=${catalog.build || catalog.commit || 'unknown'} -->`,
     '',
-    '# html-render — component catalog',
+    '# html-render — authoring guide and component catalog',
     '',
     'Generated from `html-render`, do not edit by hand. Edits here are overwritten by the next',
     'sync; to change anything below, change the renderer and cut a release.',
@@ -71,21 +74,22 @@ function header(pkg, commit) {
     `| Catalog build | \`${catalog.build || catalog.commit || 'unknown'}\` |`,
     `| Last reconciled | ${catalog.syncedAt || 'unknown'} |`,
     '',
-    'This is what the renderer can draw: every component, the two regions that wrap them,',
-    'and the frontmatter it reads but never draws.',
+    'Two halves. **Authoring a document** is how a document is assembled: what goes in',
+    'frontmatter versus the body, how components and regions are written, the order the',
+    'parts of a finished page appear in, and the named-element vocabulary a pipeline can',
+    'specify a page in. **Catalog** is what the renderer can draw: every component, the two',
+    'regions that wrap them, and the frontmatter it reads but never draws.',
     '',
-    '**It is a catalog, not a contract.** It does not say what a page must contain, what',
-    'order its parts appear in, or whether a page is any good — the renderer holds no such',
-    'rules. A document composes itself: components render where the Markdown puts them, in',
-    'the order it puts them. Deciding what a page of a given format should carry, and in',
-    'what order, belongs to the skill that writes the Markdown.',
+    '**Neither half is enforced by the renderer.** `html-render --check` rejects only what',
+    'cannot be rendered: a component that does not exist, a region with no wrapper, a field',
+    'whose shape cannot be used, an unbalanced region. A page missing an FAQ, or carrying',
+    'two, or carrying its CTA first, renders without complaint. Deciding what a page of a',
+    'given format must contain — its sections, its word budget, whether it is any good —',
+    'belongs to whatever writes the Markdown, and is checked there.',
     '',
-    '`html-render --check` rejects only what cannot be rendered: a component that does not',
-    'exist, a region with no wrapper, a field whose shape cannot be used, an unbalanced',
-    'region. A page missing an FAQ, or carrying two, renders without complaint.',
-    '',
-    'The section that follows is captured verbatim from `html-render --components`. Run it',
-    'against the version above to reproduce this file exactly.',
+    'The first half is `docs/authoring.md` verbatim; the second is captured from',
+    '`html-render --components`. Run that command against the version above to reproduce',
+    'this file exactly.',
     '',
   ].join('\n');
 }
@@ -107,10 +111,22 @@ function fenceFor(body) {
   return '`'.repeat(Math.max(3, longest + 1));
 }
 
+/**
+ * `docs/authoring.md`, minus its own H1.
+ *
+ * Included verbatim rather than fenced: it is Markdown prose, not a CLI capture, and its own
+ * fenced examples survive nesting only if nothing wraps them. Dropping the H1 lets its `##`
+ * headings sit at the same level as `## Catalog` below, so the two halves read as one document.
+ */
+function authoringGuide() {
+  const text = fs.readFileSync(AUTHORING, 'utf8');
+  return text.replace(/^#\s+.*\n+/, '').replace(/\s+$/, '');
+}
+
 function buildContract() {
   const pkg = packageJson();
   const commit = git(['rev-parse', '--short', 'HEAD']);
-  const parts = [header(pkg, commit)];
+  const parts = [header(pkg, commit), '---', '', authoringGuide(), ''];
 
   for (const section of SECTIONS) {
     const body = cli(section.args);
@@ -277,4 +293,4 @@ function main(argv) {
 
 if (require.main === module) main(process.argv.slice(2));
 
-module.exports = { buildContract, fenceFor, changelogSince, renderChangelogSince, breakingTags, splitEntries };
+module.exports = { buildContract, authoringGuide, fenceFor, changelogSince, renderChangelogSince, breakingTags, splitEntries };

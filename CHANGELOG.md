@@ -57,7 +57,18 @@ the document declares.
 - **New** one component registry of 30. The blocks / page-slot split existed only because
   the renderer owned composition; every component is now body-invokable.
 - **New** `--components` prints the whole catalog — components, regions, headings, and the
-  frontmatter the renderer reads but never draws — and is what the sync ships downstream.
+  frontmatter the renderer reads but never draws.
+- **New** in `docs/authoring.md`: an **assembly order** (`breadcrumb` → opening block →
+  `freshness-bar` → `[intro-toc]` → `[thesis-band]` → body sections → `[methodology]` →
+  `faq` → `citations` → `[related]` → `cta`) and a **named-element vocabulary** mapping
+  each part of a finished page to what it compiles to. Neither is enforced: they describe
+  the sequence all five examples follow, so a consumer specifies a page by naming elements
+  instead of transcribing block syntax.
+- **New** the synced file carries both halves. `scripts/generate-contract.js` now emits
+  `docs/authoring.md` verbatim ahead of the `--components` capture, under the same
+  provenance stamp. How a document is assembled and what it can be assembled from change
+  together; a consumer holding one without the other writes pages that pass `--check` and
+  come out gutted.
 
 **Changed — the graph is read from the page.**
 
@@ -83,8 +94,11 @@ content — now derived from the body.
 
 **For `geo-spoke-builder`:** every skill must now emit its own composition and its own
 copy. A page relying on an injected default renders an empty element; a page relying on a
-page-class contract renders whatever it declares. The catalog file the sync ships is
-renamed in spirit — it is a catalog, not a contract, and says so.
+page-class contract renders whatever it declares. What the sync ships is no longer a
+contract in the enforcing sense and says so: it is the authoring guide plus the catalog,
+and what a page of a given format must contain is decided downstream. The skills do not
+need 16 private copies of the assembly rules to do that — one pointer at this file is
+enough, which is the point of shipping both halves together.
 
 ---
 
