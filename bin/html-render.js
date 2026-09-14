@@ -16,7 +16,7 @@
  *       --no-script        omit the FAQ / side-nav behaviour script
  *       --no-schema        omit the JSON-LD block
  *       --no-font          omit the configured webfont @import
- *       --components       list every available component
+ *       --components       print the catalog: components, regions, frontmatter
  *       --audit <dir>      classify a Claude Design export against this registry
  *   -h, --help
  */
@@ -26,8 +26,7 @@ const path = require('path');
 
 const { renderFile, parseDocument, previewDocument, ValidationError } = require('../src/index');
 const { resolveConfig, ConfigError, CONFIG_FILENAME } = require('../src/config');
-const { components } = require('../src/components');
-const { REGION_FIELDS, REGION_NAMES } = require('../src/body');
+const { formatCatalog } = require('../src/catalog');
 const { auditCatalog, formatAudit } = require('../src/audit');
 
 function parseArgs(argv) {
@@ -110,7 +109,7 @@ function usage() {
       '      --no-script       omit the behaviour script',
       '      --no-schema       omit the JSON-LD block',
       '      --no-font         omit the configured webfont @import',
-      '      --components      list every available component',
+      '      --components      print the catalog: components, regions, frontmatter',
       '      --audit <dir>     classify a Claude Design export against this registry',
       '  -h, --help            show this message',
       '',
@@ -122,17 +121,7 @@ function usage() {
 }
 
 function listComponents() {
-  const rows = [...components.values()]
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map((component) => `  \`\`\`${component.name}\n      ${component.summary}\n      design source: ${component.source}`);
-  process.stdout.write(`Components (place one in the body with a \`\`\`name block):\n\n${rows.join('\n\n')}\n\n`);
-  const regions = REGION_NAMES.map((name) => {
-    const fields = Object.entries(REGION_FIELDS[name])
-      .map(([key, spec]) => `      ${key}${spec.type === 'enum' ? ` (${spec.values.join(' | ')})` : ` <${spec.type}>`}${spec.hint ? ` — ${spec.hint}` : ''}`)
-      .join('\n');
-    return `  :::${name}\n${fields}`;
-  });
-  process.stdout.write(`Regions (open with ":::name", close with ":::"):\n\n${regions.join('\n\n')}\n\n`);
+  process.stdout.write(`${formatCatalog()}\n`);
 }
 
 function main() {

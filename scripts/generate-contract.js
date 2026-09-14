@@ -28,13 +28,8 @@ const ROOT = path.resolve(__dirname, '..');
 const BIN = path.join(ROOT, 'bin', 'html-render.js');
 const CHANGELOG = path.join(ROOT, 'CHANGELOG.md');
 
-/** The four CLI captures, in the order they appear in the output. */
-const SECTIONS = [
-  { heading: 'Pillar page — Markdown contract', args: ['--contract', 'pillar'] },
-  { heading: 'Cluster page — Markdown contract', args: ['--contract', 'cluster'] },
-  { heading: 'Spoke page — Markdown contract', args: ['--contract', 'spoke'] },
-  { heading: 'Component registry', args: ['--components'] },
-];
+/** The CLI capture that makes up the document. */
+const SECTIONS = [{ heading: 'Catalog', args: ['--components'] }];
 
 function git(args) {
   return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' }).trim();
@@ -63,7 +58,7 @@ function header(pkg, commit) {
     // this file to work out which changelog entries are new. Keep this line's shape stable.
     `<!-- html-render:contract version=${pkg.version} commit=${commit} catalog=${catalog.build || catalog.commit || 'unknown'} -->`,
     '',
-    '# html-render — component and Markdown contract',
+    '# html-render — component catalog',
     '',
     'Generated from `html-render`, do not edit by hand. Edits here are overwritten by the next',
     'sync; to change anything below, change the renderer and cut a release.',
@@ -76,14 +71,21 @@ function header(pkg, commit) {
     `| Catalog build | \`${catalog.build || catalog.commit || 'unknown'}\` |`,
     `| Last reconciled | ${catalog.syncedAt || 'unknown'} |`,
     '',
-    'This is the full contract for writing renderer-ready Markdown: the frontmatter each page class',
-    'requires, the order its components render in, and every component a page section can invoke.',
-    'A page that satisfies the contract below renders; one that does not is rejected by',
-    '`html-render --check` with the field named.',
+    'This is what the renderer can draw: every component, the two regions that wrap them,',
+    'and the frontmatter it reads but never draws.',
     '',
-    'The four sections that follow are captured verbatim from the renderer CLI —',
-    '`--contract pillar`, `--contract cluster`, `--contract spoke`, and `--components`. Run those',
-    'commands against the version above to reproduce this file exactly.',
+    '**It is a catalog, not a contract.** It does not say what a page must contain, what',
+    'order its parts appear in, or whether a page is any good — the renderer holds no such',
+    'rules. A document composes itself: components render where the Markdown puts them, in',
+    'the order it puts them. Deciding what a page of a given format should carry, and in',
+    'what order, belongs to the skill that writes the Markdown.',
+    '',
+    '`html-render --check` rejects only what cannot be rendered: a component that does not',
+    'exist, a region with no wrapper, a field whose shape cannot be used, an unbalanced',
+    'region. A page missing an FAQ, or carrying two, renders without complaint.',
+    '',
+    'The section that follows is captured verbatim from `html-render --components`. Run it',
+    'against the version above to reproduce this file exactly.',
     '',
   ].join('\n');
 }

@@ -9,8 +9,7 @@ no `<head>`, no site chrome: the fragment only.
 ```text
 renderer-ready .md file
         ↓  parse Markdown
-        ↓  identify Pillar / Cluster / Spoke
-        ↓  validate against that page class's contract
+        ↓  check every component and region can be rendered
         ↓  map structured content to approved components
         ↓  assemble the approved page layout
         ↓  render deterministic HTML
@@ -68,8 +67,7 @@ html-render <input.md> [more.md ...] [options]
       --no-script        omit the FAQ / side-nav behaviour script
       --no-schema        omit the JSON-LD block
       --no-font          omit the configured webfont @import
-      --contract <type>  print the Markdown contract for pillar|cluster|spoke
-      --components       list every available component
+      --components       print the catalog: components, regions, frontmatter
       --audit <dir>      classify a design-web-components catalog against the registry
   -h, --help
 ```
@@ -205,9 +203,7 @@ only file here that carries a specific organization's data.
 
 | Document | What it covers |
 |---|---|
-| [docs/markdown-contract.md](docs/markdown-contract.md) | The full input contract: frontmatter keys, body syntax, and every validation error |
-| [docs/page-layouts.md](docs/page-layouts.md) | What each of the three layouts composes, in order, and the two Spoke variants |
-| [docs/component-library.md](docs/component-library.md) | Every component, its inputs, and the design-system component it implements |
+| [docs/authoring.md](docs/authoring.md) | How a document composes itself: body order, regions, and worked examples |
 | [docs/github-process.md](docs/github-process.md) | Branch/PR rules, commit conventions, and the tag/release sequence for this repo |
 | [docs/component-sync.md](docs/component-sync.md) | How a tagged release ships the contract to `geo-spoke-builder`, and how to test it |
 | [docs/open-items.md](docs/open-items.md) | What is outstanding, why, and what unblocks it |
@@ -259,17 +255,52 @@ runnable as `/sync-design-components`. Each run appends to
 
 ---
 
-## Supported page classes
+## How a document composes itself
 
-| Page class | Role | Layout |
-|---|---|---|
-| **Pillar** | Parent hub of a conversation space; routes down to every cluster | Gradient hero → intro + TOC → narrow article column with sticky side nav |
-| **Cluster** | Domain router; defines one domain and indexes its spokes | Gradient hero → intro + TOC → scope section → resource index → alternating section bands |
-| **Spoke** | One conversation inside a cluster | `article` (light hero, reading column + sticky side nav) or `banded` (stat hero, alternating bands + sticky side nav) |
+There are no page classes. A document is frontmatter plus a body, and the body
+renders in the order it is written: every component is a fenced block, and
+`:::name` opens a region that wraps what is inside it.
 
-The two Spoke variants are the two legitimate variants present in the supplied
-designs; the eleven GEO spoke *formats* map onto them as content formats, not
-layouts. See [docs/page-layouts.md](docs/page-layouts.md).
+```markdown
+---
+title: What Is Share of Voice in AI Search?
+url: https://hginsights.com/geo/share-of-voice/
+published: 2026-09-14
+---
+
+```article-hero
+title: What Is Share of Voice in AI Search?
+```
+
+:::two-column
+
+:::section
+id: definition
+
+## What Does Share of Voice Measure?
+
+Copy.
+:::
+
+```side-nav
+label: On this page
+items:
+  - label: What It Measures
+    anchor: definition
+```
+:::
+```
+
+Frontmatter carries only what has no pixels: the page identity the output header
+and the JSON-LD graph need, plus the graph nodes with no visible form
+(`dataset`, `service`, `term_set`, and the rest). Everything visible is a body
+block. The rest of the graph is read from the body, so it cannot claim a byline,
+a question, or a breadcrumb trail the page does not show.
+
+Nothing here says what a page *should* contain. A page with no FAQ, or two of
+them, renders without complaint — deciding what a page of a given format carries
+belongs to whatever writes the Markdown. See
+[docs/authoring.md](docs/authoring.md), and `--components` for every field.
 
 ---
 
@@ -278,49 +309,47 @@ layouts. See [docs/page-layouts.md](docs/page-layouts.md).
 ```text
 bin/html-render.js         CLI
 src/
-  index.js                 the pipeline: parse -> validate -> layout -> HTML
+  index.js                 the pipeline: parse -> check -> walk the body -> HTML
+  body.js                  the body walk and the region wrappers
   config.js                configuration: loading, defaults, and validation
   html.js                  escaping and element primitives
   schema.js                the JSON-LD graph (Article/TechArticle/CollectionPage root, HowTo,
                            ItemList, Dataset, Service, DefinedTermSet, SoftwareApplication)
-  describe.js              --contract output, generated from the live contracts
+  catalog.js               --components output, generated from the live registry
   audit.js                 --audit output: catalog coverage, from the live registry
   parse/
     yaml.js                the frontmatter YAML subset, with line tracking
     markdown.js            the renderer's Markdown dialect
+  schema-fields.js         the frontmatter the renderer reads but never draws
+  section-body.js          paragraphs, lists, tables, rules, headings
   validate/
     fields.js              the declarative input-contract engine
-    document-contract.js   the frontmatter contract, per page class
-    validate.js            validation and cross-checks
+    validate.js            structural checks: can this be rendered at all
   components/
-    blocks.js              in-flow components (author-invokable)
-    page.js                page-level components (layout-composed)
+    blocks.js page.js      the 30 component implementations
     index.js               the registry
-  layouts/
-    pillar.js cluster.js spoke.js
-    section-body.js        shared body-block rendering
-    assemble.js            frontmatter -> component inputs
   assets/
     styles.css             the design system stylesheet, scoped to pageClass
     script.js              FAQ disclosure + scroll spy
-examples/                  pillar.md, cluster.md, spoke.md, spoke-banded.md + this repo's config
+examples/                  five documents + this repo's config
 output/                    rendered examples + preview wrappers
-test/                      137 tests
-docs/                      the contracts
+test/                      127 tests
+docs/                      authoring, sync, process, open items
 CHANGELOG.md               component coverage, per catalog refresh
 .claude/skills/            the design-system sync procedure
 ```
 
 Two rules hold the architecture together:
 
-1. **A component is implemented once.** Layouts choose which components appear
-   and in what order; they never re-implement one. Changing
+1. **A component is implemented once.** The document chooses which components
+   appear and in what order; the renderer never decides. Changing
    `src/components/blocks.js` or `page.js` changes every page that uses that
    component.
-2. **A component's `fields` map is its contract.** Validation, normalization,
-   escaping, defaults, and the `--contract` / `--components` output are all
-   generated from it, so a component never parses or escapes its own input and a
-   contract cannot drift from the implementation.
+2. **A component's `fields` map is its whole contract.** Validation,
+   normalization, escaping, and the `--components` catalog are generated from
+   it, so a component never parses or escapes its own input and the catalog
+   cannot drift from the implementation. A `fields` map says what a component
+   *accepts*, never what a page must carry.
 
 ---
 
@@ -328,8 +357,14 @@ Two rules hold the architecture together:
 
 V1 is only the rendering layer.
 
-**In scope:** parse renderer-ready Markdown, validate it, and render the
-approved Pillar / Cluster / Spoke page bodies.
+**In scope:** parse renderer-ready Markdown, check that it can be rendered, and
+emit the approved design system's markup for what it declares. Also: ingesting a
+Claude Design export and maintaining the catalog of components available to
+whoever writes the Markdown.
+
+**Explicitly not its job:** deciding what a page must contain, what order its
+parts appear in, or whether its content is any good. Those rules live in the
+skills that author the Markdown, so there is one place to change them.
 
 **Out of scope:** content generation, converting other tools' output into
 renderer Markdown, workflow orchestration, research, AI-generated content or
@@ -342,7 +377,7 @@ content-generation upstream → renderer-ready Markdown → html-render → HTML
 `html-render` is the third box only. It renders; it does not generate, orchestrate,
 or publish.
 
-Its one outbound dependency is the contract sync: a tagged release opens a pull
+Its one outbound dependency is the catalog sync: a tagged release opens a pull
 request into `geo-spoke-builder` updating a single generated reference file. It
 writes nothing else there, and never merges — see
 [docs/component-sync.md](docs/component-sync.md).

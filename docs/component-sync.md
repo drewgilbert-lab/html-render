@@ -74,7 +74,7 @@ tag/release sequence is in [github-process.md](github-process.md#releases-and-ta
 ## How the file is built
 
 [`scripts/generate-contract.js`](../scripts/generate-contract.js) shells out to the CLI —
-`--contract pillar`, `--contract cluster`, `--contract spoke`, `--components` — and concatenates
+`--components` — and wraps
 the four captures under a provenance header. Nothing is transcribed by hand, so the file cannot
 drift from the registry the way the old manifests did.
 
