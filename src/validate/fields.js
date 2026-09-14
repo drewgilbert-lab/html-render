@@ -186,13 +186,22 @@ function normalizeFields(fields, value) {
   return out;
 }
 
+/**
+ * What a component receives for a field the author did not supply.
+ *
+ * A component renders what it is given and omits what it is not, so an absent
+ * scalar is the empty string rather than null: it interpolates into a template
+ * as nothing, `el()` and `lines()` drop it, and `attrs()` omits the attribute
+ * entirely instead of writing `href="null"`. An absent object stays null so a
+ * component can test for the whole group.
+ */
 function defaultOf(spec) {
   if (spec.default !== undefined) return normalizeField(spec, spec.default);
   if (spec.type === 'list') return [];
   if (spec.type === 'richtext') return [];
   if (spec.type === 'object') return null;
   if (spec.type === 'bool') return false;
-  return null;
+  return '';
 }
 
 function normalizeField(spec, raw) {

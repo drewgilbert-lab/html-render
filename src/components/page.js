@@ -13,27 +13,27 @@ const { el, lines, indent, container, initials } = require('../html');
 const { renderRelatedGrid, paras } = require('./blocks');
 
 const AUTHOR_FIELDS = {
-  name: { type: 'plain', required: true },
-  title: { type: 'plain', required: true },
+  name: { type: 'plain' },
+  title: { type: 'plain' },
   initials: { type: 'plain' },
   bio: { type: 'plain' },
   url: { type: 'url' },
   // Feeds Person.knowsAbout in the schema graph; never rendered visibly.
-  knows_about: { type: 'list', primaryKey: 'topic', fields: { topic: { type: 'plain', required: true } } },
+  knows_about: { type: 'list', primaryKey: 'topic', fields: { topic: { type: 'plain' } } },
 };
 
 const PILL_FIELDS = {
-  label: { type: 'text', required: true },
-  tone: { type: 'enum', values: ['default', 'melon'], default: 'default' },
+  label: { type: 'text' },
+  tone: { type: 'enum', values: ['default', 'melon'] },
 };
 
 // A pill may be written as a bare string (its label) or as a label/tone pair.
 const PILL_LIST = { type: 'list', primaryKey: 'label', fields: PILL_FIELDS };
 
 const STAT_FIELDS = {
-  value: { type: 'plain', required: true },
+  value: { type: 'plain' },
   unit: { type: 'plain' },
-  label: { type: 'text', required: true },
+  label: { type: 'text' },
   source: { type: 'text' },
   primary: { type: 'bool' },
 };
@@ -124,8 +124,8 @@ const breadcrumb = {
   summary: 'Breadcrumb trail for hierarchy and crawlability.',
   source: '02-breadcrumb',
   fields: {
-    items: { type: 'list', required: true, min: 1, fields: { label: { type: 'text', required: true }, url: { type: 'url', required: true } } },
-    current: { type: 'text', required: true },
+    items: { type: 'list', fields: { label: { type: 'text' }, url: { type: 'url' } } },
+    current: { type: 'text' },
   },
   render(value) {
     const parts = [];
@@ -144,15 +144,15 @@ const hero = {
   source: '03-hero-stat-block',
   fields: {
     eyebrow: { type: 'text' },
-    title: { type: 'text', required: true },
-    description: { type: 'text', required: true },
+    title: { type: 'text' },
+    description: { type: 'text' },
     pills: { ...PILL_LIST },
     thesis: { type: 'text' },
     author: { type: 'object', fields: AUTHOR_FIELDS },
     freshness_badge: { type: 'text' },
     source: { type: 'text' },
     coverage: { type: 'text' },
-    stats: { type: 'list', min: 1, max: 5, fields: STAT_FIELDS },
+    stats: { type: 'list', fields: STAT_FIELDS },
   },
   render(value) {
     const heroMeta =
@@ -199,7 +199,7 @@ const articleHero = {
   summary: 'Light article hero: H1 plus author byline, for definition and glossary spokes.',
   source: '34-editorial-hero (light variant)',
   fields: {
-    title: { type: 'text', required: true },
+    title: { type: 'text' },
     author: { type: 'object', fields: AUTHOR_FIELDS },
     pills: { ...PILL_LIST },
   },
@@ -217,7 +217,7 @@ const freshnessBar = {
   summary: 'Dark-blue band stating when the data was last updated and how often it refreshes.',
   source: '04-data-freshness-bar',
   fields: {
-    label: { type: 'text', required: true, hint: 'the "last updated" value, e.g. "Q3 2026"' },
+    label: { type: 'text', hint: 'the "last updated" value, e.g. "Q3 2026"' },
     note: { type: 'text' },
     cadence: { type: 'text' },
     link_text: { type: 'text' },
@@ -228,7 +228,7 @@ const freshnessBar = {
       'span',
       { class: 'freshness-text' },
       [
-        `Data last updated: ${value.label}`,
+        value.label,
         value.note ? `&nbsp;&middot;&nbsp; ${value.note}` : '',
         value.cadence ? el('span', { class: 'freshness-cadence' }, `&middot; ${value.cadence}`) : '',
       ]
@@ -245,7 +245,7 @@ const thesisBand = {
   name: 'thesis-band',
   summary: 'Full-width band carrying the page thesis statement, used when the hero does not.',
   source: '31-thesis-block',
-  fields: { text: { type: 'text', required: true } },
+  fields: { text: { type: 'text' } },
   render(value) {
     return el('div', { class: 'thesis-wrap' }, `\n${indent(container(el('p', { class: 'thesis-block' }, value.text)))}\n`);
   },
@@ -256,11 +256,11 @@ const introToc = {
   summary: 'Two-column intro copy plus the sticky on-page jump nav.',
   source: '06-hub-intro-toc',
   fields: {
-    eyebrow: { type: 'text', required: true },
-    title: { type: 'text', required: true },
-    body: { type: 'richtext', required: true },
-    toc_label: { type: 'text', default: 'On This Page' },
-    toc: { type: 'list', fields: { label: { type: 'text', required: true }, anchor: { type: 'plain', required: true } } },
+    eyebrow: { type: 'text' },
+    title: { type: 'text' },
+    body: { type: 'richtext' },
+    toc_label: { type: 'text' },
+    toc: { type: 'list', fields: { label: { type: 'text' }, anchor: { type: 'plain' } } },
   },
   render(value) {
     const text = el(
@@ -309,14 +309,14 @@ const sideNav = {
   summary: 'Right-rail "On this page" nav with scroll-spy highlighting.',
   source: '30-sticky-side-nav',
   fields: {
-    label: { type: 'text', default: 'On this page' },
-    items: { type: 'list', required: true, min: 1, fields: { label: { type: 'text', required: true }, anchor: { type: 'plain', required: true } } },
+    label: { type: 'text' },
+    items: { type: 'list', fields: { label: { type: 'text' }, anchor: { type: 'plain' } } },
     note: { type: 'text' },
     button: {
       type: 'object',
       fields: {
-        label: { type: 'text', required: true },
-        url: { type: 'url', required: true },
+        label: { type: 'text' },
+        url: { type: 'url' },
       },
     },
   },
@@ -352,19 +352,18 @@ const resourceIndex = {
   summary: 'The cluster resource index: every spoke beneath this cluster as a card grid.',
   source: '13-data-cut-filters',
   fields: {
-    eyebrow: { type: 'text', default: 'Full Resource Index' },
-    title: { type: 'text', required: true },
+    eyebrow: { type: 'text' },
+    title: { type: 'text' },
     subtitle: { type: 'text' },
     items: {
       type: 'list',
-      required: true,
-      min: 1,
       fields: {
-        group: { type: 'text', required: true, hint: 'the card kicker, e.g. "Definitions"' },
-        title: { type: 'text', required: true },
-        description: { type: 'text', required: true },
+        group: { type: 'text', hint: 'the card kicker, e.g. "Definitions"' },
+        title: { type: 'text' },
+        description: { type: 'text' },
         url: { type: 'url' },
-        status: { type: 'enum', values: ['published', 'in-production'], default: 'published' },
+        status: { type: 'enum', values: ['published', 'in-production'] },
+        status_label: { type: 'text', hint: 'the badge text when status is in-production' },
       },
     },
   },
@@ -375,7 +374,7 @@ const resourceIndex = {
         el('h3', null, item.title),
         el('p', null, item.description),
         item.status === 'in-production'
-          ? el('span', { class: 'coming-soon-badge' }, 'In production')
+          ? el('span', { class: 'coming-soon-badge' }, item.status_label)
           : el('span', { class: 'data-cut-arrow' }, '&rarr;'),
       );
       if (item.status === 'in-production' || !item.url) {
@@ -403,18 +402,16 @@ const related = {
   summary: 'Off-white band of cross-link cards: where to go next.',
   source: '14-spoke-page-cards',
   fields: {
-    eyebrow: { type: 'text', default: 'Keep Going' },
-    title: { type: 'text', required: true },
+    eyebrow: { type: 'text' },
+    title: { type: 'text' },
     items: {
       type: 'list',
-      required: true,
-      min: 1,
       fields: {
-        tag: { type: 'text', required: true },
-        title: { type: 'text', required: true },
-        url: { type: 'url', required: true },
-        description: { type: 'text', required: true },
-        link_text: { type: 'text', default: 'Read the guide' },
+        tag: { type: 'text' },
+        title: { type: 'text' },
+        url: { type: 'url' },
+        description: { type: 'text' },
+        link_text: { type: 'text' },
       },
     },
   },
@@ -434,9 +431,9 @@ const methodology = {
   summary: '"How we measure this" band with an optional melon caveat note.',
   source: '16-methodology-section',
   fields: {
-    eyebrow: { type: 'text', default: 'Methodology' },
-    title: { type: 'text', required: true },
-    body: { type: 'richtext', required: true },
+    eyebrow: { type: 'text' },
+    title: { type: 'text' },
+    body: { type: 'richtext' },
     caveat: { type: 'text' },
   },
   render(value) {
@@ -470,14 +467,12 @@ const faq = {
   summary: 'Static two-column Q&A list with a label column; every answer renders expanded.',
   source: 'Faq',
   fields: {
-    eyebrow: { type: 'text', default: 'FAQ' },
-    title: { type: 'text', required: true },
+    eyebrow: { type: 'text' },
+    title: { type: 'text' },
     intro: { type: 'text' },
     items: {
       type: 'list',
-      required: true,
-      min: 1,
-      fields: { q: { type: 'text', required: true }, a: { type: 'richtext', required: true } },
+      fields: { q: { type: 'text' }, a: { type: 'richtext' } },
     },
   },
   render(value) {
@@ -514,17 +509,15 @@ const citations = {
   summary: 'Numbered reference list; every [^n] in the body resolves to an entry here.',
   source: '60-citations-list',
   fields: {
-    eyebrow: { type: 'text', default: 'References' },
-    title: { type: 'text', default: 'Citations' },
+    eyebrow: { type: 'text' },
+    title: { type: 'text' },
     subtitle: { type: 'text' },
     items: {
       type: 'list',
-      required: true,
-      min: 1,
       fields: {
-        source: { type: 'text', required: true, hint: 'the publisher, e.g. "Google Search Central"' },
-        title: { type: 'text', required: true },
-        url: { type: 'url', required: true },
+        source: { type: 'text', hint: 'the publisher, e.g. "Google Search Central"' },
+        title: { type: 'text' },
+        url: { type: 'url' },
         accessed: { type: 'plain' },
       },
     },
@@ -575,20 +568,17 @@ const cta = {
   summary: 'End-of-page gradient CTA band with buttons, optional use-case pills, and optional meta pills.',
   source: '17-sticky-cta-footer',
   fields: {
-    eyebrow: { type: 'text', default: 'Put This Data to Work' },
-    title: { type: 'text', required: true },
-    body: { type: 'text', required: true },
-    links: { type: 'list', fields: { label: { type: 'text', required: true }, url: { type: 'url', required: true } } },
+    eyebrow: { type: 'text' },
+    title: { type: 'text' },
+    body: { type: 'text' },
+    links: { type: 'list', fields: { label: { type: 'text' }, url: { type: 'url' } } },
     pills: { ...PILL_LIST },
     buttons: {
       type: 'list',
-      required: true,
-      min: 1,
-      max: 3,
       fields: {
-        label: { type: 'text', required: true },
-        url: { type: 'url', required: true },
-        variant: { type: 'enum', values: ['primary', 'secondary'], default: 'primary' },
+        label: { type: 'text' },
+        url: { type: 'url' },
+        variant: { type: 'enum', values: ['primary', 'secondary'] },
       },
     },
   },

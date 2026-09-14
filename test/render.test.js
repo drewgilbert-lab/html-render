@@ -38,9 +38,10 @@ test('valid Pillar Markdown renders the Pillar layout', () => {
   assert.match(html, /class="section-header align-left"/);
   // Auto table of contents and side nav both resolve to the body sections.
   assert.match(html, /<a href="#why"><span class="hub-toc-dot"><\/span>Why It Matters<\/a>/);
-  assert.match(html, /<div class="nav-head">On this page<\/div>/);
+  // The rail renders; its heading is authored, so an unlabelled fixture leaves it empty.
+  assert.match(html, /<div class="nav-head"><\/div>/);
   assert.match(html, /class="freshness-bar"/);
-  assert.match(html, /Data last updated: Q3 2026/);
+  assert.match(html, /class="freshness-text">Q3 2026</);
   assert.doesNotMatch(html, /hero-eyebrow/);
   assert.doesNotMatch(html, /class="pill"/);
   assert.doesNotMatch(html, /section-rule/);
@@ -61,7 +62,7 @@ test('valid Cluster Markdown renders the Cluster layout with the resource index 
   // Cluster sections are full-width bands that alternate.
   assert.match(html, /<section class="page-section tinted" id="program">/);
   assert.match(html, /class="freshness-bar"/);
-  assert.match(html, /Data last updated: Q3 2026/);
+  assert.match(html, /class="freshness-text">Q3 2026</);
   assert.doesNotMatch(html, /hero-eyebrow/);
   assert.doesNotMatch(html, /class="pill"/);
   assert.doesNotMatch(html, /section-rule/);
@@ -86,7 +87,7 @@ test('valid Spoke Markdown renders the article variant', () => {
   assert.match(html, /<div class="cta-buttons">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
   assert.doesNotMatch(html, /class="btn-secondary"/);
   assert.match(html, /class="freshness-bar"/);
-  assert.match(html, /Data last updated: Q3 2026/);
+  assert.match(html, /class="freshness-text">Q3 2026</);
   assert.doesNotMatch(html, /section-rule/);
   assert.doesNotMatch(html, /class="pill"/);
   // The article variant does not use the gradient hero or a jump nav.
@@ -109,7 +110,7 @@ test('the banded Spoke variant uses the gradient hero, section bands, and the si
   assert.doesNotMatch(html, /hero-eyebrow/);
   assert.doesNotMatch(html, /class="pill"/);
   assert.match(html, /class="freshness-bar"/);
-  assert.match(html, /Data last updated: Q3 2026/);
+  assert.match(html, /class="freshness-text">Q3 2026</);
   assert.doesNotMatch(html, /freshness-cadence|methodology-link/);
   assert.doesNotMatch(html, /section-rule/);
   // Thesis lives in the reading column, not inside the hero.

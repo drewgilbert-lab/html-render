@@ -36,7 +36,14 @@ term:
   set_name: Core AI Visibility Metrics and Vocabulary
   set_url: https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/
 
+freshness:
+  label: "Data last updated: Q3 2026"
+
+side_nav:
+  label: On this page
+
 faq:
+  eyebrow: FAQ
   title: Common Questions About AI Share of Voice
   intro: Terminology questions written to match how GEO practitioners and AI answer engines phrase this metric.
   items:
@@ -50,6 +57,7 @@ faq:
       a: AI answer engines regenerate responses continuously as automated recrawling updates each engine's underlying source set, so the same tracked prompt can return a different mix of brand mentions from one month to the next even when no brand in the set has published anything new.
 
 citations:
+  eyebrow: References
   title: References
   items:
     - source: Gartner

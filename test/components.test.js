@@ -125,14 +125,22 @@ test('link-card degrades to a non-link card when the page is still in production
   const live = block('link-card', { tag: 'Cluster Hub', title: 'Core Metrics', description: 'The hub.', url: '/geo/core/' });
   assert.match(live, /^<a class="data-cut-card" href="\/geo\/core\/">/);
 
-  const pending = block('link-card', { tag: 'Cluster Hub', title: 'Core Metrics', description: 'The hub.', status: 'in-production' });
+  const pending = block('link-card', {
+    tag: 'Cluster Hub',
+    title: 'Core Metrics',
+    description: 'The hub.',
+    status: 'in-production',
+    status_label: 'In production, not yet published',
+  });
   assert.match(pending, /^<div class="data-cut-card coming-soon">/);
   assert.match(pending, /class="coming-soon-badge">In production, not yet published</);
 });
 
 test('related-cards and the related page band share one card implementation', () => {
   const inline = block('related-cards', {
-    items: [{ tag: 'Methodology', title: 'How to calculate', url: '/geo/calc/', description: 'The formula.' }],
+    items: [
+      { tag: 'Methodology', title: 'How to calculate', url: '/geo/calc/', description: 'The formula.', link_text: 'Read the guide' },
+    ],
   });
   assert.match(inline, /class="related-hubs-grid"/);
   assert.match(inline, /class="related-hub-card" href="\/geo\/calc\/"/);
@@ -163,8 +171,9 @@ test('figure renders an image with an empty-alt fallback and an optional caption
 });
 
 test('figure without a src renders the dashed draft placeholder', () => {
+  // No placeholder supplied: the frame renders, the renderer invents no copy for it.
   const draft = block('figure', { caption: 'Figure 2. Pending.' });
-  assert.match(draft, /<div class="figure-placeholder"><span class="figure-placeholder-label">\[IMAGE NEEDED\]<\/span><\/div>/);
+  assert.match(draft, /<div class="figure-placeholder"><span class="figure-placeholder-label"><\/span><\/div>/);
 
   const labelled = block('figure', { placeholder: '[IMAGE NEEDED] CRM share chart, Q2 2026' });
   assert.match(labelled, /figure-placeholder-label">\[IMAGE NEEDED\] CRM share chart, Q2 2026</);
@@ -219,7 +228,7 @@ test('comparison-table composes trend-indicator inside a trend cell', () => {
     rows: [
       { cells: ['Salesforce', { trend: { direction: 'up', value: '+3.1pp' } }] },
       { cells: ['SAP CRM', { trend: { direction: 'down', value: '-1.4pp' } }] },
-      { cells: ['Other', { trend: { value: 'flat' } }] },
+      { cells: ['Other', { trend: { direction: 'flat', value: 'flat' } }] },
     ],
   });
   assert.match(html, /<td style="text-align:center"><span class="trend-indicator up">&#9650; \+3\.1pp<\/span><\/td>/);
@@ -229,7 +238,8 @@ test('comparison-table composes trend-indicator inside a trend cell', () => {
 
 test('trend-indicator renders standalone with the arrow the direction implies', () => {
   assert.equal(block('trend-indicator', { direction: 'up', value: '+3.1pp' }), '<span class="trend-indicator up">&#9650; +3.1pp</span>');
-  assert.equal(block('trend-indicator', { value: 'flat' }), '<span class="trend-indicator flat">&rarr; flat</span>');
+  assert.equal(block('trend-indicator', { direction: 'flat', value: 'flat' }), '<span class="trend-indicator flat">&rarr; flat</span>');
+  assert.equal(block('trend-indicator', { value: 'n/a' }), '<span class="trend-indicator">n/a</span>');
 });
 
 test('limitations-cards renders one melon-accented card per caveat', () => {
@@ -246,6 +256,7 @@ test('limitations-cards renders one melon-accented card per caveat', () => {
 
 test('key-insights renders the label, an optional title, and check-icon items with attribution', () => {
   const html = block('key-insights', {
+    label: 'Analyst Insights',
     title: 'What the data tells us',
     items: [
       { lead: 'Salesforce is consolidating.', text: 'Install share grew from 35.1% to 38.2% YoY.', attribution: 'See primary chart' },

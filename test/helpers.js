@@ -27,6 +27,7 @@ author:
   name: Jordan Lee
   title: Principal Analyst, HG Insights
 faq:
+  eyebrow: FAQ
   title: Common questions about this test page
   items:
     - q: What is this?
@@ -53,6 +54,7 @@ const HERO_WITH_THESIS = `hero:
 
 const INTRO = `intro:
   eyebrow: About This Guide
+  toc_label: On This Page
   title: What this guide covers
   body: |
     First intro paragraph.
@@ -81,6 +83,7 @@ A body paragraph in the second section.
 `;
 
 const RESOURCE_INDEX = `resource_index:
+  eyebrow: Full Resource Index
   title: Which guides cover this cluster?
   items:
     - group: Definitions
@@ -89,12 +92,14 @@ const RESOURCE_INDEX = `resource_index:
       url: https://hginsights.com/geo/test-page/share-of-voice/`;
 
 const RELATED = `related:
+  eyebrow: Keep Going
   title: Where to go next
   items:
     - tag: Cluster Hub
       title: Core Metrics and Vocabulary
       url: https://hginsights.com/geo/test-page/core-metrics/
-      description: The parent cluster for this page.`;
+      description: The parent cluster for this page.
+      link_text: Read the guide`;
 
 function pillar(extra = '', hero = HERO) {
   return `---\npage_type: pillar\n${SHARED}\n${hero}\n${INTRO}\n${extra}---\n${BODY}`;

@@ -14,6 +14,15 @@
 
 const { el, lines, indent, escapeAttr } = require('../html');
 
+/**
+ * A field the author did not supply. Absent scalars normalize to the empty
+ * string (see defaultOf in src/validate/fields.js), so a numeric field is
+ * absent when it is null, undefined, or ''.
+ */
+function absent(value) {
+  return value == null || value === '';
+}
+
 /** Paragraph list from a richtext field. */
 function paras(list, className) {
   return (list || []).map((html) => el('p', className ? { class: className } : null, html));
@@ -25,8 +34,8 @@ const callout = {
   source: 'Callout',
   fields: {
     label: { type: 'text', hint: 'the uppercase kicker, e.g. "Why It Matters"; omit for an unlabelled note' },
-    body: { type: 'richtext', required: true },
-    tone: { type: 'enum', values: ['note', 'warn'], default: 'note' },
+    body: { type: 'richtext' },
+    tone: { type: 'enum', values: ['note', 'warn'] },
   },
   render(value) {
     const cls = value.tone === 'warn' ? 'callout-box callout-box--melon' : 'callout-box';
@@ -47,12 +56,9 @@ const conceptCards = {
   fields: {
     items: {
       type: 'list',
-      required: true,
-      min: 2,
-      max: 6,
       fields: {
-        title: { type: 'text', required: true },
-        body: { type: 'text', required: true },
+        title: { type: 'text' },
+        body: { type: 'text' },
       },
     },
   },
@@ -78,9 +84,9 @@ const quote = {
   summary: 'An attributed analyst pull quote.',
   source: '12-expert-quote-card',
   fields: {
-    text: { type: 'text', required: true },
-    name: { type: 'plain', required: true },
-    title: { type: 'plain', required: true },
+    text: { type: 'text' },
+    name: { type: 'plain' },
+    title: { type: 'plain' },
     initials: { type: 'plain' },
     link_text: { type: 'text' },
     link_url: { type: 'url' },
@@ -135,12 +141,10 @@ const processSteps = {
     howto: { type: 'bool', hint: 'true makes these steps the HowToStep list of the `howto` frontmatter node; exactly one block per page' },
     items: {
       type: 'list',
-      required: true,
-      min: 2,
       fields: {
         id: { type: 'plain', hint: 'a lowercase anchor for this step, e.g. "level-1"; also the HowToStep url fragment' },
-        title: { type: 'text', required: true },
-        body: { type: 'richtext', required: true },
+        title: { type: 'text' },
+        body: { type: 'richtext' },
       },
     },
   },
@@ -172,13 +176,11 @@ const beforeAfter = {
   fields: {
     before: {
       type: 'object',
-      required: true,
-      fields: { label: { type: 'text', required: true }, body: { type: 'text', required: true } },
+      fields: { label: { type: 'text' }, body: { type: 'text' } },
     },
     after: {
       type: 'object',
-      required: true,
-      fields: { label: { type: 'text', required: true }, body: { type: 'text', required: true } },
+      fields: { label: { type: 'text' }, body: { type: 'text' } },
     },
   },
   render(value) {
@@ -197,7 +199,7 @@ const formula = {
   summary: 'A highlighted formula or calculation statement.',
   source: '31-thesis-block (formula variant)',
   fields: {
-    text: { type: 'richtext', required: true },
+    text: { type: 'richtext' },
   },
   render(value) {
     return el('div', { class: 'formula-block' }, value.text.join('<br>'));
@@ -212,11 +214,9 @@ const bars = {
     title: { type: 'text' },
     items: {
       type: 'list',
-      required: true,
-      min: 2,
       fields: {
-        label: { type: 'plain', required: true },
-        value: { type: 'plain', required: true },
+        label: { type: 'plain' },
+        value: { type: 'plain' },
         share: { type: 'number' },
       },
     },
@@ -250,7 +250,7 @@ function renderBarChart(items) {
   const max = Math.max(...numbers, 0);
   const rows = items.map((item, index) => {
     let share = item.share;
-    if (share == null) share = max > 0 ? Math.round((numbers[index] / max) * 100) : 0;
+    if (absent(share)) share = max > 0 ? Math.round((numbers[index] / max) * 100) : 0;
     share = Math.max(3, Math.min(100, Math.round(share)));
     return el(
       'div',
@@ -273,17 +273,17 @@ const benchmarkFigure = {
   source: '24-benchmark-figure',
   fields: {
     eyebrow: { type: 'text' },
-    figure: { type: 'plain', required: true, hint: 'the headline number, e.g. "5.1x"' },
-    label: { type: 'text', required: true },
+    figure: { type: 'plain', hint: 'the headline number, e.g. "5.1x"' },
+    label: { type: 'text' },
     compare: {
       type: 'object',
       fields: {
-        left_label: { type: 'text', required: true },
-        left_value: { type: 'plain', required: true },
-        right_label: { type: 'text', required: true },
-        right_value: { type: 'plain', required: true },
+        left_label: { type: 'text' },
+        left_value: { type: 'plain' },
+        right_label: { type: 'text' },
+        right_value: { type: 'plain' },
         delta: { type: 'text' },
-        direction: { type: 'enum', values: ['up', 'down'], default: 'up' },
+        direction: { type: 'enum', values: ['up', 'down'] },
         delta_note: { type: 'text' },
       },
     },
@@ -293,11 +293,9 @@ const benchmarkFigure = {
         title: { type: 'text' },
         items: {
           type: 'list',
-          required: true,
-          min: 2,
           fields: {
-            label: { type: 'plain', required: true },
-            value: { type: 'plain', required: true },
+            label: { type: 'plain' },
+            value: { type: 'plain' },
             share: { type: 'number' },
           },
         },
@@ -307,8 +305,8 @@ const benchmarkFigure = {
     definition: {
       type: 'object',
       fields: {
-        title: { type: 'text', required: true },
-        body: { type: 'richtext', required: true },
+        title: { type: 'text' },
+        body: { type: 'richtext' },
       },
     },
     footer: { type: 'text' },
@@ -409,12 +407,12 @@ const linkCard = {
   summary: 'A single card linking down to a cluster or spoke, optionally flagged as still in production.',
   source: '13-data-cut-filters',
   fields: {
-    tag: { type: 'text', required: true, hint: 'the small uppercase kicker, e.g. "Cluster Hub"' },
-    title: { type: 'text', required: true },
-    description: { type: 'text', required: true },
+    tag: { type: 'text', hint: 'the small uppercase kicker, e.g. "Cluster Hub"' },
+    title: { type: 'text' },
+    description: { type: 'text' },
     url: { type: 'url' },
-    status: { type: 'enum', values: ['published', 'in-production'], default: 'published' },
-    status_label: { type: 'text', default: 'In production, not yet published' },
+    status: { type: 'enum', values: ['published', 'in-production'] },
+    status_label: { type: 'text' },
   },
   render(value) {
     const comingSoon = value.status === 'in-production';
@@ -438,14 +436,12 @@ const relatedCards = {
   fields: {
     items: {
       type: 'list',
-      required: true,
-      min: 1,
       fields: {
-        tag: { type: 'text', required: true },
-        title: { type: 'text', required: true },
-        url: { type: 'url', required: true },
-        description: { type: 'text', required: true },
-        link_text: { type: 'text', default: 'Read the guide' },
+        tag: { type: 'text' },
+        title: { type: 'text' },
+        url: { type: 'url' },
+        description: { type: 'text' },
+        link_text: { type: 'text' },
       },
     },
   },
@@ -480,7 +476,7 @@ const figure = {
     src: { type: 'url' },
     alt: { type: 'plain' },
     caption: { type: 'text', hint: 'e.g. "Figure 1. CRM install share, Q2 2026."' },
-    placeholder: { type: 'plain', default: '[IMAGE NEEDED]' },
+    placeholder: { type: 'plain' },
   },
   render(value) {
     // <img> is a void element and an empty alt must survive serialization;
@@ -497,15 +493,17 @@ const figure = {
 };
 
 const TREND_FIELDS = {
-  direction: { type: 'enum', values: ['up', 'down', 'flat'], default: 'flat', hint: 'up is blue, down is melon, flat is grey; never green' },
-  value: { type: 'plain', required: true, hint: 'the figure, e.g. "+3.1pp"; the arrow glyph is supplied' },
+  direction: { type: 'enum', values: ['up', 'down', 'flat'], hint: 'up is blue, down is melon, flat is grey; never green' },
+  value: { type: 'plain', hint: 'the figure, e.g. "+3.1pp"; the arrow glyph is supplied' },
 };
 
 const TREND_ARROWS = { up: '&#9650;', down: '&#9660;', flat: '&rarr;' };
 
 /** Shared by the `trend-indicator` block and `comparison-table` trend cells. */
 function renderTrendIndicator(value) {
-  return el('span', { class: `trend-indicator ${value.direction}` }, `${TREND_ARROWS[value.direction]} ${value.value}`);
+  const arrow = TREND_ARROWS[value.direction] || '';
+  const cls = value.direction ? `trend-indicator ${value.direction}` : 'trend-indicator';
+  return el('span', { class: cls }, [arrow, value.value].filter(Boolean).join(' '));
 }
 
 const trendIndicator = {
@@ -519,9 +517,9 @@ const trendIndicator = {
 };
 
 const SHARE_BAR_FIELDS = {
-  width: { type: 'number', required: true, hint: 'percent of the track, or the bar\'s own pixel length with no_track' },
+  width: { type: 'number', hint: 'percent of the track, or the bar\'s own pixel length with no_track' },
   value: { type: 'plain', hint: 'the bold figure beside the bar, e.g. "38.2%"' },
-  emphasis: { type: 'enum', values: ['default', 'primary', 'accent', 'dim'], default: 'default' },
+  emphasis: { type: 'enum', values: ['default', 'primary', 'accent', 'dim'] },
   no_track: { type: 'bool' },
 };
 
@@ -530,14 +528,14 @@ function renderShareBar(value) {
   const fill = el(
     'span',
     {
-      class: value.emphasis !== 'default' ? `share-bar-fill ${value.emphasis}` : 'share-bar-fill',
-      style: `width:${value.width}${value.no_track ? 'px' : '%'}`,
+      class: value.emphasis && value.emphasis !== 'default' ? `share-bar-fill ${value.emphasis}` : 'share-bar-fill',
+      style: absent(value.width) ? null : `width:${value.width}${value.no_track ? 'px' : '%'}`,
     },
     '',
   );
   return el('span', { class: value.no_track ? 'share-bar no-track' : 'share-bar' }, [
     value.no_track ? fill : el('span', { class: 'share-bar-track' }, fill),
-    value.value != null ? el('span', { class: 'share-bar-value' }, value.value) : '',
+    absent(value.value) ? '' : el('span', { class: 'share-bar-value' }, value.value),
   ]);
 }
 
@@ -558,22 +556,16 @@ const comparisonTable = {
   fields: {
     columns: {
       type: 'list',
-      required: true,
-      min: 1,
       fields: {
-        label: { type: 'text', required: true },
+        label: { type: 'text' },
         align: { type: 'enum', values: ['left', 'center', 'right'] },
       },
     },
     rows: {
       type: 'list',
-      required: true,
-      min: 1,
       fields: {
         cells: {
           type: 'list',
-          required: true,
-          min: 1,
           primaryKey: 'text',
           fields: {
             text: { type: 'text' },
@@ -643,11 +635,9 @@ const limitationsCards = {
   fields: {
     items: {
       type: 'list',
-      required: true,
-      min: 2,
       fields: {
-        title: { type: 'text', required: true },
-        body: { type: 'text', required: true },
+        title: { type: 'text' },
+        body: { type: 'text' },
       },
       hint: 'the design intends three or more named caveats; for a single caveat use a callout with tone: warn, or methodology.caveat',
     },
@@ -669,15 +659,13 @@ const keyInsights = {
   summary: 'A panel of analyst takeaways: check-icon bullets, each with a bold lead clause and an attribution pointing at the exhibit that backs it.',
   source: 'KeyInsights',
   fields: {
-    label: { type: 'text', default: 'Analyst Insights' },
+    label: { type: 'text' },
     title: { type: 'text' },
     items: {
       type: 'list',
-      required: true,
-      min: 1,
       fields: {
         lead: { type: 'text', hint: 'the bolded lead clause' },
-        text: { type: 'text', required: true, hint: 'the supporting detail' },
+        text: { type: 'text', hint: 'the supporting detail' },
         attribution: { type: 'text', hint: 'a pointer to the backing exhibit, e.g. "See primary chart"' },
       },
     },
@@ -721,29 +709,36 @@ const keyInsights = {
 const BAR_SERIES = ['s1', 's2', 's3', 'dim'];
 
 const BAR_SEGMENT_FIELDS = {
-  width: { type: 'number', required: true, hint: 'percent of the row' },
-  series: { type: 'enum', values: BAR_SERIES, required: true, hint: 's1 gradient, s2 blue, s3 light blue, dim gray; keep it consistent with the legend' },
+  width: { type: 'number', hint: 'percent of the row' },
+  series: { type: 'enum', values: BAR_SERIES, hint: 's1 gradient, s2 blue, s3 light blue, dim gray; keep it consistent with the legend' },
   title: { type: 'plain', hint: 'hover title for the segment' },
 };
+
+/** An unsupplied segment width or series contributes no inline style or modifier. */
+function barWidth(width) {
+  return absent(width) ? null : `width:${width}%`;
+}
+
+function barSeriesClass(base, series) {
+  return series ? `${base} ${series}` : base;
+}
 
 const barChart = {
   name: 'bar-chart',
   summary: 'The card-framed horizontal bar chart that ranks items by one metric, with stacked and grouped variants. Pick one variant per page.',
   source: 'BarChart',
   fields: {
-    variant: { type: 'enum', values: ['single', 'stacked', 'grouped'], default: 'single' },
-    title: { type: 'text', required: true },
+    variant: { type: 'enum', values: ['single', 'stacked', 'grouped'] },
+    title: { type: 'text' },
     subtitle: { type: 'text', hint: 'the small grey line under the title, e.g. "500+ employees &middot; 47,218 installs"' },
     date_badge: { type: 'plain', hint: 'the pill at the top right, e.g. "Q2 2026"' },
     rows: {
       type: 'list',
-      required: true,
-      min: 1,
       fields: {
-        label: { type: 'text', required: true },
+        label: { type: 'text' },
         value: { type: 'plain', hint: 'the printed figure at the right of the row, e.g. "38.2%"' },
         width: { type: 'number', hint: 'single variant: bar width as a percent; derived from the leading number in `value`, indexed to the largest, when omitted' },
-        emphasis: { type: 'enum', values: ['default', 'accent', 'dim'], default: 'default', hint: 'single variant: default dark-blue gradient, accent blue ramp, dim gray' },
+        emphasis: { type: 'enum', values: ['default', 'accent', 'dim'], hint: 'single variant: default dark-blue gradient, accent blue ramp, dim gray' },
         segments: { type: 'list', fields: BAR_SEGMENT_FIELDS, hint: 'stacked variant only: the parts of this row' },
         bars: { type: 'list', fields: BAR_SEGMENT_FIELDS, hint: 'grouped variant only: one bar per series' },
       },
@@ -751,44 +746,14 @@ const barChart = {
     legend: {
       type: 'list',
       fields: {
-        label: { type: 'text', required: true },
-        series: { type: 'enum', values: BAR_SERIES, required: true },
+        label: { type: 'text' },
+        series: { type: 'enum', values: BAR_SERIES },
       },
       hint: 'required for stacked and grouped',
     },
     source: { type: 'text', hint: 'e.g. "Source: HG Insights &middot; Q2 2026 &middot; 47,218 verified installs"' },
     download_label: { type: 'text', hint: 'with download_url: the data-download link in the footer' },
     download_url: { type: 'url' },
-  },
-  /** Cross-field rules the declarative contract cannot express. */
-  validate(data, path, report) {
-    if (!data || typeof data !== 'object' || !Array.isArray(data.rows)) return;
-    const variant = data.variant || 'single';
-    if (variant !== 'single' && !(Array.isArray(data.legend) && data.legend.length)) {
-      report.add(`${path}.legend`, `is required for the ${variant} variant so every series is named`);
-    }
-    data.rows.forEach((row, index) => {
-      if (!row || typeof row !== 'object') return;
-      const at = `${path}.rows[${index}]`;
-      if (variant === 'stacked' && !(Array.isArray(row.segments) && row.segments.length)) {
-        report.add(`${at}.segments`, 'is required on every row of a stacked chart');
-      }
-      if (variant === 'grouped' && !(Array.isArray(row.bars) && row.bars.length)) {
-        report.add(`${at}.bars`, 'is required on every row of a grouped chart');
-      }
-      if (variant === 'single' && row.width == null && !/-?\d/.test(String(row.value == null ? '' : row.value))) {
-        report.add(`${at}.width`, 'is required when `value` carries no leading number to derive the bar width from');
-      }
-      if (variant !== 'stacked' && Array.isArray(row.segments) && row.segments.length) {
-        report.add(`${at}.segments`, `belongs to the stacked variant, not ${variant}`);
-      }
-      if (variant !== 'grouped' && Array.isArray(row.bars) && row.bars.length) {
-        report.add(`${at}.bars`, `belongs to the grouped variant, not ${variant}`);
-      }
-    });
-    if ((data.download_label && !data.download_url) || (!data.download_label && data.download_url)) {
-      report.add(`${path}.download_label`, 'download_label and download_url go together: supply both or neither');
-    }
   },
   render(value) {
     const rows = value.rows;
@@ -800,7 +765,7 @@ const barChart = {
     });
     const max = Math.max(...numbers, 0);
     const widthOf = (row, index) => {
-      if (row.width != null) return row.width;
+      if (!absent(row.width)) return row.width;
       const share = max > 0 ? Math.round((numbers[index] / max) * 100) : 0;
       return Math.max(3, Math.min(100, share));
     };
@@ -839,7 +804,7 @@ const barChart = {
         middle = el(
           'div',
           { class: 'bar-group' },
-          `\n${indent(lines(row.bars.map((bar) => el('div', { class: `bar-subbar ${bar.series}`, style: `width:${bar.width}%` }, ''))))}\n`,
+          `\n${indent(lines(row.bars.map((bar) => el('div', { class: barSeriesClass('bar-subbar', bar.series), style: barWidth(bar.width) }, ''))))}\n`,
         );
       } else if (value.variant === 'stacked') {
         middle = el(
@@ -848,7 +813,7 @@ const barChart = {
           `\n${indent(
             lines(
               row.segments.map((segment) =>
-                el('div', { class: `bar-seg ${segment.series}`, style: `width:${segment.width}%`, title: segment.title || null }, ''),
+                el('div', { class: barSeriesClass('bar-seg', segment.series), style: barWidth(segment.width), title: segment.title || null }, ''),
               ),
             ),
           )}\n`,
@@ -865,7 +830,7 @@ const barChart = {
     });
     const chart = el(
       'div',
-      { class: value.variant === 'single' ? 'bar-chart' : `bar-chart ${value.variant}` },
+      { class: value.variant && value.variant !== 'single' ? `bar-chart ${value.variant}` : 'bar-chart' },
       `\n${indent(lines(barRows))}\n`,
     );
 

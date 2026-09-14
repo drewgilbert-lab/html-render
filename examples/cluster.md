@@ -36,8 +36,12 @@ hero:
     - value: 13
       label: dedicated guides in this cluster covering definitions, calculation, selection, and reporting
 
+freshness:
+  label: "Data last updated: Q3 2026"
+
 intro:
   eyebrow: About This Cluster
+  toc_label: On This Page
   title: The vocabulary layer beneath measuring AI search visibility
   body: |
     Every GEO program eventually has to answer a deceptively simple question: is our AI visibility going up? Answering it requires a shared vocabulary, because Share of Voice, Share of Model, Mention Rate, and Citation Rate are frequently used interchangeably when they measure four different things.
@@ -99,12 +103,14 @@ resource_index:
       title: AI Visibility Benchmarks
       description: Reference ranges for a good Share of Voice, Mention Rate, or Citation Rate.
       status: in-production
+      status_label: In production
     - group: Reporting
       title: Reporting AI Search Visibility to Leadership
       description: A GEO metrics framework for translating these terms for a non-GEO audience.
       url: https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/reporting-ai-visibility-to-leadership/
 
 faq:
+  eyebrow: FAQ
   title: Frequently Asked Questions About AI Visibility Metrics and Vocabulary
   intro: Terminology questions written the way GEO practitioners and AI answer engines phrase them.
   items:
@@ -122,6 +128,7 @@ faq:
       a: Month over month, even with no new content published. AI answer engines regenerate responses continuously as recrawling updates each engine's underlying source set, so the same tracked prompt can return a different mix of brand mentions from one cycle to the next.
 
 citations:
+  eyebrow: References
   title: Sources Cited on This Page
   items:
     - source: Google Search Central
@@ -185,18 +192,22 @@ items:
     title: Why There's No Universal AI Visibility Measurement Standard (Yet)
     url: https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/why-no-ai-visibility-measurement-standard/
     description: Explains why the four core metrics lack one shared definition across GEO platforms.
+    link_text: Read the guide
   - tag: Data Dictionary
     title: The Core AI Visibility Metrics Glossary
     url: https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/ai-visibility-metrics-glossary/
     description: All four metrics defined side by side with formulas, inputs, and data sources.
+    link_text: Read the guide
   - tag: Glossary Term
     title: What Is Share of Voice in AI Search?
     url: https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/share-of-voice/
     description: Definition, formula, and a worked example of the competitive-mention metric.
+    link_text: Read the guide
   - tag: Glossary Term
     title: What Is Citation Rate in AI Search?
     url: https://hginsights.com/geo/how-to-measure-ai-search-visibility/core-metrics-vocabulary/citation-rate/
     description: Definition, and why being credited as a source differs from being mentioned.
+    link_text: Read the guide
 ```
 
 ## How Do You Calculate Each of the Four Metrics?
