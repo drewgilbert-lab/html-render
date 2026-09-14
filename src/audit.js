@@ -34,7 +34,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const { blocks, page } = require('./components');
+const { components } = require('./components');
 
 const STYLES = path.join(__dirname, 'assets', 'styles.css');
 
@@ -80,10 +80,7 @@ function headerCovers(label, name) {
 
 /** The live registry as a flat list of { kind, name, source }. */
 function liveRegistry() {
-  return [
-    ...[...blocks.values()].map((component) => ({ kind: 'block', ...component })),
-    ...[...page.values()].map((component) => ({ kind: 'page', ...component })),
-  ];
+  return [...components.values()].map((component) => ({ kind: 'component', ...component }));
 }
 
 /** Every CSS block header label, in file order. Numbered ones are legacy. */

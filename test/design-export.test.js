@@ -196,7 +196,7 @@ test('the audit reports all eight fixture components covered by the live registr
   assert.equal(result.counts.new, 0);
   for (const entry of result.entries) {
     assert.ok(
-      entry.coveredBy.some((claim) => claim.startsWith('block ')),
+      entry.coveredBy.some((claim) => claim.startsWith('component ')),
       `${entry.name} lacks a registry claim: ${entry.coveredBy.join(', ')}`,
     );
   }

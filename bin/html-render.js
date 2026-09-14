@@ -28,7 +28,7 @@ const path = require('path');
 const { renderFile, parseDocument, previewDocument, ValidationError } = require('../src/index');
 const { resolveConfig, ConfigError, CONFIG_FILENAME } = require('../src/config');
 const { layouts, layoutFor } = require('../src/layouts');
-const { blocks } = require('../src/components');
+const { components } = require('../src/components');
 const { contractFor, PAGE_TYPES } = require('../src/validate/document-contract');
 const { describeContract } = require('../src/describe');
 const { auditCatalog, formatAudit } = require('../src/audit');
@@ -128,7 +128,7 @@ function usage() {
 }
 
 function listComponents() {
-  const rows = [...blocks.values()]
+  const rows = [...components.values()]
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((component) => `  \`\`\`${component.name}\n      ${component.summary}\n      design source: ${component.source}`);
   process.stdout.write(`Author-invokable components (use inside a page section):\n\n${rows.join('\n\n')}\n\n`);
