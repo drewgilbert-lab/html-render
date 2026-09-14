@@ -3,35 +3,26 @@
 /**
  * JSON-LD graph builder.
  *
- * Built entirely from validated frontmatter (plus the body blocks it points
- * at), with a fixed key order and no clock or randomness, so the same input
- * always serializes to the same bytes.
+ * Built from two sources, with a fixed key order and no clock or randomness, so
+ * the same input always serializes to the same bytes:
  *
- * The publishing organization is configuration, not a constant: see `config.js`.
+ *   frontmatter  the page's identity (url, dates, title, description) and the
+ *                nodes that have no visible form of their own — `article`,
+ *                `term`, `term_set`, `dataset`, `item_list`, `service`,
+ *                `software`, `howto`.
+ *   the body     everything that is also on the page: the author from a hero,
+ *                the questions from an faq, the trail from a breadcrumb, the
+ *                index from a resource-index or the link-cards.
  *
- * Graph per page class:
- *   all      Organization, Person, <root>, FAQPage
- *            where <root> is Article by default, or TechArticle / CollectionPage
- *            when frontmatter `article.type` says so
- *   all      + BreadcrumbList when frontmatter carries `breadcrumbs`
- *            (a standalone spoke has none, and emits neither BreadcrumbList
- *            nor <root>.isPartOf)
- *   cluster  + ItemList indexing every spoke in the resource index
- *   pillar   + ItemList indexing every ```link-card in the body, in order
- *   any      + DefinedTerm when frontmatter declares `term`
- *   any      + DefinedTermSet (with one DefinedTerm per entry) for `term_set`
- *   any      + Dataset (and DataCatalog when `dataset.catalog` is given)
- *   any      + ItemList for `item_list` (the options or items a page enumerates)
- *   any      + Service for `service`
- *   any      + one SoftwareApplication per `software` entry
- *   any      + HowTo for `howto`, its steps read from the one ```process-steps
- *            block flagged `howto: true`
- *   Person   + knowsAbout when the author declares `knows_about`
+ * Reading the visible nodes from the body is the point: the graph cannot claim
+ * a byline, a question, or a trail the page does not show.
+ *
+ * Every node is emitted only when the document declares it. Nothing is invented.
  *
  * The root node points at what the page is about. Precedence, first wins:
  * term, term_set, dataset, item_list, service, software[0]. An Article or
  * TechArticle uses `about`; a CollectionPage uses `mainEntity`, preferring the
- * page's own index (the cluster resource index or the pillar link-card list).
+ * page's own index.
  */
 
 const { plainText } = require('./validate/fields');
@@ -54,24 +45,42 @@ function fragmentOf(entry, fallback) {
   return explicit || slugify(plainText(entry && entry.name)) || fallback;
 }
 
-/** Every component block in body order, preamble first. */
-function bodyBlocks(preamble, sections) {
+/** Every component block in the body, in document order, regions included. */
+function bodyBlocks(nodes) {
   const out = [];
-  for (const block of preamble || []) if (block.type === 'component') out.push(block);
-  for (const section of sections || []) for (const block of section.blocks || []) if (block.type === 'component') out.push(block);
+  const walk = (list) => {
+    for (const node of list || []) {
+      if (node.type === 'region') walk(node.nodes);
+      else if (node.type === 'component') out.push(node);
+    }
+  };
+  walk(nodes);
   return out;
+}
+
+/** The data of the first block with this name, or null. */
+function firstBlock(blocks, name) {
+  const found = blocks.find((block) => block.name === name && block.data);
+  return found ? found.data : null;
 }
 
 function itemListOrder(order) {
   return order === 'unordered' ? 'https://schema.org/ItemListUnordered' : 'https://schema.org/ItemListOrderAscending';
 }
 
-function buildGraph(fm, { pageType, sections, preamble, config }) {
+function buildGraph(fm, { nodes, config }) {
   const organization = requireOrganization(config);
   const pageUrl = fm.url;
   const base = trimSlash(pageUrl);
   const graph = [];
-  const blocks = bodyBlocks(preamble, sections);
+  const blocks = bodyBlocks(nodes);
+
+  // The visible nodes, read from the page itself.
+  const author = firstBlock(blocks, 'hero')?.author || firstBlock(blocks, 'article-hero')?.author || null;
+  const faq = firstBlock(blocks, 'faq');
+  const crumbs = firstBlock(blocks, 'breadcrumb');
+  const resourceIndex = firstBlock(blocks, 'resource-index');
+  const linkCards = blocks.filter((block) => block.name === 'link-card' && block.data);
 
   // logo and sameAs are optional config: a consumer who has not supplied one
   // gets a graph without the key, never a placeholder or an inherited value.
@@ -85,20 +94,25 @@ function buildGraph(fm, { pageType, sections, preamble, config }) {
   if (organization.sameAs) publisher.sameAs = organization.sameAs;
   graph.push(publisher);
 
-  const person = {
-    '@type': 'Person',
-    '@id': authorId(fm.author, organization),
-    name: plainText(fm.author.name),
-    jobTitle: plainText(fm.author.title),
-    worksFor: { '@id': organization.id },
-  };
-  if (Array.isArray(fm.author.knows_about) && fm.author.knows_about.length) {
-    person.knowsAbout = fm.author.knows_about.map((topic) =>
-      plainText(topic && typeof topic === 'object' ? topic.topic : topic),
-    );
+  // A node is emitted for what the document declares, and for nothing it does
+  // not. A page that carries its author in the body rather than the frontmatter
+  // gets no Person node here; reading it from the body is a later step.
+  if (author && author.name) {
+    const person = {
+      '@type': 'Person',
+      '@id': authorId(author, organization),
+      name: plainText(author.name),
+      jobTitle: plainText(author.title),
+      worksFor: { '@id': organization.id },
+    };
+    if (Array.isArray(author.knows_about) && author.knows_about.length) {
+      person.knowsAbout = author.knows_about.map((topic) =>
+        plainText(topic && typeof topic === 'object' ? topic.topic : topic),
+      );
+    }
+    if (author.url) person.url = author.url;
+    graph.push(person);
   }
-  if (fm.author.url) person.url = fm.author.url;
-  graph.push(person);
 
   const rootId = `${base}/#article`;
 
@@ -292,7 +306,7 @@ function buildGraph(fm, { pageType, sections, preamble, config }) {
     root.headline = plainText(fm.title);
   }
   root.description = plainText(fm.description);
-  root.author = { '@id': authorId(fm.author, organization) };
+  if (author && author.name) root.author = { '@id': authorId(author, organization) };
   root.publisher = { '@id': organization.id };
   root.datePublished = String(fm.published);
   root.dateModified = String(fm.updated || fm.published);
@@ -311,33 +325,33 @@ function buildGraph(fm, { pageType, sections, preamble, config }) {
   // The page's own index (cluster resource index, pillar link-card list) is
   // computed below; a CollectionPage prefers it as mainEntity.
   const aboutId = termId || termSetId || datasetId || itemListId || serviceId || softwareIds[0] || null;
-  const indexId =
-    pageType === 'cluster' && fm.resource_index && Array.isArray(fm.resource_index.items)
-      ? `${base}/#spokes`
-      : pageType === 'pillar' && blocks.some((block) => block.name === 'link-card' && block.data)
-        ? `${base}/#index`
-        : null;
+  const indexId = resourceIndex && Array.isArray(resourceIndex.items) && resourceIndex.items.length
+    ? `${base}/#spokes`
+    : linkCards.length
+      ? `${base}/#index`
+      : null;
   if (collection) {
     const mainEntity = indexId || aboutId;
     if (mainEntity) root.mainEntity = { '@id': mainEntity };
   } else if (aboutId) {
     root.about = { '@id': aboutId };
   }
-  if (fm.breadcrumbs && fm.breadcrumbs.length) {
-    const parent = fm.breadcrumbs[fm.breadcrumbs.length - 1];
+  const trail = crumbs && Array.isArray(crumbs.items) ? crumbs.items : [];
+  if (trail.length) {
+    const parent = trail[trail.length - 1];
     root.isPartOf = { '@type': 'WebPage', '@id': parent.url, name: plainText(parent.label) };
   }
 
   graph.push(root, ...formatNodes);
 
-  // A standalone spoke carries no breadcrumbs, so it emits no BreadcrumbList
-  // (and, above, no isPartOf) — the trail is never invented.
-  if (Array.isArray(fm.breadcrumbs) && fm.breadcrumbs.length) {
+  // A page with no breadcrumb bar emits no BreadcrumbList and no isPartOf.
+  // The trail is read from the page, never invented for it.
+  if (trail.length) {
     graph.push({
       '@type': 'BreadcrumbList',
       '@id': `${base}/#breadcrumb`,
       itemListElement: [
-        ...fm.breadcrumbs.map((crumb, index) => ({
+        ...trail.map((crumb, index) => ({
           '@type': 'ListItem',
           position: index + 1,
           name: plainText(crumb.label),
@@ -345,8 +359,8 @@ function buildGraph(fm, { pageType, sections, preamble, config }) {
         })),
         {
           '@type': 'ListItem',
-          position: fm.breadcrumbs.length + 1,
-          name: plainText(fm.breadcrumb_label || fm.title),
+          position: trail.length + 1,
+          name: plainText(crumbs.current || fm.title),
           item: pageUrl,
         },
       ],
@@ -354,14 +368,14 @@ function buildGraph(fm, { pageType, sections, preamble, config }) {
   }
 
   // ---- the page's own index ----------------------------------------------
-  if (pageType === 'cluster' && fm.resource_index && Array.isArray(fm.resource_index.items)) {
+  if (resourceIndex && Array.isArray(resourceIndex.items) && resourceIndex.items.length) {
     graph.push({
       '@type': 'ItemList',
       '@id': indexId,
-      name: plainText(fm.resource_index.title),
-      numberOfItems: fm.resource_index.items.length,
+      name: plainText(resourceIndex.title),
+      numberOfItems: resourceIndex.items.length,
       itemListOrder: 'https://schema.org/ItemListOrderAscending',
-      itemListElement: fm.resource_index.items.map((item, index) => {
+      itemListElement: resourceIndex.items.map((item, index) => {
         const entry = { '@type': 'ListItem', position: index + 1, name: plainText(item.title) };
         if (item.description) entry.description = plainText(item.description);
         if (item.url && item.status !== 'in-production') entry.url = item.url;
@@ -370,36 +384,35 @@ function buildGraph(fm, { pageType, sections, preamble, config }) {
     });
   }
 
-  // A pillar indexes the pages it routes to: every ```link-card, in body order.
-  // Derived from the body so the list can never disagree with the page.
-  if (pageType === 'pillar') {
-    const cards = blocks.filter((block) => block.name === 'link-card' && block.data);
-    if (cards.length) {
-      graph.push({
-        '@type': 'ItemList',
-        '@id': indexId,
-        name: plainText(fm.title),
-        numberOfItems: cards.length,
-        itemListOrder: 'https://schema.org/ItemListOrderAscending',
-        itemListElement: cards.map((card, index) => {
-          const entry = { '@type': 'ListItem', position: index + 1, name: plainText(card.data.title) };
-          if (card.data.description) entry.description = plainText(card.data.description);
-          if (card.data.url && card.data.status !== 'in-production') entry.url = card.data.url;
-          return entry;
-        }),
-      });
-    }
+  // A page that routes onward indexes what it routes to: every ```link-card, in
+  // body order. Derived from the body, so the list cannot disagree with the page.
+  else if (linkCards.length) {
+    graph.push({
+      '@type': 'ItemList',
+      '@id': indexId,
+      name: plainText(fm.title),
+      numberOfItems: linkCards.length,
+      itemListOrder: 'https://schema.org/ItemListOrderAscending',
+      itemListElement: linkCards.map((card, index) => {
+        const entry = { '@type': 'ListItem', position: index + 1, name: plainText(card.data.title) };
+        if (card.data.description) entry.description = plainText(card.data.description);
+        if (card.data.url && card.data.status !== 'in-production') entry.url = card.data.url;
+        return entry;
+      }),
+    });
   }
 
-  graph.push({
-    '@type': 'FAQPage',
-    '@id': `${base}/#faq`,
-    mainEntity: fm.faq.items.map((item) => ({
-      '@type': 'Question',
-      name: plainText(item.q),
-      acceptedAnswer: { '@type': 'Answer', text: plainText(item.a) },
-    })),
-  });
+  if (faq && Array.isArray(faq.items) && faq.items.length) {
+    graph.push({
+      '@type': 'FAQPage',
+      '@id': `${base}/#faq`,
+      mainEntity: faq.items.map((item) => ({
+        '@type': 'Question',
+        name: plainText(item.q),
+        acceptedAnswer: { '@type': 'Answer', text: plainText(item.a) },
+      })),
+    });
+  }
 
   return { '@context': 'https://schema.org', '@graph': graph };
 }

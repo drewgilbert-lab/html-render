@@ -402,6 +402,7 @@ const related = {
   summary: 'Off-white band of cross-link cards: where to go next.',
   source: '14-spoke-page-cards',
   fields: {
+    on_white: { type: 'bool', hint: 'paint this band white instead of its default tint' },
     eyebrow: { type: 'text' },
     title: { type: 'text' },
     items: {
@@ -418,7 +419,7 @@ const related = {
   render(value) {
     return el(
       'section',
-      { class: 'related-hubs-section', id: 'related' },
+      { class: value.on_white ? 'related-hubs-section on-white' : 'related-hubs-section', id: 'related' },
       `\n${indent(
         container(lines(renderSectionHeader({ eyebrow: value.eyebrow, title: value.title }), renderRelatedGrid(value.items))),
       )}\n`,
@@ -431,6 +432,7 @@ const methodology = {
   summary: '"How we measure this" band with an optional melon caveat note.',
   source: '16-methodology-section',
   fields: {
+    on_white: { type: 'bool', hint: 'paint this band white instead of its default tint' },
     eyebrow: { type: 'text' },
     title: { type: 'text' },
     body: { type: 'richtext' },
@@ -458,7 +460,7 @@ const methodology = {
         ),
       )}\n`,
     );
-    return el('section', { class: 'methodology-section', id: 'methodology' }, `\n${indent(container(lines(labelCol, content)))}\n`);
+    return el('section', { class: value.on_white ? 'methodology-section on-white' : 'methodology-section', id: 'methodology' }, `\n${indent(container(lines(labelCol, content)))}\n`);
   },
 };
 
@@ -467,6 +469,7 @@ const faq = {
   summary: 'Static two-column Q&A list with a label column; every answer renders expanded.',
   source: 'Faq',
   fields: {
+    on_white: { type: 'bool', hint: 'paint this band white instead of its default tint' },
     eyebrow: { type: 'text' },
     title: { type: 'text' },
     intro: { type: 'text' },
@@ -500,7 +503,7 @@ const faq = {
       ),
     );
     const list = el('div', null, `\n${indent(el('div', { class: 'faq-list' }, `\n${indent(lines(items))}\n`))}\n`);
-    return el('section', { class: 'faq-section', id: 'faq' }, `\n${indent(container(lines(labelCol, list)))}\n`);
+    return el('section', { class: value.on_white ? 'faq-section on-white' : 'faq-section', id: 'faq' }, `\n${indent(container(lines(labelCol, list)))}\n`);
   },
 };
 

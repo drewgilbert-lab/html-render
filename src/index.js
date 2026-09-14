@@ -5,9 +5,11 @@
  * body out.
  *
  * The pipeline, in order:
- *   parse Markdown -> identify page class -> validate against that class's
- *   contract -> map structured content to approved components -> assemble the
- *   approved layout -> emit deterministic HTML.
+ *   parse Markdown -> check that every component and region can be rendered ->
+ *   walk the body in the order it was written -> emit deterministic HTML.
+ *
+ * The document decides what it contains and in what order. This renderer
+ * supplies the markup for each piece, and nothing else.
  *
  * No language model runs at render time. Given the same Markdown and the same
  * renderer version, the output bytes are identical.
@@ -20,7 +22,7 @@ const { splitFrontmatter, parseBody, MarkdownError } = require('./parse/markdown
 const { parseYaml, YamlError } = require('./parse/yaml');
 const { validateDocument, ValidationError } = require('./validate/validate');
 const { plainText } = require('./validate/fields');
-const { layoutFor } = require('./layouts');
+const { renderBody } = require('./body');
 const { renderSchema } = require('./schema');
 const { escapeText, indent, lines } = require('./html');
 const { resolveConfig, requireOrganization, rendererVersion, PAGE_CLASS_TOKEN, DEFAULTS } = require('./config');
@@ -81,10 +83,10 @@ function parseDocument(source, { file } = {}) {
   }
 
   const parsed = { frontmatter, body, bodyLine: split.bodyLine };
-  const { report, pageType, layout, sections } = validateDocument(parsed);
+  const { report, sections } = validateDocument(parsed);
   if (!report.ok) throw new ValidationError(report.errors, file);
 
-  return { frontmatter, pageType, layout, sections, preamble: body.preamble };
+  return { frontmatter, sections, body };
 }
 
 /**
@@ -99,8 +101,7 @@ function render(source, options = {}) {
   // Fail on missing identity before doing the work, not once the graph is reached.
   if (settings.schema) requireOrganization(config);
   const doc = parseDocument(source, settings);
-  const layout = layoutFor(doc.pageType);
-  const bodyHtml = layout.render(doc);
+  const bodyHtml = renderBody(doc.body.nodes);
 
   const parts = [];
   if (settings.styles) {
@@ -110,15 +111,15 @@ function render(source, options = {}) {
   }
   parts.push(bodyHtml);
   if (settings.schema) {
-    parts.push(renderSchema(doc.frontmatter, { pageType: doc.pageType, sections: doc.sections, preamble: doc.preamble, config }));
+    parts.push(renderSchema(doc.frontmatter, { nodes: doc.body.nodes, config }));
   }
   if (settings.script) {
     parts.push(`<script>\n${behaviourScript(config.pageClass)}\n</script>`);
   }
 
-  const wrapped = `<div class="${config.pageClass}" data-page-type="${escapeText(doc.pageType)}">\n${indent(lines(parts))}\n</div>`;
+  const wrapped = `<div class="${config.pageClass}">\n${indent(lines(parts))}\n</div>`;
   const meta = buildMeta(doc, bodyHtml);
-  return { html: `${header(meta, config)}\n${wrapped}\n`, meta, config, pageType: doc.pageType, layout: doc.layout };
+  return { html: `${header(meta, config)}\n${wrapped}\n`, meta, config };
 }
 
 function buildMeta(doc, bodyHtml) {
@@ -131,8 +132,6 @@ function buildMeta(doc, bodyHtml) {
     .replace(/\s+/g, ' ')
     .trim();
   return {
-    pageType: doc.pageType,
-    layout: doc.layout,
     title: plainText(fm.title),
     description: plainText(fm.description),
     url: fm.url,
@@ -156,7 +155,6 @@ function header(meta, config) {
   // A hyphen pair would close the comment; the rows are sanitized the same way.
   const owner = config.organization ? `${config.organization.name.replace(/--/g, '-')} ` : '';
   const rows = [
-    `Page type        ${meta.pageType}${meta.layout ? ` (${meta.layout} layout)` : ''}`,
     `Title            ${meta.title}`,
     `Meta description ${meta.description}`,
     `Canonical URL    ${meta.url}`,
@@ -204,7 +202,7 @@ function previewDocument(result) {
     '<style>body{margin:0}.preview-note{font:600 12px/1.4 system-ui,sans-serif;background:#212121;color:#fff;padding:10px 16px;letter-spacing:.04em}</style>',
     '</head>',
     '<body>',
-    `<div class="preview-note">PREVIEW ONLY — visual review wrapper. The deliverable is the page body inside, page type: ${escapeText(result.meta.pageType)}.</div>`,
+    '<div class="preview-note">PREVIEW ONLY — visual review wrapper. The deliverable is the page body inside.</div>',
     result.html.trimEnd(),
     '</body>',
     '</html>',

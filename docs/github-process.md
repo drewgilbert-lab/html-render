@@ -30,12 +30,12 @@ request before it reaches `main` — no exceptions for "it's a small change."
      Phase 1 of the component-sync process touches (`src/components/blocks.js`,
      `src/components/page.js`, `src/assets/styles.css`, and their paired docs
      and tests).
-   - Any change to the rendering pipeline itself (parse, validate, layout, or
-     render stages), or to `src/validate/document-contract.js`.
-   - Any change to the three contract docs that `geo-spoke-builder`'s skills
-     read (`docs/markdown-contract.md`, `docs/page-layouts.md`,
-     `docs/component-library.md`) — these are downstream dependencies now,
-     not just local documentation.
+   - Any change to the rendering pipeline itself (parse, check, body walk, or
+     render stages), or to the region vocabulary in `src/body.js`.
+   - Any change to what `geo-spoke-builder`'s skills read: `docs/authoring.md`
+     and anything that changes `--components` output, since that is what the
+     catalog sync ships downstream. These are downstream dependencies now, not
+     just local documentation.
    - Any change to `.github/workflows/` or anything touching the deploy key /
      PAT used for the cross-repo sync.
    - A version bump and tag (see [Releases and tags](#releases-and-tags),
@@ -93,8 +93,9 @@ level.
   `node bin/html-render.js examples/*.md --check` confirming existing
   examples still render as expected (or an explicit note of which example's
   output changed and why, if a Changed component legitimately alters it).
-- For anything touching the contract docs: a one-line note on whether this is
-  a breaking change for `geo-spoke-builder` consumers.
+- For anything that changes `--components` output or `docs/authoring.md`: a
+  one-line note on whether this is a breaking change for `geo-spoke-builder`
+  consumers.
 
 ## Merge strategy
 

@@ -26,7 +26,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { blocks, renderBlock } = require('../src/components');
+const { components, renderBlock } = require('../src/components');
 const { auditCatalog } = require('../src/audit');
 
 const FIXTURE = path.join(__dirname, 'fixtures', 'design-export-sample');
@@ -65,7 +65,7 @@ function block(name, data) {
 
 test('every exported component has a registry entry sourced by its verbatim name', () => {
   for (const component of manifest.components) {
-    const entry = [...blocks.values()].find((candidate) => candidate.source === component.name);
+    const entry = [...components.values()].find((candidate) => candidate.source === component.name);
     assert.ok(entry, `no registry entry claims source "${component.name}"`);
   }
 });

@@ -4,7 +4,16 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const { render, ValidationError } = require('../src/index');
-const { pillar, cluster, spoke, bandedSpoke, editLine, EXAMPLE_CONFIG, SHARED, HERO, INTRO, RELATED } = require('./helpers');
+const { page, spoke, EXAMPLE_CONFIG } = require('./helpers');
+
+/**
+ * The renderer checks one thing: can it render this document.
+ *
+ * There is no page class, no required slot, and no bound on how many of
+ * anything a page may carry — what a page *should* contain belongs to the
+ * skill that authors the Markdown. Everything asserted here is something the
+ * renderer genuinely cannot produce output for.
+ */
 
 /** Render and return the validation errors, asserting that it did fail. */
 function errorsFor(source) {
@@ -35,232 +44,98 @@ function messageFor(source, path) {
   return match;
 }
 
-test('an unsupported page type is rejected and names the supported ones', () => {
-  const errors = errorsFor(pillar().replace('page_type: pillar', 'page_type: datasheet'));
-  assert.equal(errors.length, 1);
-  assert.equal(errors[0].path, 'page_type');
-  assert.match(errors[0].message, /not a supported page type/);
-  assert.match(errors[0].message, /pillar, cluster, spoke/);
+const F = '```';
+
+test('a component the registry does not have is named, with the ones that do exist', () => {
+  const error = messageFor(page({ body: `${F}nonesuch\ntitle: x\n${F}` }), '```nonesuch');
+  assert.match(error.message, /"nonesuch" is not a known component/);
+  assert.match(error.message, /Available components: article-hero, bar-chart/);
 });
 
-test('a missing page type is rejected before anything else is checked', () => {
-  const errors = errorsFor(editLine(pillar(), 'page_type:', null));
-  assert.deepEqual(errors.map((error) => error.path), ['page_type']);
+test('a region the renderer has no wrapper for is named, with the ones that do exist', () => {
+  const error = messageFor(page({ body: ':::nonesuch\n\ncopy\n:::' }), ':::nonesuch');
+  assert.match(error.message, /is not a region this renderer can wrap. Available regions: section, two-column/);
 });
 
-test('missing required metadata is reported per key, with a line number', () => {
-  const errors = errorsFor(editLine(editLine(pillar(), 'url:', null), 'published:', null));
-  const paths = errors.map((error) => error.path);
-  assert.ok(paths.includes('url'));
-  assert.ok(paths.includes('published'));
-  assert.match(messageFor(editLine(pillar(), 'url:', null), 'url').message, /is required/);
+test('a region attribute outside its declared values is rejected', () => {
+  const error = messageFor(page({ body: ':::section\nband: chartreuse\n\ncopy\n:::' }), ':::section.band');
+  assert.match(error.message, /must be one of: white, tinted/);
 });
 
-test('a missing page-class slot is reported at its own path', () => {
-  // A component states no requirement of its own: a CTA with no buttons renders
-  // the band without them rather than failing.
-  const noButtons = pillar().replace(/  buttons:\n    - label: Book a Demo\n      url: https:\/\/hginsights\.com\/demo\n/, '');
-  const cta = rendersCleanly(noButtons);
-  assert.match(cta, /<div class="cta-buttons">\s*<\/div>/);
-  assert.doesNotMatch(cta, /class="btn-primary"/);
-
-  // A cluster with no resource index.
-  const noIndex = cluster().replace(/resource_index:\n(  .*\n|    .*\n|      .*\n)+/, '');
-  assert.match(messageFor(noIndex, 'resource_index').message, /is required/);
-
-  // A spoke with no related cards.
-  const noRelated = spoke().replace(/related:\n(  .*\n|    .*\n|      .*\n)+/, '');
-  assert.match(messageFor(noRelated, 'related').message, /is required/);
-});
-
-test('a required page class slot names the layout it belongs to', () => {
-  // Pillar and cluster both require hero stats.
-  const noStats = `---\npage_type: pillar\n${SHARED}\n${INTRO}\n---\n\n## A Section\n\nCopy.\n`;
-  assert.match(messageFor(noStats, 'hero').message, /is required/);
+test('an unknown key names the keys the component does accept', () => {
+  const error = messageFor(page({ body: `${F}callout\nbody: Some copy.\nnonesuch: x\n${F}` }), '```callout.nonesuch');
+  assert.match(error.message, /is not a recognized key. Allowed keys: label, body, tone/);
 });
 
 test('a malformed repeated structure is reported rather than silently skipped', () => {
-  const stringsNotMaps = pillar().replace(
-    /faq:\n  eyebrow: .*\n  title: .*\n  items:\n    - q: .*\n      a: .*/,
-    'faq:\n  title: Common questions\n  items:\n    - What is this?\n    - And this?',
-  );
-  const error = messageFor(stringsNotMaps, 'faq.items[0]');
-  assert.match(error.message, /is malformed: each entry needs keys \(q, a\)/);
+  const strings = page({ body: `${F}faq\ntitle: Questions\nitems:\n  - What is this?\n${F}` });
+  assert.match(messageFor(strings, '```faq.items[0]').message, /is malformed: each entry needs keys \(q, a\)/);
 
-  const notAList = pillar().replace(
-    /faq:\n  eyebrow: .*\n  title: .*\n  items:\n    - q: .*\n      a: .*/,
-    'faq:\n  title: Common questions\n  items: just a string',
-  );
-  assert.match(messageFor(notAList, 'faq.items').message, /must be a list/);
-});
-
-test('an unknown key is reported with the allowed keys', () => {
-  const error = messageFor(pillar('subtitle: not a real key\n'), 'subtitle');
-  assert.match(error.message, /is not a recognized key/);
-  assert.match(error.message, /page_type, title, url/);
-});
-
-test('an unsupported component variant is rejected', () => {
-  const badTone = pillar().replace(
-    '## Why Does This Matter Right Now?',
-    '## Why Does This Matter Right Now?\n\n```callout\nlabel: Watch Out\nbody: Something to note.\ntone: danger\n```',
-  );
-  const error = messageFor(badTone, '```callout.tone');
-  assert.match(error.message, /must be one of: note, warn/);
-});
-
-test('an unsupported spoke layout is rejected', () => {
-  const error = messageFor(spoke().replace('page_type: spoke', 'page_type: spoke\nlayout: interactive'), 'layout');
-  assert.match(error.message, /not a supported spoke layout/);
-  assert.match(error.message, /article, banded/);
-});
-
-test('an unresolved component mapping names the components that do exist', () => {
-  const unknown = pillar().replace(
-    '## Why Does This Matter Right Now?',
-    '## Why Does This Matter Right Now?\n\n```carousel\nitems:\n  - a\n```',
-  );
-  const error = messageFor(unknown, '```carousel');
-  assert.match(error.message, /is not a known component/);
-  assert.match(error.message, /concept-cards/);
-});
-
-test('an unresolved citation reference is rejected', () => {
-  const withRef = pillar().replace('A body paragraph in the first section.', 'A claim that needs a source.[^2]');
-  const error = messageFor(withRef, 'citations');
-  assert.match(error.message, /cites \[\^2\] but no `citations` list is defined/);
-
-  const oneCitation = withRef.replace(
-    'cta:',
-    'citations:\n  items:\n    - source: Google Search Central\n      title: AI Features and Your Website\n      url: https://developers.google.com/search/docs/appearance/ai-features\ncta:',
-  );
-  assert.match(messageFor(oneCitation, 'citations').message, /only 1 citation is defined/);
-});
-
-test('duplicate section anchors are rejected', () => {
-  const duplicate = pillar().replace('id: program', 'id: why');
-  const errors = errorsFor(duplicate);
-  assert.ok(errors.some((error) => /already used by/.test(error.message)));
-});
-
-test('a table of contents entry that points nowhere is rejected', () => {
-  const badToc = pillar().replace(
-    'intro:\n  eyebrow: About This Guide',
-    'intro:\n  toc:\n    - label: Nowhere\n      anchor: does-not-exist\n  eyebrow: About This Guide',
-  );
-  const error = messageFor(badToc, 'intro.toc[0].anchor');
-  assert.match(error.message, /does not match any section on this page/);
+  const notAList = page({ body: `${F}faq\ntitle: Questions\nitems: just a string\n${F}` });
+  assert.match(messageFor(notAList, '```faq.items').message, /must be a list/);
 });
 
 test('an unusable link target is rejected', () => {
-  const error = messageFor(pillar().replace('url: https://hginsights.com/geo/test-page/', 'url: geo/test-page'), 'url');
-  assert.match(error.message, /is not a usable link target/);
+  const source = page({
+    body: `${F}related\ntitle: Next\nitems:\n  - tag: Hub\n    title: A page\n    url: not a url\n    description: Copy.\n${F}`,
+  });
+  assert.match(messageFor(source, '```related.items[0].url').message, /is not a usable link target/);
 });
 
-test('the article spoke variant refuses hero stats', () => {
-  const error = messageFor(`---\npage_type: spoke\n${SHARED}\n${HERO}\n${RELATED}\n---\n\n## A Section\n\nCopy.\n`, 'hero.stats');
-  assert.match(error.message, /layout: banded/);
-});
-
-test('every page class rejects a second CTA button', () => {
-  const extra = [
-    'cta:',
-    '  title: Book a demo of GEO monitoring',
-    '  body: One sentence of CTA body copy.',
-    '  buttons:',
-    '    - label: Request a Demo',
-    '      url: https://hginsights.com/demo',
-    '    - label: See the cluster',
-    '      url: https://hginsights.com/geo/',
-    '      variant: secondary',
-    '',
-  ].join('\n');
-  // SHARED already has a cta; duplicate key is a parse error. Replace the helper CTA instead.
-  const ctaPattern =
-    /cta:\n  title: Book a demo of GEO monitoring\n  body: One sentence of CTA body copy.\n  buttons:\n    - label: Book a Demo\n      url: https:\/\/hginsights.com\/demo/;
-  for (const source of [pillar(), cluster(), spoke()].map((doc) => doc.replace(ctaPattern, extra.trimEnd()))) {
-    assert.match(messageFor(source, 'cta.buttons').message, /allows at most 1/);
-  }
-});
-
-test('optional side_nav on a spoke is valid and does not replace the CTA-assembled demo button', () => {
-  const source = spoke('side_nav:\n  label: On this spoke\n  note: Optional note.\n');
-  assert.doesNotThrow(() => render(source, { config: EXAMPLE_CONFIG }));
-  const html = render(source, { config: EXAMPLE_CONFIG, styles: false, script: false, schema: false, font: false }).html;
-  assert.match(html, /<div class="nav-head">On this spoke<\/div>/);
-  assert.match(html, /<div class="nav-foot">Optional note\.<\/div>/);
-  assert.match(html, /<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
-});
-
-test('an unknown key on spoke side_nav is rejected', () => {
-  const error = messageFor(spoke('side_nav:\n  label: On this page\n  buttons: nope\n'), 'side_nav.buttons');
-  assert.match(error.message, /is not a recognized key/);
-});
-
-test('malformed input fails with a clear parse error', () => {
-  assert.match(errorsFor('no frontmatter here\n')[0].message, /must begin with a "---" fence/);
-  assert.match(errorsFor('---\npage_type: pillar\nstill open\n')[0].message, /never closed/);
-  assert.match(
-    errorsFor(pillar().replace('## Why Does This Matter Right Now?', '```\nan unnamed fence\n```'))[0].message,
-    /must name a component/,
-  );
-  assert.match(
-    errorsFor(pillar().replace('## Why Does This Matter Right Now?', '# A Top Level Heading'))[0].message,
-    /single "#" heading is not allowed/,
-  );
-  assert.match(errorsFor(`---\npage_type: pillar\ntitle: A\ntitle: B\n---\n\n## X\n\nY\n`)[0].message, /Duplicate key "title"/);
-});
-
-test('a body with no sections is rejected', () => {
-  const empty = `---\npage_type: spoke\n${SHARED}\n${RELATED}\n---\n`;
-  assert.ok(errorsFor(empty).some((error) => /no sections/.test(error.message)));
-});
-
-test('Pillar and Cluster reject body copy before the first heading', () => {
-  const stray = pillar().replace('\n## Why Does This Matter Right Now?', '\nStray copy before any heading.\n\n## Why Does This Matter Right Now?');
-  assert.ok(errorsFor(stray).some((error) => /content found before the first heading/.test(error.message)));
-});
-
-test('a banded spoke still requires hero stats', () => {
-  const noStats = bandedSpoke().replace(/hero:\n  stats:\n(    .*\n)+/, '');
-  assert.match(messageFor(noStats, 'hero').message, /is required/);
+test('an unbalanced region is a parse error naming the region', () => {
+  assert.match(errorsFor(page({ body: ':::section\n\nNo closer.' }))[0].message, /Unclosed ":::section" region/);
+  assert.match(errorsFor(page({ body: 'Copy.\n\n:::' }))[0].message, /has no open region/);
 });
 
 test('the error message lists every problem at once', () => {
-  const broken = editLine(editLine(pillar(), 'url:', null), 'description:', null);
-  try {
-    render(broken, { config: EXAMPLE_CONFIG, file: 'broken.md' });
-    assert.fail('expected failure');
-  } catch (error) {
-    assert.match(error.message, /^broken\.md: 2 validation errors/);
-    assert.match(error.message, /- url: is required/);
-    assert.match(error.message, /- description: is required/);
-  }
+  const broken = page({
+    body: [`${F}nonesuch\ntitle: x\n${F}`, ':::nonesuch\n\ncopy\n:::', `${F}callout\nbody: Copy.\nnonesuch: x\n${F}`].join('\n\n'),
+  });
+  const errors = errorsFor(broken);
+  assert.ok(errors.length >= 3, `expected every problem at once, got ${JSON.stringify(errors)}`);
+  for (const error of errors) assert.ok(error.line > 0, `every error carries a line: ${JSON.stringify(error)}`);
 });
 
-test('a chart with no legend or segments renders what it was given, and states no requirement', () => {
-  // These combinations used to be cross-field validation errors. A component
-  // renders what it is given; whether a stacked chart should carry a legend is
-  // the authoring skill's rule, not the renderer's.
-  const chart = (yaml) => spoke().replace('A body paragraph in the first section.', ['```bar-chart', ...yaml, '```'].join('\n'));
+test('nothing about what a page contains is a validation error', () => {
+  // No hero, no faq, no cta, no breadcrumb, no sections. All fine.
+  assert.match(rendersCleanly(page({ body: 'Just one paragraph.' })), /<p>Just one paragraph\.<\/p>/);
 
-  const noLegend = rendersCleanly(chart(['variant: stacked', 'title: Mix', 'rows:', '  - label: A', '    segments:', '      - width: 50', '        series: s1']));
-  assert.match(noLegend, /class="bar-chart stacked"/);
-  assert.doesNotMatch(noLegend, /class="bar-legend"/);
-
-  const noWidth = rendersCleanly(chart(['title: Ranking', 'rows:', '  - label: A', '    value: n/a']));
-  assert.match(noWidth, /class="bar-fill" style="width:3%"/);
-
-  // An unsupported enum value is still structural: the renderer has no class for it.
-  const wrongSeries = errorsFor(chart(['variant: grouped', 'title: G', 'legend:', '  - label: A', '    series: s9', 'rows:', '  - label: A', '    bars:', '      - width: 10', '        series: s1']));
-  assert.ok(wrongSeries.some((error) => error.path === '```bar-chart.legend[0].series' && /must be one of/.test(error.message)), JSON.stringify(wrongSeries));
+  // Two CTAs, two buttons in one, an empty component: all the author's call.
+  const many = page({
+    body: [
+      `${F}cta\ntitle: One\nbody: Copy.\nbuttons:\n  - label: A\n    url: /a/\n  - label: B\n    url: /b/\n${F}`,
+      `${F}cta\ntitle: Two\nbody: Copy.\n${F}`,
+      `${F}faq\n${F}`,
+    ].join('\n\n'),
+  });
+  const html = rendersCleanly(many);
+  assert.equal((html.match(/class="cta-section"/g) || []).length, 2);
+  assert.equal((html.match(/class="btn-primary"/g) || []).length, 2);
 });
 
-test('a comparison-table trend cell rejects an unknown direction', () => {
-  const source = spoke().replace(
-    'A body paragraph in the first section.',
-    ['```comparison-table', 'columns:', '  - label: Vendor', '  - label: Trend', 'rows:', '  - cells:', '      - Salesforce', '      - trend:', '          direction: sideways', '          value: flat', '```'].join('\n'),
+test('a citation marker with no citations list is the author\'s business, not the renderer\'s', () => {
+  assert.match(rendersCleanly(page({ body: 'A claim with a marker.[^7]' })), /<sup><a href="#citation-7">\[7\]<\/a><\/sup>/);
+});
+
+test('two sections may share an anchor, and two dark bands may sit together', () => {
+  const html = rendersCleanly(
+    page({
+      body: [':::section\nid: same\nband: tinted\n\n## First\n:::', ':::section\nid: same\nband: tinted\n\n## Second\n:::'].join('\n\n'),
+    }),
   );
-  const errors = errorsFor(source);
-  assert.ok(errors.some((error) => /must be one of: up, down, flat/.test(error.message)), JSON.stringify(errors));
+  assert.equal((html.match(/id="same"/g) || []).length, 2);
+  assert.equal((html.match(/class="page-section tinted"/g) || []).length, 2);
+});
+
+test('a ```section block only annotates its heading', () => {
+  assert.match(rendersCleanly(spoke()), /<div class="section-eyebrow">Why It Matters<\/div>\s*<h2>Why Does This Matter Right Now\?<\/h2>/);
+
+  const error = messageFor(page({ body: `## A heading\n\n${F}section\nid: why\n${F}` }), 'section "A heading".id');
+  assert.match(error.message, /is not a recognized key. Allowed keys: eyebrow, subtitle/);
+});
+
+test('malformed input fails with a clear parse error', () => {
+  assert.match(errorsFor('no frontmatter at all')[0].message, /Missing YAML frontmatter/);
+  assert.match(errorsFor('---\ntitle: A\n')[0].message, /Frontmatter is never closed/);
+  assert.match(errorsFor(page({ body: '# A single hash heading' }))[0].message, /A single "#" heading is not allowed/);
 });

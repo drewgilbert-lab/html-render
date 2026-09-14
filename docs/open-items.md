@@ -4,7 +4,7 @@ What is outstanding in this repository, why, and what unblocks it. Reviewed when
 and whenever the design catalog refreshes.
 
 **This file is hand-kept, and that makes it the exception here.** Everything else this repo reports
-about coverage — `--audit`, `--components`, `--contract` — is generated from live state precisely so
+about coverage — `--audit` and `--components` — is generated from live state precisely so
 it cannot drift. A list like this one can and will drift. Two rules keep it honest:
 
 - **Never restate a number this repo can generate.** Where a section needs the component picture,
@@ -14,12 +14,12 @@ it cannot drift. A list like this one can and will drift. Two rules keep it hone
 
 ```bash
 node bin/html-render.js --audit /path/to/claude-design-export   # coverage vs. the export
-node bin/html-render.js --components                            # what is implemented now
+node bin/html-render.js --components                            # the catalog, as shipped downstream
 ```
 
-Last reviewed: **2026-09-10**, against Claude Design export build
+Last reviewed: **2026-09-14**, against Claude Design export build
 `HGInsightsMarketingDesignSystem_3bf70b` (the 2026-09-01 recompile — same namespace, different
-contents; see §4) and `html-render` v1.8.0.
+contents; see §4) and `html-render` v2.0.0.
 
 ---
 
@@ -57,6 +57,32 @@ the fix is something that reads the field contracts, not a narrower regex.
 
 ## 2. Consumer migration
 
+**v2.0.0 removed the page classes, and every consumer skill needs rewriting.** The renderer no
+longer decides what a page contains or in what order; a document composes itself in body order.
+See `CHANGELOG.md` for the full list. What this means downstream, per skill:
+
+- The ASCII "Page chrome" block in each SKILL.md is no longer a description of renderer
+  behaviour — it becomes the body the skill emits. That closes the drift this whole change was
+  for: **14 skills restated the chrome order, 14 still told authors to write `pills` (accepted
+  and discarded since v1.7.0), 11 described an "On This Page" jump nav removed in v1.6.0, and 5
+  named `freshness.cadence` (also discarded).** None of those are possible any more, because
+  there is nothing to restate.
+- Every string the renderer used to inject must now be authored: FAQ and citations eyebrows,
+  `"Read the guide"` on related cards, the `"Data last updated: "` prefix, side-nav and jump-nav
+  labels, the in-production badge.
+- Content requirements that were renderer errors are now the skill's own checks, or
+  `geo-lint.py`'s. Both consumers already run that gate, so it is the natural home; whether it
+  absorbs the 33 page-class requirements or the skills carry them in their checklists is a
+  decision for that repo.
+- `.section-header` and the automatic `.grouping-block` around each `###` are gone, so pages of
+  the old pillar, cluster, and banded-spoke shapes render visibly differently. Decided
+  deliberately (2026-09-14) rather than relocating the behaviour into a region option.
+
+**Nothing has migrated yet.** No tag has been cut, so the catalog file downstream still reflects
+v1.8.0 and no skill has been touched.
+
+### Before v2.0.0
+
 **All 13 page-building skills in `geo-spoke-builder` are on this renderer as of 2026-09-01.**
 The first migration landed with `create-glossary-spoke` (geo-spoke-builder#24, plugin 0.24.0), and
 its gap report drove the v1.3.0 extensions (`standalone`, `knows_about`, provenance keys, citations
@@ -75,7 +101,8 @@ re-stamp only its `commit=` line.
 
 **Every remaining spoke format is `banded`; only the glossary is `article`.** The consumer chose the
 variant from each skill's own design specification (stat hero, freshness bar), which is
-why [page-layouts.md](page-layouts.md) re-mapped five formats in v1.5.0. Where a format's opening
+why the renderer's own docs re-mapped five formats in v1.5.0 (that mapping table is deleted in
+v2.0.0 — which content format looks like what is the consumer's knowledge, not this repo's). Where a format's opening
 block carries a number only when the topic has one, the skill falls back to `article` at run time
 rather than inventing a stat card. Both spoke variants now always emit the sticky side-nav rail
 (see `CHANGELOG.md` v1.6.0); skill copy that still describes an "On This Page jump nav"

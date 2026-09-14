@@ -7,164 +7,7 @@ const path = require('node:path');
 
 const { render } = require('../src/index');
 const { DEFAULTS, PAGE_CLASS_TOKEN } = require('../src/config');
-const { pillar, cluster, spoke, bandedSpoke, body, EXAMPLE_CONFIG, HERO_WITH_THESIS, INTRO } = require('./helpers');
-
-test('valid Pillar Markdown renders the Pillar layout', () => {
-  const { html, pageType } = body(pillar());
-  assert.equal(pageType, 'pillar');
-
-  // Component order is fixed by the layout.
-  const order = [
-    'class="breadcrumb-bar"',
-    'class="hero" id="hero"',
-    'class="freshness-bar"',
-    'class="hub-intro-section" id="overview"',
-    'class="article-body-section"',
-    'class="main-col"',
-    'class="sidenav"',
-    'class="faq-section',
-    'class="cta-section" id="cta"',
-  ];
-  let cursor = -1;
-  for (const marker of order) {
-    const at = html.indexOf(marker);
-    assert.ok(at > -1, `missing ${marker}`);
-    assert.ok(at > cursor, `${marker} is out of order`);
-    cursor = at;
-  }
-
-  // Pillar body sections live in the narrow article column with left-aligned headers.
-  assert.match(html, /<section id="why">/);
-  assert.match(html, /class="section-header align-left"/);
-  // Auto table of contents and side nav both resolve to the body sections.
-  assert.match(html, /<a href="#why"><span class="hub-toc-dot"><\/span>Why It Matters<\/a>/);
-  // The rail renders; its heading is authored, so an unlabelled fixture leaves it empty.
-  assert.match(html, /<div class="nav-head"><\/div>/);
-  assert.match(html, /class="freshness-bar"/);
-  assert.match(html, /class="freshness-text">Q3 2026</);
-  assert.doesNotMatch(html, /hero-eyebrow/);
-  assert.doesNotMatch(html, /class="pill"/);
-  assert.doesNotMatch(html, /section-rule/);
-  assert.doesNotMatch(html, /class="btn-secondary"/);
-  // Body only: no document scaffolding, navigation, or footer.
-  assert.doesNotMatch(html, /<html|<head|<body|wp-header-placeholder|wp-footer-placeholder/);
-});
-
-test('valid Cluster Markdown renders the Cluster layout with the resource index after the first section', () => {
-  const { html, pageType } = body(cluster());
-  assert.equal(pageType, 'cluster');
-
-  const firstSection = html.indexOf('<section class="page-section" id="why">');
-  const resourceIndex = html.indexOf('class="data-cuts-section" id="resource-index"');
-  const secondSection = html.indexOf('id="program"');
-  assert.ok(firstSection > -1 && resourceIndex > firstSection && secondSection > resourceIndex);
-
-  // Cluster sections are full-width bands that alternate.
-  assert.match(html, /<section class="page-section tinted" id="program">/);
-  assert.match(html, /class="freshness-bar"/);
-  assert.match(html, /class="freshness-text">Q3 2026</);
-  assert.doesNotMatch(html, /hero-eyebrow/);
-  assert.doesNotMatch(html, /class="pill"/);
-  assert.doesNotMatch(html, /section-rule/);
-  assert.doesNotMatch(html, /class="btn-secondary"/);
-  // The thesis band is absent when no hero thesis is supplied.
-  assert.doesNotMatch(html, /thesis-wrap/);
-  // Cluster has no right-rail nav.
-  assert.doesNotMatch(html, /class="sidenav"/);
-});
-
-test('valid Spoke Markdown renders the article variant', () => {
-  const { html, pageType, layout } = body(spoke());
-  assert.equal(pageType, 'spoke');
-  assert.equal(layout, 'article');
-  assert.match(html, /class="container article-hero"/);
-  assert.match(html, /class="spoke-body-section"/);
-  assert.match(html, /class="spoke-col article-body"/);
-  assert.match(html, /class="related-hubs-section(?: on-white)?" id="related"/);
-  assert.match(html, /class="sidenav"/);
-  assert.match(html, /<div class="nav-cta">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
-  assert.match(html, /class="cta-section" id="cta"/);
-  assert.match(html, /<div class="cta-buttons">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
-  assert.doesNotMatch(html, /class="btn-secondary"/);
-  assert.match(html, /class="freshness-bar"/);
-  assert.match(html, /class="freshness-text">Q3 2026</);
-  assert.doesNotMatch(html, /section-rule/);
-  assert.doesNotMatch(html, /class="pill"/);
-  // The article variant does not use the gradient hero or a jump nav.
-  assert.doesNotMatch(html, /class="hero" id="hero"/);
-  assert.doesNotMatch(html, /class="hub-toc"/);
-});
-
-test('the banded Spoke variant uses the gradient hero, section bands, and the side-nav rail', () => {
-  const { html, layout } = body(bandedSpoke(`${INTRO}\n`, HERO_WITH_THESIS));
-  assert.equal(layout, 'banded');
-  assert.match(html, /class="hero" id="hero"/);
-  assert.match(html, /<section class="page-section" id="why">/);
-  assert.match(html, /class="spoke-body-section"/);
-  assert.match(html, /class="sidenav"/);
-  assert.match(html, /class="hub-intro-section no-toc" id="overview"/);
-  assert.match(html, /<h2 class="hub-intro-title">What this guide covers<\/h2>/);
-  assert.match(html, /<div class="nav-cta">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
-  assert.doesNotMatch(html, /class="article-hero"/);
-  assert.doesNotMatch(html, /class="hub-toc"/);
-  assert.doesNotMatch(html, /hero-eyebrow/);
-  assert.doesNotMatch(html, /class="pill"/);
-  assert.match(html, /class="freshness-bar"/);
-  assert.match(html, /class="freshness-text">Q3 2026</);
-  assert.doesNotMatch(html, /freshness-cadence|methodology-link/);
-  assert.doesNotMatch(html, /section-rule/);
-  // Thesis lives in the reading column, not inside the hero.
-  const heroEnd = html.indexOf('</section>', html.indexOf('class="hero" id="hero"'));
-  const spokeCol = html.indexOf('class="spoke-col"');
-  const thesis = html.indexOf('class="thesis-block"');
-  assert.ok(thesis > heroEnd && thesis > spokeCol, 'banded thesis should sit in .spoke-col, not the hero');
-  assert.match(html, /<div class="cta-buttons">[\s\S]*?<a class="btn-primary" href="https:\/\/hginsights\.com\/demo">Book a Demo<\/a>/);
-  assert.doesNotMatch(html, /class="btn-secondary"/);
-});
-
-test('a hero thesis renders in the Pillar reading column and as a band on a Cluster', () => {
-  const pillarHtml = body(pillar('', HERO_WITH_THESIS)).html;
-  const pillarHeroEnd = pillarHtml.indexOf('</section>', pillarHtml.indexOf('class="hero" id="hero"'));
-  const pillarThesis = pillarHtml.indexOf('class="thesis-block"');
-  assert.ok(pillarThesis > pillarHeroEnd, 'pillar thesis should sit after the hero');
-  assert.match(pillarHtml, /class="main-col"[\s\S]*?<p class="thesis-block">A forty word statement/);
-  assert.doesNotMatch(pillarHtml, /thesis-wrap/);
-
-  const clusterHtml = body(cluster('', HERO_WITH_THESIS)).html;
-  assert.match(clusterHtml, /<div class="thesis-wrap">/);
-  // The cluster hero itself carries no thesis block.
-  assert.doesNotMatch(clusterHtml.slice(0, clusterHtml.indexOf('thesis-wrap')), /thesis-block/);
-});
-
-test('optional page slots appear only when supplied', () => {
-  const bare = body(pillar()).html;
-  assert.match(bare, /class="freshness-bar"/);
-  assert.doesNotMatch(bare, /citations-section|methodology-section|related-hubs-section/);
-  assert.doesNotMatch(bare, /freshness-cadence|methodology-link/);
-
-  const extras = [
-    'freshness:',
-    '  label: Q3 2026',
-    '  note: Reflects HG Insights telemetry',
-    'methodology:',
-    '  title: How we measure this',
-    '  body: One paragraph explaining the method.',
-    '  caveat: Install share is not revenue share.',
-    'citations:',
-    '  items:',
-    '    - source: Google Search Central',
-    '      title: AI Features and Your Website',
-    '      url: https://developers.google.com/search/docs/appearance/ai-features',
-    '',
-  ].join('\n');
-  const full = body(pillar(extras)).html;
-  assert.match(full, /class="freshness-bar"/);
-  assert.doesNotMatch(full, /freshness-cadence|methodology-link/);
-  assert.match(full, /class="methodology-section" id="methodology"/);
-  assert.match(full, /class="citations-section" id="citations"/);
-  // Methodology sits between the body and the FAQ.
-  assert.ok(full.indexOf('id="methodology"') < full.indexOf('id="faq"'));
-});
+const { page, pillar, cluster, spoke, bandedSpoke, body, EXAMPLE_CONFIG, HERO_WITH_THESIS, INTRO } = require('./helpers');
 
 test('the FAQ renders as a static Q&A list, with no accordion affordance', () => {
   const html = body(pillar()).html;
@@ -183,7 +26,7 @@ test('the FAQ renders as a static Q&A list, with no accordion affordance', () =>
 test('render options control the emitted wrapper assets', () => {
   const plain = render(pillar(), { config: EXAMPLE_CONFIG, styles: false, script: false, schema: false }).html;
   assert.doesNotMatch(plain, /<style>|<script/);
-  assert.match(plain, new RegExp(`<div class="${DEFAULTS.pageClass}" data-page-type="pillar">`));
+  assert.match(plain, new RegExp(`<div class="${DEFAULTS.pageClass}">`));
 
   const withFont = render(pillar(), { config: EXAMPLE_CONFIG }).html;
   assert.match(withFont, /@import url\('https:\/\/fonts\.googleapis\.com/);
@@ -192,7 +35,6 @@ test('render options control the emitted wrapper assets', () => {
 
 test('the comment header carries the values the publishing site needs', () => {
   const { html, meta } = render(pillar(), { config: EXAMPLE_CONFIG });
-  assert.match(html, /Page type {8}pillar/);
   assert.match(html, /Canonical URL {4}https:\/\/hginsights\.com\/geo\/test-page\//);
   assert.equal(meta.sections, 2);
   assert.ok(meta.words > 0);
@@ -231,59 +73,18 @@ test('tables wrap in place and never use a horizontal slider', () => {
   assert.doesNotMatch(css, /\.comparison-table thead th \{[^}]*white-space: nowrap/);
 });
 
-test('consecutive tinted body sections force the second onto white', () => {
-  const source = bandedSpoke()
-    .replace('id: why\nnav_label: Why It Matters', 'id: why\nnav_label: Why It Matters\nband: tinted')
-    .replace('id: program', 'id: program\nband: tinted');
-  const html = body(source).html;
-  assert.match(html, /<section class="page-section tinted" id="why">/);
-  assert.match(html, /<section class="page-section" id="program">/);
-});
-
-test('methodology followed by FAQ forces FAQ onto white', () => {
-  const html = body(
-    pillar('methodology:\n  title: How we measure this\n  body: One paragraph explaining the method.\n'),
-  ).html;
-  assert.match(html, /class="methodology-section" id="methodology"/);
-  assert.doesNotMatch(html, /methodology-section on-white/);
-  assert.match(html, /class="faq-section on-white" id="faq"/);
-});
-
-test('related is forced onto white so it does not sit against the CTA', () => {
-  const html = body(spoke()).html;
-  assert.match(html, /class="related-hubs-section on-white" id="related"/);
-});
-
-test('a body Citations section is omitted when the formatted slot is present', () => {
-  const extras = [
-    'citations:',
-    '  items:',
-    '    - source: Google Search Central',
-    '      title: AI Features and Your Website',
-    '      url: https://developers.google.com/search/docs/appearance/ai-features',
-    '',
-  ].join('\n');
-  const source = `${pillar(extras)}\n## Citations\n\n1. Google Search Central: a dumped list item.\n`;
-  const html = body(source).html;
-  assert.match(html, /class="citations-section" id="citations"/);
-  assert.equal((html.match(/id="citations"/g) || []).length, 1);
-  assert.doesNotMatch(html, /a dumped list item/);
-  assert.match(html, /citation-source">Google Search Central<\/span>/);
-});
-
 test('footnote definition lines are not rendered next to the formatted citations slot', () => {
-  const extras = [
-    'citations:',
-    '  items:',
-    '    - source: Google Search Central',
-    '      title: AI Features and Your Website',
-    '      url: https://developers.google.com/search/docs/appearance/ai-features',
-    '',
+  const citations = [
+    '```citations',
+    'items:',
+    '  - source: Google Search Central',
+    '    title: AI Features and Your Website',
+    '    url: https://developers.google.com/search/docs/appearance/ai-features',
+    '```',
   ].join('\n');
-  const source = pillar(extras).replace(
-    'A body paragraph in the first section.',
-    'A body paragraph in the first section.[^1]\n\n[^1]: Google Search Central: dumped definition.\n',
-  );
+  const source = page({
+    body: `A body paragraph.[^1]\n\n[^1]: Google Search Central: dumped definition.\n\n${citations}`,
+  });
   const html = body(source).html;
   assert.match(html, /href="#citation-1"/);
   assert.doesNotMatch(html, /dumped definition/);

@@ -58,20 +58,38 @@ function splitFrontmatter(source) {
 }
 
 /**
- * Parse the Markdown body into sections.
- * Returns { preamble, sections, citationRefs }.
+ * Parse the Markdown body.
+ *
+ * Returns { preamble, sections, nodes, citationRefs }. Two views of the same
+ * blocks, for the two render paths:
+ *
+ *   preamble / sections  the legacy view, where a "##" heading owns everything
+ *                        beneath it. The page-class layouts read this.
+ *   nodes                the document-order view: one flat list in the order
+ *                        the author wrote it, where a "##" is a heading node
+ *                        rather than a container and ":::" opens a region.
+ *                        The body walk reads this.
+ *
+ * The blocks themselves are the same objects in both, so neither view can
+ * disagree with the other about content — only about nesting.
  */
 function parseBody(body, lineOffset = 0) {
   const lines = String(body == null ? '' : body).split('\n');
   const ctx = { citationRefs: new Map() };
   const preamble = [];
   const sections = [];
+  const nodes = [];
+  // Open regions, innermost last. Everything is appended to the top of it.
+  const open = [{ name: null, nodes }];
   let current = null;
   let i = 0;
+
+  const flat = (node) => open[open.length - 1].nodes.push(node);
 
   const push = (block) => {
     if (!block) return;
     (current ? current.blocks : preamble).push(block);
+    flat(block);
   };
 
   while (i < lines.length) {
@@ -92,12 +110,51 @@ function parseBody(body, lineOffset = 0) {
       continue;
     }
 
+    // ---- region ----------------------------------------------------------
+    // ":::name" opens a wrapper the author controls; ":::" closes the innermost
+    // one. Attribute lines may follow the opener and end at the first blank line.
+    if (/^:::/.test(trimmed)) {
+      const name = trimmed.slice(3).trim();
+      if (!name) {
+        if (open.length === 1) throw new MarkdownError('A ":::" closer has no open region', line);
+        open.pop();
+        i += 1;
+        continue;
+      }
+      if (!/^[a-z][a-z0-9-]*$/.test(name)) {
+        throw new MarkdownError(`":::${name}" is not a usable region name. Use lowercase letters, digits, and hyphens`, line);
+      }
+      const attrLines = [];
+      let j = i + 1;
+      while (j < lines.length && lines[j].trim() !== '') {
+        attrLines.push(lines[j]);
+        j += 1;
+      }
+      let attrs = {};
+      if (attrLines.length) {
+        try {
+          attrs = parseYaml(attrLines.join('\n'), line + 1) || {};
+        } catch (err) {
+          if (err instanceof YamlError) {
+            throw new MarkdownError(`Invalid attributes on ":::${name}": ${err.message}`, err.line || line);
+          }
+          throw err;
+        }
+      }
+      const region = { type: 'region', name, attrs, nodes: [], line };
+      flat(region);
+      open.push(region);
+      i = j;
+      continue;
+    }
+
     // ---- section heading -------------------------------------------------
     if (/^##\s+/.test(trimmed) && !/^###/.test(trimmed)) {
       const title = trimmed.replace(/^##\s+/, '').trim();
       if (!title) throw new MarkdownError('Empty "##" heading', line);
       current = { title, titleHtml: renderInline(title, ctx), meta: {}, blocks: [], line };
       sections.push(current);
+      flat({ type: 'heading2', title, html: current.titleHtml, line });
       i += 1;
       continue;
     }
@@ -157,6 +214,8 @@ function parseBody(body, lineOffset = 0) {
         }
         current.meta = data || {};
         current.metaLine = line;
+        const heading = lastHeading(open[open.length - 1].nodes);
+        if (heading) heading.meta = current.meta;
       } else {
         push({ type: 'component', name, data: data || {}, line });
       }
@@ -248,6 +307,7 @@ function parseBody(body, lineOffset = 0) {
       const value = lines[j].trim();
       if (value === '') break;
       if (/^(##|###)\s+/.test(value)) break;
+      if (/^:::/.test(value)) break;
       if (/^(`{3,}|~{3,})/.test(value)) break;
       if (/^>\s?/.test(value)) break;
       if (/^[-*+]\s+/.test(value) || /^\d+[.)]\s+/.test(value)) break;
@@ -260,7 +320,19 @@ function parseBody(body, lineOffset = 0) {
     i = j;
   }
 
-  return { preamble, sections, citationRefs: ctx.citationRefs };
+  if (open.length > 1) {
+    throw new MarkdownError(`Unclosed ":::${open[open.length - 1].name}" region: add a ":::" closer`, open[open.length - 1].line);
+  }
+
+  return { preamble, sections, nodes, citationRefs: ctx.citationRefs };
+}
+
+/** The most recent "##" node in a list, so a ```section block can annotate it. */
+function lastHeading(list) {
+  for (let i = list.length - 1; i >= 0; i -= 1) {
+    if (list[i].type === 'heading2') return list[i];
+  }
+  return null;
 }
 
 function isDelimiterRow(raw) {

@@ -87,39 +87,6 @@ test('howto frontmatter plus a flagged process-steps block emits a HowTo whose s
   assert.match(render(source, { config: EXAMPLE_CONFIG }).html, /<div class="process-step" id="level-1">/);
 });
 
-test('howto without a flagged block is rejected at the howto key', () => {
-  const errors = errorsFor(bandedSpoke('howto:\n  name: How to do it\n'));
-  const match = errors.find((error) => error.path === 'howto');
-  assert.ok(match, `expected an error on howto, got ${JSON.stringify(errors)}`);
-  assert.match(match.message, /howto: true/);
-});
-
-test('a flagged block without howto frontmatter is rejected at the block', () => {
-  const errors = errorsFor(bandedSpoke().replace('A body paragraph in the second section.', STEPS));
-  const match = errors.find((error) => error.path === '```process-steps');
-  assert.ok(match, `expected an error on the block, got ${JSON.stringify(errors)}`);
-  assert.match(match.message, /declares no `howto`/);
-});
-
-test('two flagged blocks are rejected, naming the second', () => {
-  const source = bandedSpoke('howto:\n  name: How to do it\n')
-    .replace('A body paragraph in the first section.', STEPS)
-    .replace('A body paragraph in the second section.', STEPS.replace('level-1', 'gate-1').replace('level-2', 'gate-2'));
-  const errors = errorsFor(source);
-  assert.ok(errors.some((error) => /second block/.test(error.message)), JSON.stringify(errors));
-});
-
-test('step ids must be lowercase slugs, unique against sections and each other', () => {
-  const bad = bandedSpoke('howto:\n  name: X\n').replace('A body paragraph in the second section.', STEPS.replace('id: level-1', 'id: Level One'));
-  assert.ok(errorsFor(bad).some((error) => /not a usable anchor/.test(error.message)));
-
-  const clash = bandedSpoke('howto:\n  name: X\n').replace('A body paragraph in the second section.', STEPS.replace('id: level-1', 'id: why'));
-  assert.ok(errorsFor(clash).some((error) => /already the anchor of section/.test(error.message)));
-
-  const dup = bandedSpoke('howto:\n  name: X\n').replace('A body paragraph in the second section.', STEPS.replace('id: level-2', 'id: level-1'));
-  assert.ok(errorsFor(dup).some((error) => /already used by another step/.test(error.message)));
-});
-
 test('a page without howto emits no HowTo and process-steps render as before', () => {
   const plain = bandedSpoke().replace(
     'A body paragraph in the second section.',
@@ -145,13 +112,6 @@ test('item_list emits an ItemList the Article is about, resolving #anchors again
   assert.equal(list.itemListElement[0].description, 'Cross-references intent against verified installs.');
   assert.equal(list.itemListElement[1].url, undefined);
   assert.equal(nodeOf(graph, 'Article').about['@id'], list['@id']);
-});
-
-test('an item_list anchor that points nowhere is rejected with the anchors that exist', () => {
-  const errors = errorsFor(spoke('item_list:\n  name: Options\n  items:\n    - name: A\n      url: "#nowhere"\n'));
-  const match = errors.find((error) => error.path === 'item_list.items[0].url');
-  assert.ok(match, JSON.stringify(errors));
-  assert.match(match.message, /Available anchors: .*why/);
 });
 
 test('the default item_list order is ascending', () => {
@@ -194,14 +154,6 @@ test('dataset.catalog adds a DataCatalog and links the two', () => {
   assert.equal(catalog['@id'], 'https://hginsights.com/research/#datacatalog');
   assert.equal(catalog.dataset['@id'], nodeOf(graph, 'Dataset')['@id']);
   assert.equal(nodeOf(graph, 'Dataset').includedInDataCatalog['@id'], catalog['@id']);
-});
-
-test('a dataset missing its mandatory coverage is rejected per key', () => {
-  const errors = errorsFor(bandedSpoke('dataset:\n  name: A dataset\n  description: About it.\n'));
-  const paths = errors.map((error) => error.path);
-  for (const key of ['dataset.variable_measured', 'dataset.temporal_coverage', 'dataset.spatial_coverage']) {
-    assert.ok(paths.includes(key), `expected ${key} in ${JSON.stringify(paths)}`);
-  }
 });
 
 /* ---- Service ----------------------------------------------------------- */
@@ -329,7 +281,7 @@ test('a pillar indexes its link-cards as an ItemList in body order, omitting in-
   assert.equal(list.itemListElement[1].url, undefined);
   // The Article root does not claim the index as `about`; a CollectionPage would as mainEntity.
   assert.equal(nodeOf(graph, 'Article').about, undefined);
-  const collection = graphOf(source.replace('page_type: pillar\n', 'page_type: pillar\narticle:\n  type: CollectionPage\n'));
+  const collection = graphOf(source.replace('published: 2026-08-11', 'published: 2026-08-11\narticle:\n  type: CollectionPage'));
   assert.equal(nodeOf(collection, 'CollectionPage').mainEntity['@id'], 'https://hginsights.com/geo/test-page/#index');
 });
 
@@ -339,13 +291,3 @@ test('a pillar with no link-cards emits no ItemList', () => {
 
 /* ---- Contract surface -------------------------------------------------- */
 
-test('the new keys appear in the printed contract for every page class', () => {
-  const { execFileSync } = require('node:child_process');
-  const path = require('node:path');
-  for (const type of ['pillar', 'cluster', 'spoke']) {
-    const printed = execFileSync(process.execPath, [path.join(__dirname, '..', 'bin', 'html-render.js'), '--contract', type], { encoding: 'utf8' });
-    for (const key of ['article', 'howto', 'item_list', 'dataset', 'service', 'term_set', 'software']) {
-      assert.match(printed, new RegExp(`^  ${key}(\\s|$)`, 'm'), `${type} contract is missing ${key}`);
-    }
-  }
-});

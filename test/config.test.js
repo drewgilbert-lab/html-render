@@ -58,7 +58,7 @@ test('config drives the organization, wrapper class, language, and webfont', () 
   assert.equal(nodeOf(graph, 'Article').publisher['@id'], 'https://acme.example/#org');
   assert.equal(nodeOf(graph, 'Article').inLanguage, 'en-GB');
 
-  assert.match(html, /<div class="acme-page" data-page-type="pillar">/);
+  assert.match(html, /<div class="acme-page">/);
   assert.match(html, /\.acme-page \.hero \{/);
   assert.match(html, /querySelector\('\.acme-page'\)/);
   assert.match(html, /@import url\('https:\/\/fonts\.googleapis\.com\/css2\?family=Inter&display=swap'\)/);

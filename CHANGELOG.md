@@ -10,6 +10,84 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
+## v2.0.0 — 2026-09-14, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
+
+**Breaking, and the largest change this renderer has had.** No catalog refresh: no
+component's markup or CSS changed. What changed is who decides.
+
+`html-render` no longer holds logic for what a page must contain, what order its parts
+appear in, or whether its content is acceptable. Those rules lived here *and* in the 14
+page-building skills that write the Markdown, and both copies had to be kept in step —
+which they were not. They now live in one place, the skills, and this renderer draws what
+the document declares.
+
+**Removed — the deciding layer.**
+
+- **Removed** the three page classes. `page_type`, `layout: article|banded`, and
+  `standalone` no longer exist and switch nothing; the wrapper carries no
+  `data-page-type`. `src/layouts/` is gone: four hard-coded compositions, the
+  band-adjacency override, the table-of-contents and freshness-label derivations, and the
+  silent suppression of a body Citations section.
+- **Removed** `src/validate/document-contract.js`: 33 `required: true` declarations, 6
+  content bounds, and the per-page-class contracts.
+- **Removed** 134 `required: true` and 27 `min`/`max` bounds across every component, the
+  `bar-chart` cross-field validator, 23 injected default strings (`"On This Page"`,
+  `"Read the guide"`, `"FAQ"`, `"References"`, `"Put This Data to Work"`,
+  `"[IMAGE NEEDED]"`, and the rest), and two hardcoded literals — the
+  `"Data last updated: "` prefix and the resource index's `"In production"`.
+- **Removed** 19 editorial validation rules: citation references must resolve, TOC anchors
+  must resolve, section anchors must be unique, a `howto` needs exactly one flagged
+  `process-steps` block, a Pillar rejects copy before its first heading.
+- **Removed** `--contract`, `src/describe.js`, `docs/page-layouts.md`,
+  `docs/markdown-contract.md`, and `docs/component-library.md`. The GEO format→variant
+  mapping table went with them: which content format looks like what is not this
+  renderer's knowledge to hold.
+
+**New — how a document composes itself.**
+
+- **New** the body walk. The body renders in the order it is written. Every component is a
+  fenced block; `:::name` opens a region and `:::` closes it, with attributes on the lines
+  after the opener. Regions nest.
+- **New** two regions, because two design-system wrappers cannot be expressed by a
+  component alone. `:::section` (`id`, `band: white|tinted`, `container`) and
+  `:::two-column` (`variant: spoke|article|reading`), where a `side-nav` inside becomes the
+  rail and everything else the column.
+- **New** `on_white` on `methodology`, `faq`, and `related` — the background override the
+  band logic used to apply for the author. The CSS modifier already existed.
+- **New** one component registry of 30. The blocks / page-slot split existed only because
+  the renderer owned composition; every component is now body-invokable.
+- **New** `--components` prints the whole catalog — components, regions, headings, and the
+  frontmatter the renderer reads but never draws — and is what the sync ships downstream.
+
+**Changed — the graph is read from the page.**
+
+- **Changed** `schema.js` reads the author from a `hero` or `article-hero`, the questions
+  from an `faq`, the trail from a `breadcrumb`, and the index from a `resource-index` or
+  the `link-card` blocks. Its four page-type branches are gone, replaced by presence. The
+  graph can no longer claim a byline, a question, or a trail the page does not show.
+- **Changed** frontmatter keeps only what has no pixels: page identity and the JSON-LD
+  nodes with no visible form. Their shapes are still checked — the renderer must be able to
+  serialize them — but nothing is required, and unknown keys are ignored rather than
+  rejected.
+- **Changed** an absent field normalizes to `''` rather than `null`, so a component omits
+  it instead of writing `null` into the output.
+- **Changed** section headings render plainly. The `.section-header` wrapper and the
+  automatic `.grouping-block` around each `###` were layout decisions and are dropped
+  rather than relocated. **This changes rendered output** for pages of the old pillar,
+  cluster, and banded-spoke shapes.
+
+**Evidence the composition survived.** `examples/spoke.md`, converted to body-order,
+renders byte-identically to the v1.8.0 output apart from the dropped `data-page-type`. All
+four example graphs are node-for-node identical to their v1.8.0 graphs — same `@id`s, same
+content — now derived from the body.
+
+**For `geo-spoke-builder`:** every skill must now emit its own composition and its own
+copy. A page relying on an injected default renders an empty element; a page relying on a
+page-class contract renders whatever it declares. The catalog file the sync ships is
+renamed in spirit — it is a catalog, not a contract, and says so.
+
+---
+
 ## v1.8.0 — 2026-09-10, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
 
 A template change, not a catalog refresh. Four page-wide layout rules: more

@@ -1,23 +1,23 @@
 'use strict';
 
 /**
- * Shared body-block rendering.
+ * Body-block rendering: what a paragraph, list, table, rule, or heading becomes.
  *
- * Layouts differ in how they *frame* a section (narrow article column, banded
- * full-width section, centred or left-aligned header). What goes *inside* a
- * section is identical everywhere, and lives here.
+ * The document decides where these appear; this module only decides what each
+ * one looks like.
  */
 
-const { el, lines, indent } = require('../html');
-const { renderBlock } = require('../components');
+const { el, lines, indent } = require('./html');
+const { renderBlock } = require('./components');
 
-/** Section-level metadata an author may set with a ```section block. */
+/**
+ * What a ```section block may say about the "##" heading above it. The anchor
+ * and the band belong to the enclosing `:::section` region; the nav label
+ * belongs to whatever side-nav or intro-toc the document writes.
+ */
 const SECTION_FIELDS = {
   eyebrow: { type: 'text' },
   subtitle: { type: 'text' },
-  id: { type: 'plain', hint: 'overrides the anchor derived from the heading' },
-  nav_label: { type: 'text', hint: 'shorter label used in the table of contents' },
-  band: { type: 'enum', values: ['white', 'tinted'], hint: 'overrides the alternating band colour' },
 };
 
 function renderNode(node, options) {
@@ -77,33 +77,4 @@ function renderTable(node) {
   return lines(table, node.caption ? el('p', { class: 'table-caption' }, node.caption) : '');
 }
 
-/**
- * Render a list of body nodes. When `groupByH3` is set, each `###` heading and
- * the nodes beneath it are wrapped in a `.grouping-block` — the cluster page's
- * grouping pattern.
- */
-function renderNodes(nodes, options = {}) {
-  if (!options.groupByH3) return lines(nodes.map((node) => renderNode(node, options)));
-
-  const out = [];
-  let group = null;
-  const flush = () => {
-    if (group) {
-      out.push(el('div', { class: 'grouping-block' }, `\n${indent(lines(group))}\n`));
-      group = null;
-    }
-  };
-  for (const node of nodes) {
-    if (node.type === 'heading3') {
-      flush();
-      group = [renderNode(node, options)];
-      continue;
-    }
-    if (group) group.push(renderNode(node, options));
-    else out.push(renderNode(node, options));
-  }
-  flush();
-  return lines(out);
-}
-
-module.exports = { SECTION_FIELDS, renderNodes };
+module.exports = { SECTION_FIELDS, renderNode };

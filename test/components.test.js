@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { blocks, page, components, renderBlock } = require('../src/components');
+const { components, renderBlock } = require('../src/components');
 const { normalizeFields } = require('../src/validate/fields');
 const { initials } = require('../src/html');
 const { body, pillar } = require('./helpers');
@@ -14,7 +14,7 @@ function block(name, data) {
 }
 
 test('every component declares a contract and a design source', () => {
-  for (const component of [...blocks.values(), ...page.values()]) {
+  for (const component of components.values()) {
     assert.ok(component.summary, `${component.name} has no summary`);
     assert.ok(component.source, `${component.name} has no design source`);
     assert.ok(component.fields && Object.keys(component.fields).length, `${component.name} has no fields`);
@@ -148,7 +148,7 @@ test('related-cards and the related page band share one card implementation', ()
   assert.match(inline, /class="related-hub-card" href="\/geo\/calc\/"/);
   assert.match(inline, /class="related-hub-link">Read the guide &rarr;</);
 
-  const slot = page.get('related').render({
+  const slot = components.get('related').render({
     eyebrow: 'Keep Going',
     title: 'Where to go next',
     items: [{ tag: 'Methodology', title: 'How to calculate', url: '/geo/calc/', description: 'The formula.', link_text: 'See it' }],
@@ -358,15 +358,6 @@ test('a blockquote becomes the thesis block and lists get their branded classes'
   assert.match(html, /<ol class="numbered-list">/);
 });
 
-test('a cluster wraps ### groups in a grouping block', () => {
-  const { cluster } = require('./helpers');
-  const source = cluster().replace(
-    'A body paragraph in the first section.',
-    ['### A grouping heading', '', 'Copy under the grouping.'].join('\n'),
-  );
-  const { html } = body(source);
-  assert.match(html, /<div class="grouping-block">\s*<h3 class="grouping-h2">A grouping heading<\/h3>/);
-});
 
 test('every component renders from nothing: no requirement, no throw, no leaked null', () => {
   // The contract of the component layer after the requirement strip: a

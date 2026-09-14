@@ -1,6 +1,6 @@
 {
   "name": "html-render",
-  "version": "1.8.0",
+  "version": "2.0.0",
   "description": "Deterministic Markdown-to-HTML page-body renderer. Renderer-ready Markdown in, an approved design-system HTML page body out, for insertion into an existing page container.",
   "type": "commonjs",
   "private": true,
@@ -17,9 +17,9 @@
     "syncedAt": "2026-09-01"
   },
   "scripts": {
-    "render:examples": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md --config examples/html-render.config.json --out-dir output --preview",
+    "render:examples": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md examples/body-order.md --config examples/html-render.config.json --out-dir output --preview",
     "test": "node --test test/*.test.js",
-    "check": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md --config examples/html-render.config.json --check"
+    "check": "node bin/html-render.js examples/pillar.md examples/cluster.md examples/spoke.md examples/spoke-banded.md examples/body-order.md --config examples/html-render.config.json --check"
   },
   "dependencies": {},
   "devDependencies": {}
