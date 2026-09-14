@@ -35,9 +35,11 @@ function validateDocument(parsed) {
   const frontmatter = parsed.frontmatter || {};
   const pageType = frontmatter.page_type;
 
+  // No page class: the document composes itself, so there is no page-class
+  // contract to hold it to. Only what the renderer cannot render is an error.
   if (isBlank(pageType)) {
-    report.add('page_type', `is required. Supported page types: ${PAGE_TYPES.join(', ')}`, locOf(frontmatter, 'page_type'));
-    return { report, pageType: null, layout: null, sections: [] };
+    validateBodyBlocks(parsed, report);
+    return { report, pageType: null, layout: null, sections: resolveSections(parsed.body.sections) };
   }
   if (!PAGE_TYPES.includes(String(pageType))) {
     report.add(
@@ -224,6 +226,20 @@ function validateDocument(parsed) {
   }
 
   return { report, pageType, layout, sections };
+}
+
+/**
+ * The checks that apply to any document: a component must exist and its input
+ * must be the shape its fields declare. Nothing here is a content requirement.
+ */
+function validateBodyBlocks(parsed, report) {
+  const walk = (nodes) => {
+    for (const node of nodes || []) {
+      if (node.type === 'region') walk(node.nodes);
+      else if (node.type === 'component') validateBlock(node, `\`\`\`${node.name}`, report);
+    }
+  };
+  walk(parsed.body.nodes);
 }
 
 /** Resolve each section's anchor and nav label, deterministically. */

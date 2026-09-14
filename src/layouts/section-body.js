@@ -106,4 +106,4 @@ function renderNodes(nodes, options = {}) {
   return lines(out);
 }
 
-module.exports = { SECTION_FIELDS, renderNodes };
+module.exports = { SECTION_FIELDS, renderNode, renderNodes };

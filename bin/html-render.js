@@ -197,7 +197,7 @@ function main() {
     try {
       if (options.check) {
         const doc = parseDocument(fs.readFileSync(resolved, 'utf8'), { file: input });
-        process.stdout.write(`ok    ${input} — ${doc.pageType}${doc.layout ? ` (${doc.layout})` : ''}, ${doc.sections.length} sections\n`);
+        process.stdout.write(`ok    ${input} — ${doc.pageType ? `${doc.pageType}${doc.layout ? ` (${doc.layout})` : ''}, ` : ''}${doc.sections.length} sections\n`);
         continue;
       }
 
@@ -224,7 +224,7 @@ function main() {
         fs.writeFileSync(target.replace(/\.html$/, '.preview.html'), previewDocument(result), 'utf8');
       }
       process.stdout.write(
-        `wrote ${path.relative(process.cwd(), target)} — ${result.meta.pageType}${result.layout ? ` (${result.layout})` : ''}, ${result.meta.sections} sections, ~${result.meta.words} words\n`,
+        `wrote ${path.relative(process.cwd(), target)} — ${result.meta.pageType ? `${result.meta.pageType}${result.layout ? ` (${result.layout})` : ''}, ` : ''}${result.meta.sections} sections, ~${result.meta.words} words\n`,
       );
     } catch (error) {
       failures += 1;

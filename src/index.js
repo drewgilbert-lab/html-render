@@ -21,6 +21,7 @@ const { parseYaml, YamlError } = require('./parse/yaml');
 const { validateDocument, ValidationError } = require('./validate/validate');
 const { plainText } = require('./validate/fields');
 const { layoutFor } = require('./layouts');
+const { renderBody } = require('./body');
 const { renderSchema } = require('./schema');
 const { escapeText, indent, lines } = require('./html');
 const { resolveConfig, requireOrganization, rendererVersion, PAGE_CLASS_TOKEN, DEFAULTS } = require('./config');
@@ -84,7 +85,7 @@ function parseDocument(source, { file } = {}) {
   const { report, pageType, layout, sections } = validateDocument(parsed);
   if (!report.ok) throw new ValidationError(report.errors, file);
 
-  return { frontmatter, pageType, layout, sections, preamble: body.preamble };
+  return { frontmatter, pageType, layout, sections, preamble: body.preamble, body };
 }
 
 /**
@@ -99,8 +100,10 @@ function render(source, options = {}) {
   // Fail on missing identity before doing the work, not once the graph is reached.
   if (settings.schema) requireOrganization(config);
   const doc = parseDocument(source, settings);
-  const layout = layoutFor(doc.pageType);
-  const bodyHtml = layout.render(doc);
+  // A document with no page class composes itself: render it in the order it
+  // was written. One with a page class still goes through that class's layout,
+  // until the layouts are removed.
+  const bodyHtml = doc.pageType ? layoutFor(doc.pageType).render(doc) : renderBody(doc.body.nodes);
 
   const parts = [];
   if (settings.styles) {
@@ -116,7 +119,8 @@ function render(source, options = {}) {
     parts.push(`<script>\n${behaviourScript(config.pageClass)}\n</script>`);
   }
 
-  const wrapped = `<div class="${config.pageClass}" data-page-type="${escapeText(doc.pageType)}">\n${indent(lines(parts))}\n</div>`;
+  const wrapperAttrs = doc.pageType ? ` data-page-type="${escapeText(doc.pageType)}"` : '';
+  const wrapped = `<div class="${config.pageClass}"${wrapperAttrs}>\n${indent(lines(parts))}\n</div>`;
   const meta = buildMeta(doc, bodyHtml);
   return { html: `${header(meta, config)}\n${wrapped}\n`, meta, config, pageType: doc.pageType, layout: doc.layout };
 }
@@ -156,7 +160,8 @@ function header(meta, config) {
   // A hyphen pair would close the comment; the rows are sanitized the same way.
   const owner = config.organization ? `${config.organization.name.replace(/--/g, '-')} ` : '';
   const rows = [
-    `Page type        ${meta.pageType}${meta.layout ? ` (${meta.layout} layout)` : ''}`,
+    // A document with no page class says so by omission, not by printing "null".
+    ...(meta.pageType ? [`Page type        ${meta.pageType}${meta.layout ? ` (${meta.layout} layout)` : ''}`] : []),
     `Title            ${meta.title}`,
     `Meta description ${meta.description}`,
     `Canonical URL    ${meta.url}`,

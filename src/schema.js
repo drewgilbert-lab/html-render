@@ -85,20 +85,25 @@ function buildGraph(fm, { pageType, sections, preamble, config }) {
   if (organization.sameAs) publisher.sameAs = organization.sameAs;
   graph.push(publisher);
 
-  const person = {
-    '@type': 'Person',
-    '@id': authorId(fm.author, organization),
-    name: plainText(fm.author.name),
-    jobTitle: plainText(fm.author.title),
-    worksFor: { '@id': organization.id },
-  };
-  if (Array.isArray(fm.author.knows_about) && fm.author.knows_about.length) {
-    person.knowsAbout = fm.author.knows_about.map((topic) =>
-      plainText(topic && typeof topic === 'object' ? topic.topic : topic),
-    );
+  // A node is emitted for what the document declares, and for nothing it does
+  // not. A page that carries its author in the body rather than the frontmatter
+  // gets no Person node here; reading it from the body is a later step.
+  if (fm.author) {
+    const person = {
+      '@type': 'Person',
+      '@id': authorId(fm.author, organization),
+      name: plainText(fm.author.name),
+      jobTitle: plainText(fm.author.title),
+      worksFor: { '@id': organization.id },
+    };
+    if (Array.isArray(fm.author.knows_about) && fm.author.knows_about.length) {
+      person.knowsAbout = fm.author.knows_about.map((topic) =>
+        plainText(topic && typeof topic === 'object' ? topic.topic : topic),
+      );
+    }
+    if (fm.author.url) person.url = fm.author.url;
+    graph.push(person);
   }
-  if (fm.author.url) person.url = fm.author.url;
-  graph.push(person);
 
   const rootId = `${base}/#article`;
 
@@ -292,7 +297,7 @@ function buildGraph(fm, { pageType, sections, preamble, config }) {
     root.headline = plainText(fm.title);
   }
   root.description = plainText(fm.description);
-  root.author = { '@id': authorId(fm.author, organization) };
+  if (fm.author) root.author = { '@id': authorId(fm.author, organization) };
   root.publisher = { '@id': organization.id };
   root.datePublished = String(fm.published);
   root.dateModified = String(fm.updated || fm.published);
@@ -391,15 +396,17 @@ function buildGraph(fm, { pageType, sections, preamble, config }) {
     }
   }
 
-  graph.push({
-    '@type': 'FAQPage',
-    '@id': `${base}/#faq`,
-    mainEntity: fm.faq.items.map((item) => ({
-      '@type': 'Question',
-      name: plainText(item.q),
-      acceptedAnswer: { '@type': 'Answer', text: plainText(item.a) },
-    })),
-  });
+  if (fm.faq && Array.isArray(fm.faq.items) && fm.faq.items.length) {
+    graph.push({
+      '@type': 'FAQPage',
+      '@id': `${base}/#faq`,
+      mainEntity: fm.faq.items.map((item) => ({
+        '@type': 'Question',
+        name: plainText(item.q),
+        acceptedAnswer: { '@type': 'Answer', text: plainText(item.a) },
+      })),
+    });
+  }
 
   return { '@context': 'https://schema.org', '@graph': graph };
 }

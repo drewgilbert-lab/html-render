@@ -43,9 +43,15 @@ test('an unsupported page type is rejected and names the supported ones', () => 
   assert.match(errors[0].message, /pillar, cluster, spoke/);
 });
 
-test('a missing page type is rejected before anything else is checked', () => {
-  const errors = errorsFor(editLine(pillar(), 'page_type:', null));
-  assert.deepEqual(errors.map((error) => error.path), ['page_type']);
+test('a document with no page class is held to no page-class contract', () => {
+  // No page_type selects the body walk: the document composes itself, so there
+  // is no contract saying what it must contain. Only what the renderer cannot
+  // render is still an error.
+  const html = rendersCleanly(editLine(pillar(), 'page_type:', null));
+  assert.doesNotMatch(html, /data-page-type/);
+
+  const unknown = errorsFor(editLine(pillar(), 'page_type:', null).replace('```section', '```nonesuch'));
+  assert.ok(unknown.some((error) => /is not a known component/.test(error.message)), JSON.stringify(unknown));
 });
 
 test('missing required metadata is reported per key, with a line number', () => {
