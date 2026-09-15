@@ -5,13 +5,20 @@ frontmatter each page class requires, the order its components render in, and ev
 section can invoke. That used to live as a hand-written component manifest inside each skill, which
 drifted the moment the registry changed.
 
-This replaces those manifests with one generated file, pushed downstream as a pull request when a
-release is tagged:
+This replaces those manifests with one generated file, promoted downstream on every commit to
+`main` that moves it:
 
 ```text
-tag v1.2.0 → generate contract from the live CLI → diff against geo-spoke-builder
-           → open a PR if it moved → Drew reviews and merges
+push to main → generate contract from the live CLI → diff against geo-spoke-builder
+             → nothing moved? stop
+             → moved? open a PR carrying contract + plugin.json + CLAUDE.md, set auto-merge
+             → geo-spoke-builder's own checks prove the pair and merge it
 ```
+
+Nobody merges that downstream pull request. The review happened on the `html-render` pull request
+that produced the contract; a second human review of a generated file adds a waiting step and no
+judgement. What replaces it is a set of checks that can actually be wrong — see
+[What the consumer checks](#what-the-consumer-checks).
 
 The destination is a single file:
 **`geo-spoke-builder/plugins/geo-spoke-builder/references/html-render-contract.md`** — inside the
@@ -51,25 +58,64 @@ two variables *and* putting the new consumer's token in that secret.
 
 | Trigger | `dry_run` | What happens |
 |---|---|---|
-| `git push` of a `v*` tag | forced off | Generates, diffs, and opens a real PR if the contract moved |
+| `git push` to `main` | forced off | Generates, diffs, and opens a real PR with auto-merge set if the contract moved |
 | `workflow_dispatch` | defaults to **true** | Generates and diffs, prints what it *would* do, pushes nothing |
 
-Tagging is the only automatic trigger. Ordinary commits to `main` do not sync — a contract change
-reaches `geo-spoke-builder` when Drew decides a version is ready, not when it lands on `main`. The
-tag/release sequence is in [github-process.md](github-process.md#releases-and-tags).
+**Merging to `main` is the release.** There is no tag step and nothing is keyed to a tag any more;
+tagging existed only as this trigger. The promotion sequence is in
+[github-process.md](github-process.md#promotion).
+
+The reason it is safe to run on every commit is the no-op path below: a commit that does not move
+the contract costs one short run and opens nothing.
 
 ## What it does not do
 
-- **It does not touch skill content.** It writes exactly one file. Rewriting each page-skill's
-  "Design Components" section to read from that file is a separate, per-skill migration.
-- **It does not auto-merge.** Every PR it opens is reviewed and merged by hand. There is no
-  `gh pr merge --auto` in the workflow, deliberately.
+- **It does not touch skill content.** It writes three files — the contract, the plugin version,
+  and the version string in the consumer's `CLAUDE.md`. Not one line of a skill.
 - **It does not open a PR when nothing changed.** If the generated file is byte-identical to what
   is already committed downstream, the run logs `no change, nothing to sync` and exits successfully.
-  This is what makes the automation cheap to leave on: a release that only touched tests produces
-  no downstream review work.
+  This is what makes the automation cheap to leave on: a commit that only touched tests produces no
+  downstream work at all.
+- **It does not render or re-render a single page.** Promotion moves what *future* work is built
+  with. Every page that already exists keeps its HTML, its Markdown, its render record and its
+  config snapshot, and keeps whatever provenance it was actually built with.
 - **It does not summarise the diff in its own words.** The PR body pastes the relevant
   `CHANGELOG.md` entries verbatim.
+
+## Why it writes three files
+
+A contract landing alone would never reach a running session. Two checks in `geo-spoke-builder`
+enforce that, and between them they force all three into one commit:
+
+| File | Why it has to move |
+|---|---|
+| `references/html-render-contract.md` | The contract itself: the catalog and the authoring guide, and the stamp naming the exact renderer commit that belongs with it |
+| `.claude-plugin/plugin.json` | A contract that lands without a version bump never syncs to an installed plugin, so every skill keeps reading the previous one. `check-contract-freshness.py` fails the build |
+| `CLAUDE.md` | Its "Current state" line names the plugin version; `lint-skills.py` fails the build when the two disagree |
+
+`geo-spoke-builder` owns all three edits, in its own `scripts/ship-contract.py`. This workflow
+calls that script rather than editing three files from here, because the plugin's version rule and
+the line of its `CLAUDE.md` that carries the version are its business, not this repo's.
+
+Either check failing leaves the pull request red, and auto-merge never fires. So all three move
+together or the promotion does not happen at all — which is the failure mode you want: the pointer
+simply does not advance, and every existing page stays exactly as it was.
+
+## What the consumer checks
+
+Before that pull request can merge, `geo-spoke-builder` CI:
+
+- checks out the **exact renderer commit** named in the contract stamp (which is why that stamp
+  carries the full 40-character SHA — `actions/checkout` cannot resolve an abbreviated one);
+- confirms that renderer's `package.json` version equals the contract's version;
+- confirms the contract **regenerates byte-identically** from that commit;
+- confirms every component named as a fenced block in a skill's `## Design Components` section
+  exists in the new contract;
+- runs `lint-skills.py` and `check-contract-freshness.py`.
+
+If any of that fails the pull request stays open and unmerged, `geo-spoke-builder/main` keeps
+pointing at the previous pair, and `pillar-geo-launch` keeps resolving it. Nothing rolls back
+because nothing was promoted.
 
 ## How the file is built
 
@@ -133,7 +179,7 @@ consumer repo appears.
 
 **Nothing owns renewing this token, and it expires on 2026-11-24.** When it expires the sync fails
 on the `Check out geo-spoke-builder` step — loudly in Actions, but silently in the sense that nobody
-is watching Actions on a repo that only builds on tags. If a release goes out and no sync PR appears
+is watching Actions. If a commit lands on `main` and no sync PR appears
 downstream, check the token first.
 
 Rotating it is two steps: create a replacement with the same scope and permissions, then
@@ -155,7 +201,7 @@ full diff to the run summary without pushing a branch or opening anything. Read 
 gh run watch && gh run view --log
 ```
 
-To exercise the real path without tagging a release, dispatch it again with `-f dry_run=false`. That
+To exercise the real path without merging to `main`, dispatch it with `-f dry_run=false`. That
 opens a genuine PR downstream — it is still only a PR, never a merge, but it is a real write to
 another repository, so do it deliberately.
 

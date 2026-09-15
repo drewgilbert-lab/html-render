@@ -6,8 +6,8 @@ wants a similar standard should adopt its own, since ownership, risk profile,
 and audience differ per repo.
 
 **Audience:** Drew, working solo, and any Claude Code session operating on
-this repository. Read this before opening a branch, committing, or tagging a
-release.
+this repository. Read this before opening a branch, committing, or merging to
+`main` — merging is what promotes a design change downstream.
 
 ---
 
@@ -38,9 +38,9 @@ request before it reaches `main` — no exceptions for "it's a small change."
      just local documentation.
    - Any change to `.github/workflows/` or anything touching the deploy key /
      PAT used for the cross-repo sync.
-   - A version bump and tag (see [Releases and tags](#releases-and-tags),
-     below — tagging is always cross-repo regardless of how small the diff
-     looks).
+   - A version bump. `package.json`'s version is stamped into the contract
+     that ships downstream, so bumping it is a cross-repo action regardless of
+     how small the diff looks (see [Promotion](#promotion), below).
 
 2. **Claude Code is running unsupervised** — a scheduled run, a long
    autonomous session, or any run where Drew isn't reviewing the diff live
@@ -104,32 +104,53 @@ not the commit graph — squashing keeps `main`'s history readable without
 losing anything, since the changelog entry (see Phase 1, Step 6) carries the
 detail a reviewer would otherwise look for in individual commits.
 
-## Releases and tags
+## Promotion
 
-Tagging is the trigger for Phase 2's GitHub Actions workflow, which opens a
-PR into `geo-spoke-builder`. Because of that, a tag is a cross-repo action by
-definition — always goes through the PR path first, never tagged directly off
-an uncommitted or unreviewed state on `main`, even under the lightweight
-rules above. Sequence:
+Merging to `main` is the release. There is no tag step, and nothing is keyed to
+a tag any more.
 
-1. Merge the release-worthy change(s) into `main` via PR, per the rules above.
-2. Bump `package.json`'s version on `main` (patch / minor per Phase 1, Step
-   7's rule) — this itself is a small PR if it lands separately from the
-   component change, or part of the same PR if bundled.
-3. Tag `main` at that commit (`vX.Y.Z`). This is the manual "this version is
-   ready" gate — Drew's call, not automated.
-4. The tag triggers the sync workflow into `geo-spoke-builder`. That
-   destination PR is reviewed and merged manually (no auto-merge) until
-   there's a reason to trust it otherwise.
+When a commit lands on `main`, the sync workflow regenerates the contract and
+compares it byte for byte with what `geo-spoke-builder` already holds. A commit
+that did not move the contract (a README fix, a test-only change) opens nothing
+and costs one short run. A commit that did move it opens a pull request there
+carrying three files — the contract, the plugin version, and the version string
+in that repo's `CLAUDE.md` — and sets auto-merge. That repo's own required
+checks decide whether it lands: they check out the exact renderer commit the
+contract names, confirm the contract regenerates from it byte-identically, and
+confirm every component the skills name exists in it.
+
+So the review that matters is the one on the pull request here. Sequence:
+
+1. Merge the change into `main` via PR, per the rules above.
+2. Bump `package.json`'s version in that same PR whenever the change alters
+   what `--components` prints or what `docs/authoring.md` says — i.e. anything
+   a downstream consumer reads. The version is human-readable metadata on the
+   contract; the full commit SHA beside it is what consumers actually resolve.
+3. Nothing else. Merging fires the sync, `geo-spoke-builder` merges it once its
+   checks pass, and the next newly admitted `pillar-geo-launch` job uses the new
+   pair. No page is re-rendered, and no existing page changes.
+
+Tags are still fine to cut as bookkeeping. Nothing reads them.
+
+**A design change must never require a coordinated skill rewrite downstream.**
+If a change would break authoring vocabulary a `geo-spoke-builder` skill already
+uses, the compatibility belongs in this repo, in the same PR, before promotion —
+not in a follow-up pull request against the consumer.
 
 ## Secrets
 
 The deploy key or fine-grained PAT used to open PRs into `geo-spoke-builder`
 lives only as an `html-render` Actions secret — never in a commit, an issue,
 or this documentation. Fine-grained PATs expire (GitHub caps them at one
-year); note the expiry date wherever the secret is created and put a
-reminder somewhere durable, since an expired token fails the sync silently
-rather than loudly.
+year); note the expiry date wherever the secret is created. The current one
+expires **2026-11-24**.
+
+An expired token now fails visibly rather than silently: the sync runs on every
+push to `main`, so it fails on the next commit rather than on the next tag
+somebody remembers to cut, and because `geo-spoke-builder/main` is the
+production pointer, a sync that never lands means `pillar-geo-launch` visibly
+stops picking up the new design instead of quietly rendering against a stale
+one.
 
 ## What this document doesn't cover
 

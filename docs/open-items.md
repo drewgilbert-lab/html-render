@@ -18,10 +18,16 @@ node bin/html-render.js --components                            # the catalog, a
 ```
 
 Last reviewed: **2026-09-15**, against Claude Design export `HG New Brand Design System`
-(namespace `HGInsightsMarketingDesignSystem_3bf70b` — the same namespace as the 2026-09-01
-recompile, with 28 more components and a replaced token layer; see §4), `html-render` v3.0.0
-tagged at `885d3bf` on `main`, and `geo-spoke-builder` plugin 0.49.0 carrying the v3.0.0
-contract.
+(digest `99ef8724…`, namespace `HGInsightsMarketingDesignSystem_3bf70b` — the same namespace as
+the 2026-09-01 recompile and the 2026-09-01 original, which is why the namespace is no longer the
+identity; see §4), and `html-render` v4.1.0 on `main`.
+
+Do not restate the design build here either. `design-export.lock.json` is the identity, and it is
+generated:
+
+```bash
+node scripts/export-lock.js --export /path/to/claude-design-export --check   # has it moved?
+```
 
 ---
 
@@ -43,14 +49,25 @@ the workflow reads them (`Syncing to drewgilbert-lab/geo-spoke-builder ::
 references/html-render-contract.md`). The *token* stays a literal secret name —
 that is the PAT decision below, deliberately unchanged.
 
-**The sync token expires 2026-11-24** and nothing owns renewing it. When it lapses the workflow
-fails on `Check out geo-spoke-builder` — loudly in Actions, but nobody watches Actions on a repo
-that only builds on tags. Rotation steps and the dates are in
-[component-sync.md](component-sync.md#the-token).
+**The sync became the promotion on 2026-09-15 (v4.1.0).** It triggers on `push` to `main` rather
+than on a `v*` tag, writes three files instead of one (contract, plugin version, the consumer's
+`CLAUDE.md` version string, via that repo's own `scripts/ship-contract.py`), and sets auto-merge.
+`geo-spoke-builder/main` is now the single production pointer: its contract names the exact
+renderer commit that belongs with it, and `pillar-geo-launch` resolves the pair from there rather
+than resolving two upstreams independently. Tagging is no longer a step anywhere.
 
-**Revisit a GitHub App instead of a PAT** when a second consumer repo appears. A fine-grained PAT is
-the right call for one consumer; it stops being so once the token is shared, and an App would end
-the expiry problem above.
+**The sync token expires 2026-11-24** and nothing owns renewing it. It now needs **Pull requests:
+read and write** as well as Contents, because the workflow sets auto-merge. When it lapses the
+workflow fails on `Check out geo-spoke-builder`, and unlike before that is visible without
+watching Actions: the sync runs on every commit to `main` rather than on a tag somebody remembers
+to cut, and because the pointer stops advancing, `pillar-geo-launch` visibly stops picking up new
+design work instead of quietly rendering against a stale contract. Rotation steps and the dates
+are in [component-sync.md](component-sync.md#the-token).
+
+**Revisit a GitHub App instead of a PAT** when a second consumer repo appears — unchanged, and
+deliberately not done as part of the promotion work. Its original argument was silent expiry,
+which is no longer true (above); what is left is one shared token, and that trigger is still a
+second consumer.
 
 **The breaking-change flag fires on `Changed` as well as `Removed`/`Deprecated`.** Deliberate — a
 script cannot judge "incompatible field" from prose, and a missed break costs more than a dismissed
@@ -237,30 +254,30 @@ same cell-composition route, but a true inline-in-prose syntax is still undecide
 
 ## 4. Provenance
 
-**Reopened 2026-09-01: the namespace does not identify the build.** `designCatalog` in
-`package.json` records the Claude Design export build by its manifest `namespace`
-(`HGInsightsMarketingDesignSystem_3bf70b`) — the export has no git commit and no version stamp, so
-the namespace suffix was adopted as the build identity on the premise that it **changes when the
-export is recompiled** (decided with Drew, 2026-08-26). **That premise is false.** The 2026-09-01
-recompile carries the identical namespace while differing in nine component files,
-`css/navigation.css`, `readme.md`, `_adherence.oxlintrc.json` and `_ds_bundle.js`. So two exports
-that produced two different releases here (v1.3.0 and v1.4.0) are indistinguishable by `build`, and
-the contract file this repo ships downstream stamps the same `catalog=` for both.
+**Closed 2026-09-15 (v4.1.0).** `design-export.lock.json` is committed alongside each ingest and
+carries a SHA-256 per component source file, per token file and per stylesheet, plus one overall
+digest over all three. `scripts/export-lock.js --check` names exactly which components and
+stylesheets moved between the committed lock and a staged export, and the contract shipped
+downstream stamps that digest as `export=`.
 
-**Confirmed again, worse, on 2026-09-15.** The `HG New Brand Design System` export carries the
-same namespace once more while shipping 28 additional components, four new category folders and a
-wholly replaced token layer — a rebrand that `--audit` alone reported as no change at all. Only
-the folder diff caught it.
+The history is worth keeping, because it is the argument for not trusting a label again:
+`_ds_manifest.json`'s `namespace` was adopted as the build identity on 2026-08-26 on the premise
+that it changes when the export is recompiled. It does not. The 2026-09-01 recompile shipped under
+`HGInsightsMarketingDesignSystem_3bf70b` while differing in nine component files,
+`css/navigation.css`, `readme.md`, `_adherence.oxlintrc.json` and `_ds_bundle.js`. The 2026-09-15
+`HG New Brand Design System` export shipped under the *same* namespace again while adding 28
+components, four category folders and a wholly replaced token layer — a full rebrand that `--audit`
+reported as no change at all. Only a folder diff caught it, and only because the previous download
+happened to still be on the laptop.
 
-**Partially addressed in v3.0.0.** `designCatalog` now carries an `export` field naming the export
-folder, and `scripts/generate-contract.js` prints it as a `Catalog export` row, so the contract
-shipped downstream finally says which export it was built from. That is a label, not a checksum: it
-is only as honest as whoever fills it in. The cheaper real fixes are unchanged — hash the manifest
-(or the `components/` + `css/` trees) at sync time, or ask whoever produces the export to emit a
-version stamp. **Until then, do not read a matching `build` as "same export" — diff the folders,
-and keep the previously synced one for exactly that.** The
-retired catalog's inferred-commit caveat for the v1.0.0 baseline (`26337fc`, reconstructed rather
-than recorded) stays true of that historical entry but no longer affects anything current.
+v3.0.0's `designCatalog.export` field was a partial fix and had the same weakness: a label is only
+as honest as whoever fills it in. Both `build` and `export` are gone from `designCatalog` now. The
+digest is computed from the files, so it cannot be filled in wrong; the export folder's name is
+recorded beside it as a label and deliberately left out of the digest, since renaming a download
+is not a design change.
+
+The v1.0.0 baseline's inferred-commit caveat (`26337fc`, reconstructed rather than recorded) stays
+true of that historical entry and affects nothing current.
 
 ## 5. Repository process
 
@@ -337,3 +354,9 @@ eventually.
   [component-sync.md](component-sync.md). Dry run verified. (#2)
 - **2026-08-26** — Sync workflow moved to `actions/checkout@v7` / `actions/setup-node@v7` on
   `node24`, clearing the Node 20 deprecation; token expiry recorded. (#3)
+- **2026-09-15** — v4.1.0: the design system promotes itself. `design-export.lock.json`
+  fingerprints the export (closing §4); the contract stamp carries the full 40-character renderer
+  SHA and that digest; the sync runs on `push` to `main`, ships contract + plugin version +
+  `CLAUDE.md` in one commit, and sets auto-merge. "Releases and tags" is gone from
+  [github-process.md](github-process.md). A design release is now one reviewed pull request here
+  and nothing else — no tag, no downstream merge, no pin bump, and no page re-rendered.
