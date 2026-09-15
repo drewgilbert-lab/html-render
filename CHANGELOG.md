@@ -10,6 +10,85 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
+## v3.0.0 — 2026-09-14, against Claude Design export `HG New Brand Design System`
+
+**Breaking, and a rebrand rather than a catalog refresh.** Every page this
+renderer emits changes appearance. No component was removed and no field was
+dropped, so a document that rendered before still renders; what it looks like
+is new.
+
+**The export the audit could not see.** The staged export carries the same
+`namespace` as the one synced on 2026-09-01 — `HGInsightsMarketingDesignSystem_3bf70b`
+— while shipping 28 more components, four new category folders, and a replaced
+token layer. `--audit` alone reported no change. The folder diff against the
+previously synced export is what caught it, which is the whole reason that
+folder is kept.
+
+**Changed — the token layer.** `src/assets/styles.css`, tokens block.
+
+- The palette is replaced. `#0058A3` blue, `#C9194A` melon and `#6F2F92` purple
+  give way to `#FF4A4A` Vibrant Coral, `#071834` Prussian Blue, `#EFE4DC`
+  Natural Linen and `#FBF7ED` Floral White, with coral, navy and warm-neutral
+  ramps under them. Every retired token name is kept as an alias onto a new
+  value, exactly as the export ships them, so older markup still resolves.
+- `--grad-hero` and `--grad-dark-blue-purple` are **gone from the export with no
+  alias**. The surfaces that used them are flat now: the hero is navy cut by a
+  linen and a coral wedge, the CTA is a coral band with a diagonal hatch.
+- The type system is replaced. Nunito Sans gives way to Neue Haas Grotesk
+  Display for headings and Basic Sans for everything else, both from the Adobe
+  kit `ltv7nur`. The size ladder is fluid `clamp()`; `--fw-black` and
+  `--fw-heavy` both resolve to 700 because the kit serves no heavier weight.
+- Layout: the container goes 1340px → 1440px with a clamped gutter, section
+  padding becomes `clamp(64px, 8vw, 120px)`, and one radius (10px) becomes a
+  ladder of five with 18px as the standard card.
+
+**Changed — all 30 implemented components**, each re-ported from the export's
+own CSS, each migrated to the named source convention in the same edit. The
+legacy numbered bucket is now empty: 21 registry `source` fields and 23 CSS
+block headers moved from `46-callout-box` / `(46)` to the verbatim export name,
+and the audit reports 0 legacy, 0 removed.
+
+Two carried real contract changes beyond colour:
+
+- **Changed** `faq` — the export replaced the 260px label column with a centred
+  `.faq-header`, and each question now carries a `.faq-icon` coral circle. The
+  circle is an ornament marking the row, not a toggle: every answer still
+  renders open and in flow, and the span is `aria-hidden`.
+- **Changed** `cta` — gains `layout` (`centered` | `split`) and `surface`
+  (`coral` | `navy`), and the first action now takes the white fill
+  (`btn-white`) rather than the coral one. The export's own default surface is
+  a woven fabric texture loaded from a relative image path; this renderer emits
+  a body into a host page it ships no assets to, so the default here is the
+  flat coral variant the export sanctions for exactly that case.
+
+**Two deliberate departures from the export**, both recorded in the stylesheet
+beside the rules they affect:
+
+- `ComparisonTable` keeps `overflow: visible` and `table-layout: fixed` instead
+  of the export's sideways scroll and one-line header cells. A page body lands
+  in a host column of unknown width, and a sideways scroll hides columns from
+  print. Colour, radius, shadow and weight are the export's.
+- `.on-dark a` excludes buttons. The export's base rule paints every link on a
+  dark band white, which outranks `.btn-white` and would render a white label
+  on a white button.
+
+**New — `StatCard` and `Button` join the stylesheet under their own headers.**
+Both were already being emitted; neither had a named CSS block the audit could
+join on.
+
+**Not taken this pass.** The export's 28 net-new components — the `product`,
+`proof`, `site` and `controls` categories — are unimplemented. No
+`geo-spoke-builder` skill names any of them today, so nothing downstream can
+ask for one yet.
+
+**The webfont is a consumer decision, as it has always been.** The stylesheet
+names the two families and links nothing; `fontHref` in the renderer config is
+what loads the Adobe kit, and `examples/html-render.config.json` now points at
+`https://use.typekit.net/ltv7nur.css`. The kit is domain-licensed: on a domain
+it does not authorise, both faces fall back silently to Figtree and Inter
+Tight. Check a rendered heading before shipping externally.
+
+
 ## v2.0.0 — 2026-09-14, against Claude Design export build `HGInsightsMarketingDesignSystem_3bf70b`
 
 **Breaking, and the largest change this renderer has had.** No catalog refresh: no

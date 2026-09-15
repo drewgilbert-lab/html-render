@@ -25,9 +25,12 @@ const AUTHOR_FIELDS = {
   knows_about: { type: 'list', primaryKey: 'topic', fields: { topic: { type: 'plain' } } },
 };
 
+// `melon` was the old brand's accent; the colour is now coral. Both spellings
+// are accepted and render the same modifier, which is what the export's own CSS
+// does, so documents written against either vocabulary keep working.
 const PILL_FIELDS = {
   label: { type: 'text' },
-  tone: { type: 'enum', values: ['default', 'melon'] },
+  tone: { type: 'enum', values: ['default', 'coral', 'melon'] },
 };
 
 // A pill may be written as a bare string (its label) or as a label/tone pair.
@@ -50,7 +53,7 @@ function renderMetaPills(pills) {
   const items = pills.map((pill) =>
     el(
       'span',
-      { class: pill.tone === 'melon' ? 'pill melon' : 'pill' },
+      { class: pill.tone === 'melon' || pill.tone === 'coral' ? 'pill melon' : 'pill' },
       `${el('span', { class: 'dot' }, '')} ${pill.label}`,
     ),
   );
@@ -125,7 +128,7 @@ function renderSectionHeader({ eyebrow, title, subtitle, align = 'center' }) {
 const breadcrumb = {
   name: 'breadcrumb',
   summary: 'Breadcrumb trail for hierarchy and crawlability.',
-  source: '02-breadcrumb',
+  source: 'Breadcrumb',
   fields: {
     items: { type: 'list', fields: { label: { type: 'text' }, url: { type: 'url' } } },
     current: { type: 'text' },
@@ -143,8 +146,8 @@ const breadcrumb = {
 
 const hero = {
   name: 'hero',
-  summary: 'Gradient hero band: eyebrow, H1, lead, meta pills, thesis, byline, freshness, coverage, and the stat-card grid.',
-  source: '03-hero-stat-block',
+  summary: 'Flat navy hero cut by a linen and a coral wedge: eyebrow, H1, lead, meta pills, thesis, byline, freshness, coverage, and the stat-card grid.',
+  source: 'HeroStatBlock',
   fields: {
     eyebrow: { type: 'text' },
     title: { type: 'text' },
@@ -199,8 +202,8 @@ const hero = {
 
 const articleHero = {
   name: 'article-hero',
-  summary: 'Light article hero: H1 plus author byline, for definition and glossary spokes.',
-  source: '34-editorial-hero (light variant)',
+  summary: 'The light variant of EditorialHero: H1 plus author byline on the page ground, no navy band, for definition and glossary spokes.',
+  source: 'EditorialHero',
   fields: {
     title: { type: 'text' },
     author: { type: 'object', fields: AUTHOR_FIELDS },
@@ -217,8 +220,8 @@ const articleHero = {
 
 const freshnessBar = {
   name: 'freshness-bar',
-  summary: 'Dark-blue band stating when the data was last updated and how often it refreshes.',
-  source: '04-data-freshness-bar',
+  summary: 'Navy band stating when the data was last updated and how often it refreshes.',
+  source: 'DataFreshnessBar',
   fields: {
     label: { type: 'text', hint: 'the "last updated" value, e.g. "Q3 2026"' },
     note: { type: 'text' },
@@ -247,7 +250,7 @@ const freshnessBar = {
 const thesisBand = {
   name: 'thesis-band',
   summary: 'Full-width band carrying the page thesis statement, used when the hero does not.',
-  source: '31-thesis-block',
+  source: 'ThesisBlock',
   fields: { text: { type: 'text' } },
   render(value) {
     return el('div', { class: 'thesis-wrap' }, `\n${indent(container(el('p', { class: 'thesis-block' }, value.text)))}\n`);
@@ -257,7 +260,7 @@ const thesisBand = {
 const introToc = {
   name: 'intro-toc',
   summary: 'Two-column intro copy plus the sticky on-page jump nav.',
-  source: '06-hub-intro-toc',
+  source: 'IntroToc',
   fields: {
     eyebrow: { type: 'text' },
     title: { type: 'text' },
@@ -310,7 +313,7 @@ const introToc = {
 const sideNav = {
   name: 'side-nav',
   summary: 'Right-rail "On this page" nav with scroll-spy highlighting.',
-  source: '30-sticky-side-nav',
+  source: 'StickySideNav',
   fields: {
     label: { type: 'text' },
     items: { type: 'list', fields: { label: { type: 'text' }, anchor: { type: 'plain' } } },
@@ -353,7 +356,7 @@ const sideNav = {
 const resourceIndex = {
   name: 'resource-index',
   summary: 'The cluster resource index: every spoke beneath this cluster as a card grid.',
-  source: '13-data-cut-filters',
+  source: 'DataCutCard',
   fields: {
     eyebrow: { type: 'text' },
     title: { type: 'text' },
@@ -403,7 +406,7 @@ const resourceIndex = {
 const related = {
   name: 'related',
   summary: 'Off-white band of cross-link cards: where to go next.',
-  source: '14-spoke-page-cards',
+  source: 'RelatedHubCard',
   fields: {
     on_white: { type: 'bool', hint: 'paint this band white instead of its default tint' },
     eyebrow: { type: 'text' },
@@ -433,7 +436,7 @@ const related = {
 const methodology = {
   name: 'methodology',
   summary: '"How we measure this" band with an optional melon caveat note.',
-  source: '16-methodology-section',
+  source: 'Methodology',
   fields: {
     on_white: { type: 'bool', hint: 'paint this band white instead of its default tint' },
     eyebrow: { type: 'text' },
@@ -469,7 +472,7 @@ const methodology = {
 
 const faq = {
   name: 'faq',
-  summary: 'Static two-column Q&A list with a label column; every answer renders expanded.',
+  summary: 'Q&A band: a centred header over full-width rows, every answer open and in flow. The coral circle marks a row; it is not a toggle.',
   source: 'Faq',
   fields: {
     on_white: { type: 'bool', hint: 'paint this band white instead of its default tint' },
@@ -482,13 +485,13 @@ const faq = {
     },
   },
   render(value) {
-    const labelCol = el(
+    const header = el(
       'div',
-      { class: 'faq-label-col' },
+      { class: 'faq-header' },
       `\n${indent(
         lines(
-          el('div', { class: 'section-eyebrow' }, value.eyebrow),
-          el('h2', null, value.title),
+          value.eyebrow ? el('div', { class: 'section-eyebrow' }, value.eyebrow) : '',
+          value.title ? el('h2', null, value.title) : '',
           value.intro ? el('p', null, value.intro) : '',
         ),
       )}\n`,
@@ -499,21 +502,25 @@ const faq = {
         { class: 'faq-item' },
         `\n${indent(
           lines(
-            el('h3', { class: 'faq-question' }, item.q),
+            el(
+              'h3',
+              { class: 'faq-question' },
+              `\n${indent(lines(el('span', null, item.q), el('span', { class: 'faq-icon', 'aria-hidden': 'true' }, '')))}\n`,
+            ),
             el('div', { class: 'faq-answer' }, item.a.length > 1 ? `\n${indent(paras(item.a))}\n` : item.a[0] || ''),
           ),
         )}\n`,
       ),
     );
-    const list = el('div', null, `\n${indent(el('div', { class: 'faq-list' }, `\n${indent(lines(items))}\n`))}\n`);
-    return el('section', { class: value.on_white ? 'faq-section on-white' : 'faq-section', id: 'faq' }, `\n${indent(container(lines(labelCol, list)))}\n`);
+    const list = el('div', { class: 'faq-list' }, `\n${indent(lines(items))}\n`);
+    return el('section', { class: value.on_white ? 'faq-section on-white' : 'faq-section', id: 'faq' }, `\n${indent(container(lines(header, list)))}\n`);
   },
 };
 
 const citations = {
   name: 'citations',
   summary: 'Numbered reference list; every [^n] in the body resolves to an entry here.',
-  source: '60-citations-list',
+  source: 'CitationsList',
   fields: {
     eyebrow: { type: 'text' },
     title: { type: 'text' },
@@ -571,9 +578,11 @@ const citations = {
 
 const cta = {
   name: 'cta',
-  summary: 'End-of-page gradient CTA band with buttons, optional use-case pills, and optional meta pills.',
-  source: '17-sticky-cta-footer',
+  summary: 'End-of-page CTA band on flat coral with the diagonal hatch, with buttons, optional use-case pills, and optional meta pills.',
+  source: 'CtaSection',
   fields: {
+    layout: { type: 'enum', values: ['centered', 'split'], hint: 'centered is the standard band; split puts copy left, buttons right' },
+    surface: { type: 'enum', values: ['coral', 'navy'], hint: 'the flat coral band, or navy when the page already ends on coral' },
     eyebrow: { type: 'text' },
     title: { type: 'text' },
     body: { type: 'text' },
@@ -584,7 +593,7 @@ const cta = {
       fields: {
         label: { type: 'text' },
         url: { type: 'url' },
-        variant: { type: 'enum', values: ['primary', 'secondary'] },
+        variant: { type: 'enum', values: ['white', 'secondary', 'primary'] },
       },
     },
   },
@@ -610,18 +619,29 @@ const cta = {
         ),
       )}\n`,
     );
-    const buttons = el(
-      'div',
-      { class: 'cta-buttons' },
-      `\n${indent(
-        lines(
-          value.buttons.map((button) =>
-            el('a', { class: button.variant === 'secondary' ? 'btn-secondary' : 'btn-primary', href: button.url }, button.label),
-          ),
-        ),
-      )}\n`,
-    );
-    return el('section', { class: 'cta-section', id: 'cta' }, `\n${indent(container(lines(text, buttons)))}\n`);
+    // The first action takes the white fill — the one place white outranks
+    // coral — and the rest the white outline.
+    const buttons = value.buttons.length
+      ? el(
+          'div',
+          { class: 'cta-buttons' },
+          `\n${indent(
+            lines(
+              value.buttons.map((button, index) =>
+                el(
+                  'a',
+                  { class: `btn-${button.variant || (index === 0 ? 'white' : 'secondary')}`, href: button.url },
+                  button.label,
+                ),
+              ),
+            ),
+          )}\n`,
+        )
+      : '';
+    const classes = ['cta-section', 'on-dark'];
+    if (value.layout === 'split') classes.push('split');
+    if (value.surface === 'navy') classes.push('navy');
+    return el('section', { class: classes.join(' '), id: 'cta' }, `\n${indent(container(lines(text, buttons)))}\n`);
   },
 };
 

@@ -52,7 +52,7 @@ const callout = {
 const conceptCards = {
   name: 'concept-cards',
   summary: 'A 2-3 column grid of parallel concept cards.',
-  source: '51-concept-card-grid',
+  source: 'ConceptCard',
   fields: {
     items: {
       type: 'list',
@@ -82,7 +82,7 @@ const conceptCards = {
 const quote = {
   name: 'quote',
   summary: 'An attributed analyst pull quote.',
-  source: '12-expert-quote-card',
+  source: 'ExpertQuote',
   fields: {
     text: { type: 'text' },
     name: { type: 'plain' },
@@ -134,7 +134,7 @@ const quote = {
 const processSteps = {
   name: 'process-steps',
   summary: 'A numbered step sequence with badges, titles, and bodies.',
-  source: '49-process-steps',
+  source: 'ProcessSteps',
   fields: {
     // Renderer-owned, not a design prop: marks this block as the single source of the
     // page's HowTo schema steps. Requires `howto:` in frontmatter (see src/schema.js).
@@ -172,7 +172,7 @@ const processSteps = {
 const beforeAfter = {
   name: 'before-after',
   summary: 'Two-column old-vs-new contrast.',
-  source: '50-before-after',
+  source: 'BeforeAfter',
   fields: {
     before: {
       type: 'object',
@@ -197,7 +197,7 @@ const beforeAfter = {
 const formula = {
   name: 'formula',
   summary: 'A highlighted formula or calculation statement.',
-  source: '31-thesis-block (formula variant)',
+  source: 'ThesisBlock',
   fields: {
     text: { type: 'richtext' },
   },
@@ -209,7 +209,7 @@ const formula = {
 const bars = {
   name: 'bars',
   summary: 'A compact horizontal bar chart for indexed or ranked values.',
-  source: '10-supporting-charts (mini bar)',
+  source: 'MiniBarChart',
   fields: {
     title: { type: 'text' },
     items: {
@@ -270,7 +270,7 @@ function renderBarChart(items) {
 const benchmarkFigure = {
   name: 'benchmark-figure',
   summary: 'A "lead with the number" benchmark: headline figure, optional head-to-head compare, indexed bars, and a definition of what the figures measure.',
-  source: '24-benchmark-figure',
+  source: 'BenchmarkFigure',
   fields: {
     eyebrow: { type: 'text' },
     figure: { type: 'plain', hint: 'the headline number, e.g. "5.1x"' },
@@ -405,7 +405,7 @@ const benchmarkFigure = {
 const linkCard = {
   name: 'link-card',
   summary: 'A single card linking down to a cluster or spoke, optionally flagged as still in production.',
-  source: '13-data-cut-filters',
+  source: 'DataCutCard',
   fields: {
     tag: { type: 'text', hint: 'the small uppercase kicker, e.g. "Cluster Hub"' },
     title: { type: 'text' },
@@ -432,7 +432,7 @@ const linkCard = {
 const relatedCards = {
   name: 'related-cards',
   summary: 'A grid of cross-link cards to related hubs, clusters, or spokes.',
-  source: '14-spoke-page-cards',
+  source: 'RelatedHubCard',
   fields: {
     items: {
       type: 'list',
@@ -551,7 +551,7 @@ const shareBar = {
 
 const comparisonTable = {
   name: 'comparison-table',
-  summary: 'A vendor comparison table with a gradient header row and per-column alignment. Renders structure only; a share cell composes share-bar and a trend cell composes trend-indicator.',
+  summary: 'A vendor comparison table with a flat navy header row and per-column alignment. Renders structure only; a share cell composes share-bar and a trend cell composes trend-indicator.',
   source: 'ComparisonTable',
   fields: {
     columns: {

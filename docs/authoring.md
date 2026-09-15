@@ -141,7 +141,7 @@ what a page carries stays a question for whatever writes the Markdown.
 | Element | Compiles to |
 | --- | --- |
 | Trail | `breadcrumb`. Omitted on a document with no parent; the graph then emits no `BreadcrumbList` |
-| Opening block | `hero` (gradient, stats, eyebrow, thesis) or `article-hero` (light, byline). Exactly one, and where the graph reads the author |
+| Opening block | `hero` (navy band, stats, eyebrow, thesis) or `article-hero` (light, byline). Exactly one, and where the graph reads the author |
 | Freshness stamp | `freshness-bar` |
 | Jump list | `intro-toc` |
 | Thesis | `thesis-band` as a full-width band, or a `>` blockquote inside the reading column |
@@ -151,7 +151,7 @@ what a page carries stays a question for whatever writes the Markdown.
 | FAQ | `faq`. The graph reads the questions from it |
 | References | `citations`. The list that `[^n]` markers in copy resolve to |
 | Related links | `related` as a closing band, or `related-cards` inside a section |
-| End CTA | `cta` |
+| End CTA | `cta`. The coral band by default; `surface: navy` when the page already ends on coral, `layout: split` to put the buttons beside the copy |
 | Index of other pages | `resource-index`, or `link-card` blocks in body sections. Either is what the graph reads an `ItemList` from |
 
 Every other component in the catalog is section content: placed by the document,
