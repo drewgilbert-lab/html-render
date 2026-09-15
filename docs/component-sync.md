@@ -73,10 +73,14 @@ tag/release sequence is in [github-process.md](github-process.md#releases-and-ta
 
 ## How the file is built
 
-[`scripts/generate-contract.js`](../scripts/generate-contract.js) shells out to the CLI —
-`--components` — and wraps
-the four captures under a provenance header. Nothing is transcribed by hand, so the file cannot
-drift from the registry the way the old manifests did.
+[`scripts/generate-contract.js`](../scripts/generate-contract.js) assembles two halves under a
+provenance header: [`docs/authoring.md`](authoring.md) verbatim, minus its H1, then the capture of
+`--components`. Nothing is transcribed by hand, so neither half can drift from the source it comes
+from the way the old per-skill manifests and assembly instructions did.
+
+Both halves ship in one file on purpose. How a document is assembled and what it can be assembled
+from change together, and a consumer that has one without the other writes pages that pass
+`--check` and come out gutted.
 
 Run it locally any time:
 

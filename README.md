@@ -203,7 +203,7 @@ only file here that carries a specific organization's data.
 
 | Document | What it covers |
 |---|---|
-| [docs/authoring.md](docs/authoring.md) | How a document composes itself: body order, regions, and worked examples |
+| [docs/authoring.md](docs/authoring.md) | How a document composes itself: the frontmatter/body split, components, regions, the assembly order, the named-element vocabulary, and worked examples. Ships downstream inside the synced contract |
 | [docs/github-process.md](docs/github-process.md) | Branch/PR rules, commit conventions, and the tag/release sequence for this repo |
 | [docs/component-sync.md](docs/component-sync.md) | How a tagged release ships the contract to `geo-spoke-builder`, and how to test it |
 | [docs/open-items.md](docs/open-items.md) | What is outstanding, why, and what unblocks it |

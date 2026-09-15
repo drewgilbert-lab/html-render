@@ -5,10 +5,11 @@
 decides what a page should contain or where its parts belong; that belongs to
 whatever writes the Markdown.
 
-Run `html-render --components` for the catalog: every component, both regions,
-and the frontmatter keys, each with its fields. That output is generated from
-the live registry, so it cannot drift. This file explains the shape; the
-catalog is the reference.
+The catalog is the companion to this file: every component, both regions, and
+the frontmatter keys, each with its fields. Run `html-render --components` for
+it, or read the Catalog section of the synced contract, which is that same
+output verbatim. It is generated from the live registry, so it cannot drift.
+This half explains the shape; the catalog is the reference for the fields.
 
 ---
 
@@ -99,6 +100,62 @@ items:
 ```
 :::
 ````
+
+---
+
+## Assembly order
+
+This renderer imposes no order; the body renders as written. But a document that
+reads as a finished page puts its parts in one sequence, and every document in
+`examples/` follows it:
+
+```
+breadcrumb -> opening block -> freshness-bar -> [intro-toc] -> [thesis-band]
+  -> body sections (optionally wrapped in a two-column with a side-nav)
+  -> [methodology] -> faq -> citations -> [related] -> cta
+```
+
+Square brackets mark what a document may leave out. Nothing else moves: a
+`freshness-bar` above the opening block, or a `cta` before the `faq`, reads as a
+mistake rather than a variation.
+
+Two things the sequence does not decide, because they belong to the document:
+
+- **Which optional parts exist.** A document with no jump list omits
+  `intro-toc`; one with no parent omits `breadcrumb`, and the graph then claims
+  no trail. Leaving a part out is not reordering the rest.
+- **What goes inside a section.** `resource-index`, `related-cards`,
+  `link-card`, `concept-cards`, tables, callouts and everything else sit in body
+  sections wherever the document puts them. `cluster.md` places its
+  `resource-index` directly after its first section; that is a statement about
+  that document, not an exception to the order above.
+
+---
+
+## Named elements
+
+A document is easiest to specify by naming its parts. This is what each name
+compiles to, so that how an element is drawn stays a question for this repo and
+what a page carries stays a question for whatever writes the Markdown.
+
+| Element | Compiles to |
+| --- | --- |
+| Trail | `breadcrumb`. Omitted on a document with no parent; the graph then emits no `BreadcrumbList` |
+| Opening block | `hero` (gradient, stats, eyebrow, thesis) or `article-hero` (light, byline). Exactly one, and where the graph reads the author |
+| Freshness stamp | `freshness-bar` |
+| Jump list | `intro-toc` |
+| Thesis | `thesis-band` as a full-width band, or a `>` blockquote inside the reading column |
+| Body section | `:::section`, which owns the anchor and the band |
+| Reading column and rail | `:::two-column` around the sections, with a `side-nav` inside it as the rail |
+| Methodology band | `methodology` |
+| FAQ | `faq`. The graph reads the questions from it |
+| References | `citations`. The list that `[^n]` markers in copy resolve to |
+| Related links | `related` as a closing band, or `related-cards` inside a section |
+| End CTA | `cta` |
+| Index of other pages | `resource-index`, or `link-card` blocks in body sections. Either is what the graph reads an `ItemList` from |
+
+Every other component in the catalog is section content: placed by the document,
+not by this vocabulary.
 
 ---
 
