@@ -63,14 +63,14 @@ test('the rendered order is the order the body was written in', () => {
       '```',
     ].join('\n'),
   );
-  const [cta, heading, breadcrumb] = order(output, 'class="cta-section"', '<h2>A heading</h2>', 'class="breadcrumb-bar"');
+  const [cta, heading, breadcrumb] = order(output, 'class="cta-section on-dark"', '<h2>A heading</h2>', 'class="breadcrumb-bar"');
   assert.ok(cta < heading && heading < breadcrumb, 'components should render in document order, not in a fixed slot order');
 });
 
 test('no page class means no page-class chrome is invented', () => {
   const output = html('A single paragraph.');
   assert.doesNotMatch(output, /data-page-type/);
-  for (const chrome of ['class="hero"', 'class="freshness-bar"', 'class="faq-section"', 'class="cta-section"', 'class="sidenav"']) {
+  for (const chrome of ['class="hero"', 'class="freshness-bar"', 'class="faq-section"', 'class="cta-section on-dark"', 'class="sidenav"']) {
     assert.doesNotMatch(output, new RegExp(chrome.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
   assert.match(output, /<p>A single paragraph\.<\/p>/);

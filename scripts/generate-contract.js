@@ -72,6 +72,11 @@ function header(pkg, commit) {
     `| Renderer commit | \`${commit}\` |`,
     `| Design catalog | \`${catalog.catalog || 'unknown'}\` |`,
     `| Catalog build | \`${catalog.build || catalog.commit || 'unknown'}\` |`,
+    // The export's `namespace` does not change when the export is recompiled: two
+    // exports with different components, CSS and tokens have shipped under the same
+    // one. The export name is what actually says which build this was reconciled
+    // against, and what the next sync diffs from.
+    ...(catalog.export ? [`| Catalog export | \`${catalog.export}\` |`] : []),
     `| Last reconciled | ${catalog.syncedAt || 'unknown'} |`,
     '',
     'Two halves. **Authoring a document** is how a document is assembled: what goes in',

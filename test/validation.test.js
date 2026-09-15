@@ -109,8 +109,10 @@ test('nothing about what a page contains is a validation error', () => {
     ].join('\n\n'),
   });
   const html = rendersCleanly(many);
-  assert.equal((html.match(/class="cta-section"/g) || []).length, 2);
-  assert.equal((html.match(/class="btn-primary"/g) || []).length, 2);
+  assert.equal((html.match(/class="cta-section on-dark"/g) || []).length, 2);
+  // The first action takes the white fill, the rest the white outline.
+  assert.equal((html.match(/class="btn-white"/g) || []).length, 1);
+  assert.equal((html.match(/class="btn-secondary"/g) || []).length, 1);
 });
 
 test('a citation marker with no citations list is the author\'s business, not the renderer\'s', () => {

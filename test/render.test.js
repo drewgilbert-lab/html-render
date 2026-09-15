@@ -11,11 +11,14 @@ const { page, pillar, cluster, spoke, bandedSpoke, body, EXAMPLE_CONFIG, HERO_WI
 
 test('the FAQ renders as a static Q&A list, with no accordion affordance', () => {
   const html = body(pillar()).html;
-  // Questions are headings, not buttons: the export dropped the toggle.
-  assert.match(html, /<h3 class="faq-question">What is this\?<\/h3>/);
+  // Questions are headings, not buttons: the export has no toggle. The coral
+  // circle beside a question is an ornament marking the row, so it is present
+  // in the markup and hidden from assistive technology.
+  assert.match(html, /<h3 class="faq-question">\s*<span>What is this\?<\/span>/);
+  assert.match(html, /<span class="faq-icon" aria-hidden="true"><\/span>/);
   assert.match(html, /<div class="faq-answer">A fixture used by the renderer test suite\.<\/div>/);
   assert.doesNotMatch(html, /faq-item open/);
-  assert.doesNotMatch(html, /faq-icon/);
+  assert.doesNotMatch(html, /<details|<summary|<button/);
   assert.doesNotMatch(html, /aria-expanded/);
   // Nothing is left for the script to toggle.
   const withScript = render(pillar(), { config: EXAMPLE_CONFIG, styles: false, schema: false }).html;
@@ -29,7 +32,7 @@ test('render options control the emitted wrapper assets', () => {
   assert.match(plain, new RegExp(`<div class="${DEFAULTS.pageClass}">`));
 
   const withFont = render(pillar(), { config: EXAMPLE_CONFIG }).html;
-  assert.match(withFont, /@import url\('https:\/\/fonts\.googleapis\.com/);
+  assert.match(withFont, /@import url\('https:\/\/use\.typekit\.net\/ltv7nur\.css'\)/);
   assert.doesNotMatch(render(pillar(), { config: EXAMPLE_CONFIG, font: false }).html, /@import/);
 });
 
@@ -59,18 +62,23 @@ test('the wrapper class is written in exactly one place', () => {
 test('the sticky side-nav clears the header and spoke body is padded', () => {
   const { stylesheet, behaviourScript } = require('../src/index');
   const css = stylesheet();
-  assert.match(css, /\.sidenav \{ position: sticky; top: 80px;/);
-  assert.match(css, /\.spoke-body-section \{ padding: 56px 0 64px;/);
+  assert.match(css, /\.sidenav \{ position: sticky; top: 28px;/);
+  assert.match(css, /\.spoke-body-section \{ padding: clamp\(48px,5vw,80px\) 0;/);
   assert.match(behaviourScript(), /rootMargin: '-80px 0px -60% 0px'/);
 });
 
 test('tables wrap in place and never use a horizontal slider', () => {
+  // The export gives the wrapper an overflow-x slider. This renderer emits a
+  // body into a host column of unknown width, and a slider hides columns from
+  // print, so the table wraps in place instead. Colour and shape are the
+  // export's; only the overflow behaviour departs.
   const { stylesheet } = require('../src/index');
   const css = stylesheet();
   assert.match(css, /\.table-wrapper \{ overflow: visible;/);
   assert.match(css, /table\.comparison-table \{ width: 100%; table-layout: fixed;/);
   assert.doesNotMatch(css, /overflow-x:\s*auto/);
   assert.doesNotMatch(css, /\.comparison-table thead th \{[^}]*white-space: nowrap/);
+  assert.match(css, /\.comparison-table thead tr \{ background: var\(--hg-navy\);/);
 });
 
 test('footnote definition lines are not rendered next to the formatted citations slot', () => {
