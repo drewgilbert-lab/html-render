@@ -1,0 +1,402 @@
+{
+  "schema": "html-render/design-export-lock/v1",
+  "export": "HG New Brand Design System",
+  "namespace": "HGInsightsMarketingDesignSystem_3bf70b",
+  "digest": "99ef872436d28788d518e68c329360b39d653ca56caf9ea16f6b73befdec6b6d",
+  "counts": {
+    "components": 91,
+    "tokens": 5,
+    "css": 16
+  },
+  "components": {
+    "AboutBlock": {
+      "source": "components/document/AboutBlock.jsx",
+      "sha256": "98441169946dfc31da540396574ac7d3f550b99f7310757e8042cd90bf30285a"
+    },
+    "Accordion": {
+      "source": "components/controls/Accordion.jsx",
+      "sha256": "2727daaa6b61a91b8ebcf9a75cf57208c602a4c2edabacf4805c6c011d6aa60e"
+    },
+    "ApproachImplicationTable": {
+      "source": "components/tables/ApproachImplicationTable.jsx",
+      "sha256": "0a62a4a7916eff4b9b3e73fa0a53cd77446686634802542206528420f86b8c78"
+    },
+    "AuthorByline": {
+      "source": "components/editorial/AuthorByline.jsx",
+      "sha256": "de71dac8edd1ae8092a9754be1deb48d727b29b447329e6e9a34728247a1a6ce"
+    },
+    "Badge": {
+      "source": "components/foundations/Badge.jsx",
+      "sha256": "f45d0ef56f94b8565da3933cb04018ad6c0b18e153d643de4673ebcb37022183"
+    },
+    "BarChart": {
+      "source": "components/data/BarChart.jsx",
+      "sha256": "4a11cc0e9dffa349591f1aed01f6074a8372aed9762b8eafdebcda2b6cf5edc4"
+    },
+    "BeforeAfter": {
+      "source": "components/content/BeforeAfter.jsx",
+      "sha256": "e1f89f2fff9436d9ab14a27108221c8d8908dcd4a3d503cb9556b1716881e939"
+    },
+    "BenchmarkFigure": {
+      "source": "components/data/BenchmarkFigure.jsx",
+      "sha256": "1fa27ae5ef230798fcdc7a03cbeb025bfff68deb36ffe34970c6dd2981dba730"
+    },
+    "Breadcrumb": {
+      "source": "components/navigation/Breadcrumb.jsx",
+      "sha256": "6f2bcb9fd424b3c505c9af8a5f015ea905575d3c16404e4b6bb92fb71621601d"
+    },
+    "BulletList": {
+      "source": "components/content/BulletList.jsx",
+      "sha256": "132623c7b815a4e00286debacb58cec14ccff3905984f6fc016d29a554f88e4c"
+    },
+    "Button": {
+      "source": "components/buttons/Button.jsx",
+      "sha256": "ddd7d80fd9a6862289387c43e74df6d8e833c71bf8a60100993f75d92aa2d411"
+    },
+    "Callout": {
+      "source": "components/panels/Callout.jsx",
+      "sha256": "56217bb206bcfcb818a76e02f54ff8b199c5bbef7624a5c914b8f245f9474116"
+    },
+    "CaseStudyCard": {
+      "source": "components/navigation/CaseStudyCard.jsx",
+      "sha256": "6db81e043a96313fc7d1479f00827514c32c7e26e6ae858880bbb1b32d3f281c"
+    },
+    "CheckList": {
+      "source": "components/controls/CheckList.jsx",
+      "sha256": "d4d7c1cbd726711b8af423e2fd8910c6f91d03776406a20c53e0ada0b145b4d1"
+    },
+    "CitationsList": {
+      "source": "components/editorial/CitationsList.jsx",
+      "sha256": "a00e515fbf4e71108bb2889626045e29a24dfe7ce404048687bb607bd352df35"
+    },
+    "CohortCompare": {
+      "source": "components/tables/CohortCompare.jsx",
+      "sha256": "2ce161d273621a79d4064c85f25394281259fac32f04cc312d9dd932e0529f59"
+    },
+    "CohortSwitcher": {
+      "source": "components/tables/CohortSwitcher.jsx",
+      "sha256": "be2266b71e34e19e08b5d2740d340b51deb64d01047116d91842b51f0fe36797"
+    },
+    "CommercialHeader": {
+      "source": "components/editorial/CommercialHeader.jsx",
+      "sha256": "a9f48a20c1449d8ac7a02701eefc791264b864171efb0c4b12e5f102b70124f7"
+    },
+    "ComparisonTable": {
+      "source": "components/tables/ComparisonTable.jsx",
+      "sha256": "015847f0426c4663c8b17387da3c8104634253ce1cfe768a55a16bb83efd53f6"
+    },
+    "ConceptCard": {
+      "source": "components/content/ConceptCard.jsx",
+      "sha256": "05829fb883fae57211a50ace69608d7e98cc531cc8ead190585650495c3cedab"
+    },
+    "ContentSection": {
+      "source": "components/content/ContentSection.jsx",
+      "sha256": "ae013236350f53ba019e8376ad3e04844ba1d8dad72b92f696da6a19f270f2a9"
+    },
+    "CtaSection": {
+      "source": "components/panels/CtaSection.jsx",
+      "sha256": "0191afa10ffbfbdf1689f7e49d58d1d49247c18da720176c47a1fab000a2a4d3"
+    },
+    "DataCutCard": {
+      "source": "components/navigation/DataCutCard.jsx",
+      "sha256": "bb8bdcadeecec6f5b2688533d996991357808c3e8712571b7dd06950ef4e2a56"
+    },
+    "DataFreshnessBar": {
+      "source": "components/data/DataFreshnessBar.jsx",
+      "sha256": "c442ae8a980524d9d4d92c0bb72ee73974c7e32431422986a992f1c6a9d5e476"
+    },
+    "DeviceFrame": {
+      "source": "components/product/DeviceFrame.jsx",
+      "sha256": "0b66ddf11bb944392e12343f6c1bbd2eea2599744b763a7312b88f08400fcf7d"
+    },
+    "DisplacementFlow": {
+      "source": "components/data/DisplacementFlow.jsx",
+      "sha256": "00ccf20af48a632b8ba2195ec629ed8135b9eb891448bb275c3a424f7cc7d393"
+    },
+    "DisplacementSlope": {
+      "source": "components/data/DisplacementSlope.jsx",
+      "sha256": "72acc739192bf7d1f028d995d11dfa49339d64514941ce218a4d93e8cc793c93"
+    },
+    "DocCover": {
+      "source": "components/document/DocCover.jsx",
+      "sha256": "e93a883164c5ef6535892095840cc59a781968eb0ee7b30aaad910c7047918ee"
+    },
+    "DonutChart": {
+      "source": "components/data/DonutChart.jsx",
+      "sha256": "03e7ba50bd16114c130e2fca07beb94f8fc8a581c8a73785c2227bf3553474c1"
+    },
+    "EditorialHero": {
+      "source": "components/editorial/EditorialHero.jsx",
+      "sha256": "40b0dc939e8a3c7a6764e85bc487242ddf7158f1b1a1246bbe7f05c07f496c88"
+    },
+    "ExpertQuote": {
+      "source": "components/panels/ExpertQuote.jsx",
+      "sha256": "df58e3d134f4706e7985ae3c20e88d6905e48193ca5814d6295b88f0f0c2d5a6"
+    },
+    "Faq": {
+      "source": "components/navigation/Faq.jsx",
+      "sha256": "f5aaf3e6106f7578c2e68be0840c66440d91c912a1899dfa78f10c33ad22bef5"
+    },
+    "FeatureStrip": {
+      "source": "components/product/FeatureStrip.jsx",
+      "sha256": "af2643629bb5c4caed16316b346854de0380deb584726379377f53f04f91dd80"
+    },
+    "Figure": {
+      "source": "components/content/Figure.jsx",
+      "sha256": "b76886ca319acdf10f175156eee83c37edfdabc6df2258639b3e88a7f49cc159"
+    },
+    "FloatCard": {
+      "source": "components/product/FloatCard.jsx",
+      "sha256": "50336f5af3cbe44d531c113f0a63c0f2498880dc86a01bb85906d6c5547a4bca"
+    },
+    "Glossary": {
+      "source": "components/navigation/Glossary.jsx",
+      "sha256": "082b5486f2229aa35503bfb08680e8826ec045f6ebb57bc90ace1f3257a0bb04"
+    },
+    "HeroCarousel": {
+      "source": "components/site/HeroCarousel.jsx",
+      "sha256": "d0411a6c03fb8e75c98b747eb5669c67ed6f06be4d79b6d60a61523ebdc96220"
+    },
+    "HeroStatBlock": {
+      "source": "components/data/HeroStatBlock.jsx",
+      "sha256": "2991df3d7e042277c5e2a4fcbb1e6b8522b0f9d5305675c65a229314a18ab784"
+    },
+    "ICON_PATHS": {
+      "source": "components/foundations/Icon.jsx",
+      "sha256": "721ba2bf240482d27914d631e9e8fdfd14da8ebc816eb282f23bdb873a694312"
+    },
+    "Icon": {
+      "source": "components/foundations/Icon.jsx",
+      "sha256": "721ba2bf240482d27914d631e9e8fdfd14da8ebc816eb282f23bdb873a694312"
+    },
+    "InlineCta": {
+      "source": "components/panels/InlineCta.jsx",
+      "sha256": "a4e81093e811db42a3442d6f5db25a40589ca26db0c425f56a557db7fdb42ebd"
+    },
+    "InteractiveTable": {
+      "source": "components/tables/InteractiveTable.jsx",
+      "sha256": "e1c86807458915b86252245d682b489d20a7fdeded9515f9b2d07071d370d305"
+    },
+    "IntroToc": {
+      "source": "components/navigation/IntroToc.jsx",
+      "sha256": "75a102886868de7770f98c52476ded85e2c6af7bd71ca994068f4a420d94f1c0"
+    },
+    "KeyInsights": {
+      "source": "components/panels/KeyInsights.jsx",
+      "sha256": "2f836e4554cee9658b86b01af776b6e146302de7e65fc8ec77b8812c1c9fe1c4"
+    },
+    "LimitationsCards": {
+      "source": "components/panels/LimitationsCards.jsx",
+      "sha256": "0d0f069c8013bf32628089b79fbbc7855c3cd315e10d4f74b847b0b7f261c373"
+    },
+    "LinkMore": {
+      "source": "components/buttons/Button.jsx",
+      "sha256": "ddd7d80fd9a6862289387c43e74df6d8e833c71bf8a60100993f75d92aa2d411"
+    },
+    "Logo": {
+      "source": "components/foundations/Logo.jsx",
+      "sha256": "6ade3b823238d5ed33f90401a7bf642bd16b96ca5cf367a6ccdc79abc9e7eafe"
+    },
+    "LogoBand": {
+      "source": "components/proof/LogoBand.jsx",
+      "sha256": "6a5438af34e1a82deb66cc77f973eba11c0a059c809a834deb670d9e7a6367fc"
+    },
+    "MetaPill": {
+      "source": "components/editorial/MetaPill.jsx",
+      "sha256": "c079d4a02bf596ef7964189e23486616ac1c186b6d4af669f8bc0e3ffd3c435c"
+    },
+    "Methodology": {
+      "source": "components/navigation/Methodology.jsx",
+      "sha256": "9cac1c1503517a098d3cbe1851ed4da49698034b17eedf277e84d390ace7fc95"
+    },
+    "MetricHighlight": {
+      "source": "components/foundations/MetricHighlight.jsx",
+      "sha256": "4664fd5c0a4567e670b88999e8f445054dfb2042f41fb21b32157576a0ea141f"
+    },
+    "MiniBarChart": {
+      "source": "components/data/MiniBarChart.jsx",
+      "sha256": "677a89763ea2af8a28efeae7566d8a2342c0987527203706ed61ae42f0fb6b02"
+    },
+    "NameHighlight": {
+      "source": "components/foundations/NameHighlight.jsx",
+      "sha256": "9d19497b9af0c04bdb33002b48d141562cd65cd9bf3cf62d457b15c3ed8f52f7"
+    },
+    "NumberedList": {
+      "source": "components/content/NumberedList.jsx",
+      "sha256": "7339b3846a69ae735bb2ff359e56da3d5d90151645bb0933815c35d162f32548"
+    },
+    "OutcomeCards": {
+      "source": "components/proof/OutcomeCards.jsx",
+      "sha256": "4ef8d401281ee439d0138f1f37cb94fb7bbb0608fc3807f7472b71127776aaff"
+    },
+    "PageFooterBand": {
+      "source": "components/document/PageFooterBand.jsx",
+      "sha256": "12d424a8fabc2e3546c3209c08d493937805f67d5ad7914aa5e5327923d6ba97"
+    },
+    "PageHeaderBand": {
+      "source": "components/document/PageHeaderBand.jsx",
+      "sha256": "a5f9e2e61c431e0d4a0ae9773307e66431c3ea1dcee25976cee7cbcbcb010596"
+    },
+    "PartDivider": {
+      "source": "components/document/PartDivider.jsx",
+      "sha256": "62733c915f9cbcf55b97bff3c94a66c5d517403acbfec8d0f4a87ab1d7460202"
+    },
+    "PeopleBand": {
+      "source": "components/proof/PeopleBand.jsx",
+      "sha256": "de005e045555f4940916bf9e143605f60241353c029d5ce318d893ad14b8f224"
+    },
+    "Pictogram": {
+      "source": "components/foundations/Pictogram.jsx",
+      "sha256": "02f95fda1173ab5f90d16032a3fc6ebfc438aa2698ba0cd275dc89f22df20d7d"
+    },
+    "ProcessSteps": {
+      "source": "components/content/ProcessSteps.jsx",
+      "sha256": "dd7822d14f1cb813dc9d1cdce4d390c5804411c123691ce602f46f3a701ac5f2"
+    },
+    "ProductShowcase": {
+      "source": "components/product/ProductShowcase.jsx",
+      "sha256": "bd48e0ed603c56850300c261336b5df0f101ffc61ec8c8ef82edf6da5c63b0c3"
+    },
+    "ProgressRail": {
+      "source": "components/controls/ProgressRail.jsx",
+      "sha256": "b23e06749d48256dfde57932d299e6d1e28d1700f92745425cff0a05f44bf290"
+    },
+    "RelatedHubCard": {
+      "source": "components/navigation/RelatedHubCard.jsx",
+      "sha256": "96370a806d07e10e56f2c599bbe80031d6ed4601d95f1c2831b15e427dde586f"
+    },
+    "ResourceCard": {
+      "source": "components/proof/ResourceCard.jsx",
+      "sha256": "39c8de2aab2e04f41731a0e4feb13259a88e973f1ffa65cd29be43f2bcd8b337"
+    },
+    "ResourceGrid": {
+      "source": "components/proof/ResourceCard.jsx",
+      "sha256": "39c8de2aab2e04f41731a0e4feb13259a88e973f1ffa65cd29be43f2bcd8b337"
+    },
+    "SectionBody": {
+      "source": "components/content/ContentSection.jsx",
+      "sha256": "ae013236350f53ba019e8376ad3e04844ba1d8dad72b92f696da6a19f270f2a9"
+    },
+    "SectionHeader": {
+      "source": "components/foundations/SectionHeader.jsx",
+      "sha256": "50de6666c4e13052887406860976656ba84a8e17c3d602d72989f96d49fad23d"
+    },
+    "SectionRule": {
+      "source": "components/foundations/SectionRule.jsx",
+      "sha256": "8d644d629f1f169c5dd049bb831f559633acca22c4e76c3258131ecfcde3868e"
+    },
+    "ShareBar": {
+      "source": "components/data/ShareBar.jsx",
+      "sha256": "697a196e025147727a30e96ba4eef28d7fc033dadd51edfcf0d142058f4a7fb0"
+    },
+    "SiteFooter": {
+      "source": "components/site/SiteFooter.jsx",
+      "sha256": "8a45383efc94547a0896492fada3576533a70e1a0bb97a72597c3c09c4b161eb"
+    },
+    "SiteHeader": {
+      "source": "components/site/SiteHeader.jsx",
+      "sha256": "79af5d724974c1a4e6c77267fc4ad8751d203a0e0e3fbf786139cbf6a8f2c326"
+    },
+    "SocialProof": {
+      "source": "components/editorial/SocialProof.jsx",
+      "sha256": "4cf2e782181d6ac32b7a8aceac21618044ffee3ccc01ddd26677e0c52bbe919a"
+    },
+    "SplitFeature": {
+      "source": "components/product/SplitFeature.jsx",
+      "sha256": "2945fb9c1644e6aaf590b0543a0c40bbcb75b11ffb95e81d879a2be88907ffbf"
+    },
+    "SquarePair": {
+      "source": "components/foundations/SquarePair.jsx",
+      "sha256": "1f434c7007d55bbfa2afa6becab471e63bb0ef56e7f045d7b31921b930f15d92"
+    },
+    "StatCard": {
+      "source": "components/data/StatCard.jsx",
+      "sha256": "b56e4c6671c5e59af9110758ec1af5a96ee6a3724c660ce5f92f82365ef887ab"
+    },
+    "StatsBand": {
+      "source": "components/proof/StatsBand.jsx",
+      "sha256": "9792291de38556a9a1b5327506262ca5a180933f32b7e0b15c1fe69d83710c1f"
+    },
+    "StickySideNav": {
+      "source": "components/navigation/StickySideNav.jsx",
+      "sha256": "4d5fe8f43da9c1ba3e1d9acea9e4cb5a05dbdce8886f5bd1142ce7e79496ad1b"
+    },
+    "SupportChartCard": {
+      "source": "components/data/SupportChartCard.jsx",
+      "sha256": "4272fd87764dc4b593726f70c40cd8212fef6b1762a33f3ee62273a6da6c0fba"
+    },
+    "TabRail": {
+      "source": "components/site/TabRail.jsx",
+      "sha256": "2aa6f3e81dae0fd68e050643dbb648f1b3e80829fdaed0499e051e4a41fb0ce7"
+    },
+    "TeamGrid": {
+      "source": "components/proof/TeamGrid.jsx",
+      "sha256": "4923ca400010dc108a6113d52c408fbf63144fa86b886cbc80699626a7fbe589"
+    },
+    "TechStackLayers": {
+      "source": "components/tables/TechStackLayers.jsx",
+      "sha256": "acb35229a266bc85dee7652a466ca4fa078dee69e9579e11900dbc388fba8d75"
+    },
+    "ThesisBlock": {
+      "source": "components/panels/ThesisBlock.jsx",
+      "sha256": "9e49737502d804509be7e9a10cc8933f20fa13f13a12a3cdf5e2f4a09fa77e98"
+    },
+    "Tile": {
+      "source": "components/product/Tile.jsx",
+      "sha256": "25c155cc01cd5d13f74c43844852df0566205284d5b7a99bfb14d59e172a0fbd"
+    },
+    "TileGrid": {
+      "source": "components/product/Tile.jsx",
+      "sha256": "25c155cc01cd5d13f74c43844852df0566205284d5b7a99bfb14d59e172a0fbd"
+    },
+    "TrendIndicator": {
+      "source": "components/data/TrendIndicator.jsx",
+      "sha256": "34374b1491ef42eed54996972ceb57cc6828811153a313429d8149b2d814a1d7"
+    },
+    "UtilityBar": {
+      "source": "components/site/UtilityBar.jsx",
+      "sha256": "7841425c9cafcf6412f728dadca04644eda33a487302ab2d227636869009eae3"
+    },
+    "VendorProfile": {
+      "source": "components/tables/VendorProfile.jsx",
+      "sha256": "7a1d0b00391625857e638d014001f0fd2e74eaf68f490b3eff8b63a15c1f89b0"
+    },
+    "VideoGrid": {
+      "source": "components/product/VideoPlayer.jsx",
+      "sha256": "ead3ae562ac56c80f60b55fc30fe6e978d5b0747da20386732e6b0f1e9503ab6"
+    },
+    "VideoPlayer": {
+      "source": "components/product/VideoPlayer.jsx",
+      "sha256": "ead3ae562ac56c80f60b55fc30fe6e978d5b0747da20386732e6b0f1e9503ab6"
+    },
+    "WpFooter": {
+      "source": "components/panels/WpFooter.jsx",
+      "sha256": "ce4433d700fbfb24225484774ebae703adc52df17ac3c571c4d12c768bc1a847"
+    }
+  },
+  "tokens": {
+    "tokens/base.css": "dbd3b2bccf237b28109b3209ca99bda66890c62a519d87144785e91277db97eb",
+    "tokens/colors.css": "1c6ec0590667f7d336d8dcd4685c283f578080ebe814a6ea2a318cc1056cc705",
+    "tokens/fonts.css": "91eb62b425dcd46277b05ae541cb007f493440ca27500660dcfe42862e7225e3",
+    "tokens/spacing.css": "c276cef6af98e12e2218505b36493431f997e34b2f10a79c79510b846e6c0b39",
+    "tokens/typography.css": "6416f4736019a5a115efe57ec03fe215d112acb8b254ec456171d0e0eac63b96"
+  },
+  "css": {
+    "css/buttons.css": "933a1886d1ec6aa60c1f728fcd9dc7bba01401d949147cf2ad921f14354d1a8e",
+    "css/charts.css": "74fec02c2a61eea8a21ee3850abc1cec3a230d403f4eca604f76e434234895fa",
+    "css/content.css": "d60687ce7a19bc2580c7a9b4673b1020decf38c9884d5c68c59ddf492f16aec8",
+    "css/controls.css": "a8b50ca1307658bfe7e80bdab7afe854d00d8f8b42b09ad11fdde6eb34672a6e",
+    "css/document.css": "8d8984c9649c99d44a3301481646733d23fdcbb2a33e424886067cacdc323dc3",
+    "css/editorial.css": "7e7074e3524ee0b0610abf0dda3a71f9514ed4485ec1927e759922fd1133edf6",
+    "css/foundations.css": "b8e75804c4b9a5b75715448f38e57592b301f9f934fb4d8bfaf84621b95b86ec",
+    "css/hero.css": "955224cf23e9746dba62f2584e1cf17f0a9950c8e5be6d65269820888f859f06",
+    "css/interactive.css": "7f1e6229e3ab585701fac11a7adb9c23c2f2661fac7cc964f61856950c6e03e6",
+    "css/navigation.css": "53f0b5adbdbfb2c9e2e594b393af35637f10a94b7f22f74731104a76dfcc6911",
+    "css/panels.css": "ef66df9a3817679ee44508ab99f42bf99a113661ea8190794b076b3778851561",
+    "css/product.css": "85ca1ce42773ddc62d50d0bc38478ceccc37201fd1d9b860c45d3288f36543e6",
+    "css/proof.css": "b1a4e0dfe31c7b66bd9b14675019efcd9ed10220cf970fddca28bdf146e8b91a",
+    "css/site.css": "7ddf46abc53e8f1b8a94f7c3d35504e6e62b5c2eec0f5ac6a3f2c03fee9b0dd0",
+    "css/tables.css": "4f649aec6f5cfb09323cc704af70adf843876cc6609ca55e8ac7d164f4b136be",
+    "styles.css": "c073f37464cb8a6e49dcae85da47d5a185e552160f92f8e5ea28b1a8530ee324"
+  }
+}
