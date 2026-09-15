@@ -17,10 +17,11 @@ node bin/html-render.js --audit /path/to/claude-design-export   # coverage vs. t
 node bin/html-render.js --components                            # the catalog, as shipped downstream
 ```
 
-Last reviewed: **2026-09-14**, against Claude Design export build
-`HGInsightsMarketingDesignSystem_3bf70b` (the 2026-09-01 recompile — same namespace, different
-contents; see §4), `html-render` v2.0.0 at `eb15bf0` on `main` (merged, not yet tagged — see §2),
-and `geo-spoke-builder` plugin 0.47.1.
+Last reviewed: **2026-09-15**, against Claude Design export `HG New Brand Design System`
+(namespace `HGInsightsMarketingDesignSystem_3bf70b` — the same namespace as the 2026-09-01
+recompile, with 28 more components and a replaced token layer; see §4), `html-render` v3.0.0
+tagged at `885d3bf` on `main`, and `geo-spoke-builder` plugin 0.49.0 carrying the v3.0.0
+contract.
 
 ---
 
@@ -87,12 +88,10 @@ of the skills") and geo-spoke-builder#51 (contract re-stamp) are merged; the plu
   significantly a deleted "Section headers" row that left several formats claiming bands and
   anchors with nothing saying how either exists. Repaired and rechecked before merge.
 
-**What's left is only the tag.** geo-spoke-builder's synced contract is already re-stamped to
-`html-render`'s actual `main` tip (`commit=eb15bf0`), so tagging `v2.0.0` there will hit the sync
-workflow's "no change, nothing to sync" path rather than open a redundant PR — verified by running
-`scripts/generate-contract.js` at that commit and diffing it against the downstream file
-byte-for-byte. `render-page.sh`'s version gate reads `version=`, not `commit=`, and both sides
-already read `2.0.0`, so nothing downstream is blocked by the missing tag meanwhile.
+**Fully closed 2026-09-15.** `v2.0.0` was tagged, and `v3.0.0` followed it the same day with
+the Sept 2026 brand kit. The sync workflow carried the v3.0.0 contract into geo-spoke-builder
+(its PR #54), which merged with the plugin bump to 0.49.0 in the same change, so the contract
+reaches installed sessions. Both sides of `render-page.sh`'s version gate now read `3.0.0`.
 
 ### Before v2.0.0
 
@@ -177,38 +176,38 @@ the rendered result is wrong. Each skill's wording is corrected as it migrates.
 
 ## 3. Component coverage
 
-**Most of the 63 exported components are not implemented** (run `--audit <export-dir>` for the
-live list — it also shows which existing implementations still carry the retired numbered `source`
-convention and cannot yet join on export names). Deferred by decision, not oversight.
+**Most of the export's components are not implemented** (run `--audit <export-dir>` for the live
+count and list). Deferred by decision, not oversight — and the gap widened on 2026-09-15, when the
+`HG New Brand Design System` export added 28 components in four new category folders (`product`,
+`proof`, `site`, `controls`). None was taken in v3.0.0: no `geo-spoke-builder` skill names any of
+them, so nothing downstream can ask for one yet. Implement on demand, ordered by which the page
+skills actually reach for.
 
-**The numbered→named `source` migration is transitional and deliberate.** The 2026-08-26 pass
-moved the audit join to export component names, but only the four components it touched (`Figure`,
-`ShareBar`, `ComparisonTable`, `Callout`) adopted the new convention; `Faq` joined them on
-2026-09-01. Every other registry entry and CSS header still carries the retired numbered form and
-is reported by `--audit` in its "Legacy" bucket. Each migrates when its component is next touched
-— never in bulk. One carries a known debt into that migration: `bars`
-(`10-supporting-charts (mini bar)`) was built against a pre-refresh design the retired catalog
-never fully caught up with, so its reconciliation against the export's `MiniBarChart` needs a real
-comparison, not just a `source` rename.
+**The numbered→named `source` migration is complete.** It ran from 2026-08-26 one component at
+a time, as designed: the four that pass touched (`Figure`, `ShareBar`, `ComparisonTable`,
+`Callout`), then `Faq` on 2026-09-01. The v3.0.0 brand rebuild touched all 30 at once and so
+migrated the remaining 21 registry sources and 23 CSS headers with them. `--audit` now reports an
+empty Legacy bucket. The known debt in that migration is settled too: `bars` was reconciled
+against the export's `MiniBarChart` by a real comparison of markup and CSS, not a `source`
+rename — its row geometry and fill colours came from `css/charts.css`.
 
 **The page-composition rules override component `h3` and `p` rules at equal specificity.**
 `.page-section p`, `.main-col p`, `.article-body p`, and the matching `h3` rules in the "Page
 composition" block are `(0,2,1)` selectors declared after most component blocks, so a component's
 own `(0,2,0)` or `(0,2,1)` rule for a `p` or `h3` loses to them: `concept-card-title` takes the
-section's `h3` margins, `callout-box-body` and `process-step-body` render at the section's 17px /
-1.75 rather than their own values. v1.5.0's four new blocks are placed *after* the composition
+section's `h3` margins, `callout-box-body` and `process-step-body` render at the section's
+`--fs-lead` / `--lh-body` rather than their own values. v1.5.0's four new blocks are placed *after* the composition
 rules and bump their `p` selectors with an ancestor class to render as designed, which is a
 workaround, not the fix. The fix is to scope the composition rules to bare prose (a `.prose`
 wrapper on section bodies, or `:not()` exclusions) and then move the four blocks back into
 component order. Touch every affected component's CSS in one reviewed pass, since it changes
 rendered output for pages already published.
 
-**`ProcessSteps` was touched in v1.5.0 without adopting the named convention.** The two fields
-added (`howto`, `id`) are renderer-owned, not design props, so the component's markup and CSS were
-left alone and its `source` stays `49-process-steps`. Reconciling it properly against the export is
-its own Changed decision: the export's `.jsx` uses an `h3.process-step-title` (this renderer emits a
-`div`), and its CSS is smaller (`--fs-body` titles, `--fs-small` bodies, 20px gap) than the values
-here. Switching to `h3` walks straight into the cascade issue above, so do the two together.
+**`ProcessSteps` still emits a `div` where the export uses an `h3`.** v3.0.0 re-ported its CSS
+from the export verbatim and moved its `source` to `ProcessSteps`, so the convention debt is
+settled and the values now match. The markup difference is not: the export's `.jsx` titles the
+step with `h3.process-step-title` and this renderer emits a `div`. Switching walks straight into
+the cascade issue above — `.page-section h3` would capture it — so the two are still one job.
 
 **Table attribution has no component, by decision.** The 2026-09-01 export removed the
 `source`/`caption` prop from all six of its data-table components, and Drew's call was to follow it
@@ -248,10 +247,18 @@ recompile carries the identical namespace while differing in nine component file
 that produced two different releases here (v1.3.0 and v1.4.0) are indistinguishable by `build`, and
 the contract file this repo ships downstream stamps the same `catalog=` for both.
 
-`syncedAt` is doing the disambiguating work by accident. What would fix it properly, cheapest
-first: hash the manifest (or the `components/` + `css/` trees) at sync time and record that
-alongside the namespace; or ask whoever produces the export to emit a real version stamp. Neither
-is done. **Until then, do not read a matching `build` as "same export" — diff the folders.** The
+**Confirmed again, worse, on 2026-09-15.** The `HG New Brand Design System` export carries the
+same namespace once more while shipping 28 additional components, four new category folders and a
+wholly replaced token layer — a rebrand that `--audit` alone reported as no change at all. Only
+the folder diff caught it.
+
+**Partially addressed in v3.0.0.** `designCatalog` now carries an `export` field naming the export
+folder, and `scripts/generate-contract.js` prints it as a `Catalog export` row, so the contract
+shipped downstream finally says which export it was built from. That is a label, not a checksum: it
+is only as honest as whoever fills it in. The cheaper real fixes are unchanged — hash the manifest
+(or the `components/` + `css/` trees) at sync time, or ask whoever produces the export to emit a
+version stamp. **Until then, do not read a matching `build` as "same export" — diff the folders,
+and keep the previously synced one for exactly that.** The
 retired catalog's inferred-commit caveat for the v1.0.0 baseline (`26337fc`, reconstructed rather
 than recorded) stays true of that historical entry but no longer affects anything current.
 
