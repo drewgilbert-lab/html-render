@@ -10,11 +10,15 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
-## v3.1.0 — 2026-09-15, `ContentSection` brought back to the export
+## v4.0.0 — 2026-09-15, `ContentSection` brought back to the export
 
-**Pages change appearance, and that is the point.** No field was removed and no
-document stops rendering. A page built from top-level `:::section` regions was
-rendering edge to edge and now sits in the page column.
+**Breaking, and a fidelity correction rather than a catalog refresh.** No field
+was removed and no document stops rendering, so a document that rendered before
+still renders; where its content sits on the page is new. A page built from
+top-level `:::section` regions was running edge to edge and now sits in the page
+column. Majored on the same reading as `v3.0.0`: appearance changing under a
+consumer without any change to their Markdown is breaking, whatever the diff
+looks like.
 
 **Changed — `ContentSection`.** `src/body.js`, `src/assets/styles.css`.
 
@@ -50,10 +54,12 @@ the measure. Implementing it is a change to what the reading measure *is*, which
 is the per-page-type measure work, not this frame fix. Left reporting as New
 because that is accurate.
 
-**Downstream:** not breaking for `geo-spoke-builder`. No skill names
-`container`, no skill states an inset, and `--components` output changes only in
-that one field hint. Pages re-rendered from unchanged Markdown gain their
-gutters.
+**Downstream:** breaking for rendered pages, not for authored Markdown. No
+skill in `geo-spoke-builder` names `container` or states an inset, and
+`--components` output changes only in that one field hint, so no skill needs
+editing and no `content.md` needs rewriting. What changes is every page
+re-rendered from that unchanged Markdown: it gains its gutters. A consumer
+holding published HTML should expect to re-render.
 
 ---
 
