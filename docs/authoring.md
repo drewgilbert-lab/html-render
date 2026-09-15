@@ -56,9 +56,15 @@ line. Regions nest.
 
 ### `:::section`
 
-A section. With no `band` it paints nothing — the reading-column form. `band:
-white` and `band: tinted` are the two full-width page bands. `container: true`
-insets the content in the centred column.
+A section — the design system's `ContentSection`. Its content is **always**
+inset in the centred container column, because the exported component wraps its
+children in one and offers no way not to: how wide a page's content column runs
+is the design system's decision, not a document's. With no `band` the section
+paints nothing; `band: white` and `band: tinted` are the two full-width page
+surfaces.
+
+`container: true` is accepted and ignored. Documents written before the inset
+was unconditional still render, and render the same as if they had omitted it.
 
 ````markdown
 :::section

@@ -10,7 +10,7 @@
 <body>
 <div class="preview-note">PREVIEW ONLY — visual review wrapper. The deliverable is the page body inside.</div>
 <!-- ============================================================================
-     HG Insights page body - html-render v3.0.0
+     HG Insights page body - html-render v3.1.0
 
      Title            Reporting AI Search Visibility to Leadership: A GEO Metrics Framework
      Meta description A framework for turning AI Share of Voice, Mention Rate, and Citation Rate into a leadership-ready report, including cadence, benchmarks, and what belongs in a monthly readout.
@@ -277,6 +277,11 @@
     width: min(var(--container), 100% - 2 * var(--gutter));
     margin-inline: auto;
   }
+  /* A container inside a container is already inset; re-applying the gutter would
+     inset it a second time, by up to 2 x 240px. The export never nests them --
+     `:::two-column` is this renderer's own wrapper, and it is what puts a
+     `ContentSection` inside an existing column. */
+  .render-page .container .container { width: 100%; margin-inline: 0; }
 
   .render-page a { color: var(--hg-coral-text); text-decoration: underline; text-underline-offset: 2px; }
   .render-page a:hover { color: var(--hg-coral-dark); }
@@ -671,9 +676,9 @@
   .render-page .author-byline-dark .author-byline-title, .render-page .author-byline-dark .author-byline-bio { color: var(--hg-on-dark-2); }
   .render-page .author-byline-dark .author-byline-avatar-initials { background: rgba(255,255,255,0.15); color: var(--hg-white); }
 
-  /* ---- Page composition ------------------------------------- */
-  /* The renderer's own scaffolding, not an export component: the wrappers the
-     body walk emits for `:::section` and `:::two-column`. Type and colour
+  /* ---- Two-column composition -------------------------------- */
+  /* The renderer's own scaffolding, not an export component: the reading-column
+     and rail grids the body walk emits for `:::two-column`. Type and colour
      follow the export's `.content-section` / `.section-body` treatment. */
   .render-page .article-body-section { padding: clamp(48px,5vw,80px) 0; background: var(--hg-white); }
   .render-page .article-body-section .container { display: flex; gap: 48px; align-items: flex-start; }
@@ -688,6 +693,11 @@
   .render-page .spoke-body-section .container { display: grid; grid-template-columns: 1fr 260px; gap: var(--space-12); align-items: start; }
   .render-page .spoke-col { min-width: 0; }
 
+  /* ---- ContentSection block ---------------------------------- */
+  /* The `:::section` shell. The export's component wraps its children in
+     `.container` unconditionally and exposes no prop to skip it, so the body
+     walk does the same: `--section-pad` is vertical only, and a section outside
+     the container has nothing to inset it. */
   .render-page .page-section { padding: var(--section-pad); background: var(--hg-white); }
   .render-page .page-section.tinted { background: var(--hg-floral); }
   .render-page .spoke-col .page-section { padding: clamp(48px,5vw,80px) var(--space-8); }
@@ -907,165 +917,171 @@
       <div class="spoke-col">
         <p class="thesis-block">A GEO reporting framework translates four AI visibility metrics into one leadership narrative: a pipeline proof point, a benchmarked trend line against named competitors, and a single coverage number a CMO can repeat.</p>
         <section class="page-section" id="the-reporting-gap">
-          <div class="section-eyebrow">The Reporting Gap</div>
-          <h2>How Do You Report AI Search Visibility Metrics to a CMO or VP Marketing?</h2>
-          <p class="section-subtitle">Skipping the translation step does not cost a GEO program a metric. It costs the program its budget line.</p>
-          <p>When ChatGPT, Perplexity, or Google AI Overviews compile a vendor shortlist for a buyer, a brand that is absent from the answer is absent from the consideration set entirely. That is a commercial event, not a reporting event, and it is the thing leadership is actually asking about when it asks how AI search is going.<sup><a href="#citation-1">[1]</a></sup></p>
-          <div class="before-after">
-            <div class="ba-col ba-before">
-              <div class="ba-label">Before: Metric-First Reporting</div>
-              <p class="ba-body">A leadership deck opens with definitions of Share of Voice, Share of Model, Mention Rate, and Citation Rate, then shows one quarter's numbers with no competitor names and no link to pipeline or revenue.</p>
+          <div class="container">
+            <div class="section-eyebrow">The Reporting Gap</div>
+            <h2>How Do You Report AI Search Visibility Metrics to a CMO or VP Marketing?</h2>
+            <p class="section-subtitle">Skipping the translation step does not cost a GEO program a metric. It costs the program its budget line.</p>
+            <p>When ChatGPT, Perplexity, or Google AI Overviews compile a vendor shortlist for a buyer, a brand that is absent from the answer is absent from the consideration set entirely. That is a commercial event, not a reporting event, and it is the thing leadership is actually asking about when it asks how AI search is going.<sup><a href="#citation-1">[1]</a></sup></p>
+            <div class="before-after">
+              <div class="ba-col ba-before">
+                <div class="ba-label">Before: Metric-First Reporting</div>
+                <p class="ba-body">A leadership deck opens with definitions of Share of Voice, Share of Model, Mention Rate, and Citation Rate, then shows one quarter's numbers with no competitor names and no link to pipeline or revenue.</p>
+              </div>
+              <div class="ba-col ba-after">
+                <div class="ba-label">After: GEO Reporting Framework</div>
+                <p class="ba-body">A leadership deck opens with a pipeline-conversion proof point, then shows a Citation and Mention Coverage Rate trend line benchmarked against named competitors across multiple reporting periods.</p>
+              </div>
             </div>
-            <div class="ba-col ba-after">
-              <div class="ba-label">After: GEO Reporting Framework</div>
-              <p class="ba-body">A leadership deck opens with a pipeline-conversion proof point, then shows a Citation and Mention Coverage Rate trend line benchmarked against named competitors across multiple reporting periods.</p>
+            <p>Three questions sit behind almost every leadership request for a GEO update, and none of them is answered by a metric definition:</p>
+            <ul class="bullet-list">
+              <li><strong>Are we falling behind?</strong> Leaders want a direct answer on whether named competitors are already ahead in AI search visibility, not a definition of Share of Voice.</li>
+              <li><strong>Does the board expect an AI strategy?</strong> Board and CEO pressure for a documented AI response is now a standing input to budget conversations, independent of any single metric.</li>
+              <li><strong>Can this line item survive the next budget review?</strong> A GEO reporting line needs a pipeline or conversion tie-back to compete against every other marketing budget request.</li>
+            </ul>
+            <div class="callout-box callout-box--melon">
+              <div class="callout-box-label">Watch Out</div>
+              <p class="callout-box-body">The business risk of skipping structured AI visibility reporting is not a missing dashboard. The risk is a brand that leadership cannot see going dark on AI-generated shortlists until a competitor's win rate against that same brand already reflects the gap.</p>
             </div>
-          </div>
-          <p>Three questions sit behind almost every leadership request for a GEO update, and none of them is answered by a metric definition:</p>
-          <ul class="bullet-list">
-            <li><strong>Are we falling behind?</strong> Leaders want a direct answer on whether named competitors are already ahead in AI search visibility, not a definition of Share of Voice.</li>
-            <li><strong>Does the board expect an AI strategy?</strong> Board and CEO pressure for a documented AI response is now a standing input to budget conversations, independent of any single metric.</li>
-            <li><strong>Can this line item survive the next budget review?</strong> A GEO reporting line needs a pipeline or conversion tie-back to compete against every other marketing budget request.</li>
-          </ul>
-          <div class="callout-box callout-box--melon">
-            <div class="callout-box-label">Watch Out</div>
-            <p class="callout-box-body">The business risk of skipping structured AI visibility reporting is not a missing dashboard. The risk is a brand that leadership cannot see going dark on AI-generated shortlists until a competitor's win rate against that same brand already reflects the gap.</p>
           </div>
         </section>
         <section class="page-section tinted" id="the-framework">
-          <div class="section-eyebrow">The Framework</div>
-          <h2>How Does a GEO Reporting Framework Turn Four Metrics Into a Leadership Narrative?</h2>
-          <p class="section-subtitle">Three moves, in this order, every reporting cycle.</p>
-          <div class="process-steps">
-            <div class="process-step" id="open-with-proof">
-              <div class="process-step-badge">1</div>
-              <div>
-                <div class="process-step-title">Open with the commercial proof point</div>
-                <p class="process-step-body">Lead with the conversion or pipeline figure that makes AI visibility a revenue question rather than a marketing-hygiene question. AI-referred visitors convert at 5.1 times the rate of Google organic visitors, which reframes every subsequent number as a revenue input.</p>
+          <div class="container">
+            <div class="section-eyebrow">The Framework</div>
+            <h2>How Does a GEO Reporting Framework Turn Four Metrics Into a Leadership Narrative?</h2>
+            <p class="section-subtitle">Three moves, in this order, every reporting cycle.</p>
+            <div class="process-steps">
+              <div class="process-step" id="open-with-proof">
+                <div class="process-step-badge">1</div>
+                <div>
+                  <div class="process-step-title">Open with the commercial proof point</div>
+                  <p class="process-step-body">Lead with the conversion or pipeline figure that makes AI visibility a revenue question rather than a marketing-hygiene question. AI-referred visitors convert at 5.1 times the rate of Google organic visitors, which reframes every subsequent number as a revenue input.</p>
+                </div>
+              </div>
+              <div class="process-step" id="show-one-trend-line">
+                <div class="process-step-badge">2</div>
+                <div>
+                  <div class="process-step-title">Show one benchmarked trend line</div>
+                  <p class="process-step-body">Follow with a single chart: the brand's coverage rate against the same named competitors, across at least three reporting periods. A fixed competitor set and a fixed prompt set are what make the line readable; a shifting set makes it meaningless.</p>
+                </div>
+              </div>
+              <div class="process-step" id="land-on-one-number">
+                <div class="process-step-badge">3</div>
+                <div>
+                  <div class="process-step-title">Land on one repeatable number</div>
+                  <p class="process-step-body">Close with a blended Citation and Mention Coverage Rate. One number, stated as a percentage of tracked buyer prompts, is what gets repeated in the meeting after yours. Everything else belongs in an appendix.</p>
+                </div>
               </div>
             </div>
-            <div class="process-step" id="show-one-trend-line">
-              <div class="process-step-badge">2</div>
-              <div>
-                <div class="process-step-title">Show one benchmarked trend line</div>
-                <p class="process-step-body">Follow with a single chart: the brand's coverage rate against the same named competitors, across at least three reporting periods. A fixed competitor set and a fixed prompt set are what make the line readable; a shifting set makes it meaningless.</p>
-              </div>
-            </div>
-            <div class="process-step" id="land-on-one-number">
-              <div class="process-step-badge">3</div>
-              <div>
-                <div class="process-step-title">Land on one repeatable number</div>
-                <p class="process-step-body">Close with a blended Citation and Mention Coverage Rate. One number, stated as a percentage of tracked buyer prompts, is what gets repeated in the meeting after yours. Everything else belongs in an appendix.</p>
-              </div>
-            </div>
+            <p>The four core metrics do not disappear in this framework. Mention Rate and Citation Rate feed the coverage number, and Share of Voice and Share of Model produce the competitive benchmark. They move from the headline to the supporting layer, which is where a non-GEO audience can absorb them.</p>
           </div>
-          <p>The four core metrics do not disappear in this framework. Mention Rate and Citation Rate feed the coverage number, and Share of Voice and Share of Model produce the competitive benchmark. They move from the headline to the supporting layer, which is where a non-GEO audience can absorb them.</p>
         </section>
         <section class="page-section" id="verified-results">
-          <div class="section-eyebrow">Verified Results</div>
-          <h2>What Results Do B2B Teams See When They Report AI Visibility This Way?</h2>
-          <div class="benchmark-figure-block">
-            <div class="bf-hero">
-              <div class="bf-eyebrow">GEO Reporting Benchmark</div>
-              <div class="bf-figure">5.1x</div>
-              <div class="bf-figure-label">Higher conversion rate for AI-referred visitors versus Google organic visitors</div>
-            </div>
-            <div class="bf-compare">
-              <div class="bf-compare-cell">
-                <div class="bf-compare-cap">AI-referred visitor conversion rate</div>
-                <div class="bf-compare-fig">14.2%</div>
+          <div class="container">
+            <div class="section-eyebrow">Verified Results</div>
+            <h2>What Results Do B2B Teams See When They Report AI Visibility This Way?</h2>
+            <div class="benchmark-figure-block">
+              <div class="bf-hero">
+                <div class="bf-eyebrow">GEO Reporting Benchmark</div>
+                <div class="bf-figure">5.1x</div>
+                <div class="bf-figure-label">Higher conversion rate for AI-referred visitors versus Google organic visitors</div>
               </div>
-              <div class="bf-compare-vs">vs.</div>
-              <div class="bf-compare-cell">
-                <div class="bf-compare-cap">Google organic visitor conversion rate</div>
-                <div class="bf-compare-fig baseline">2.8%</div>
-              </div>
-              <div class="bf-delta-wrap">
-                <span class="bf-delta up">&#9650; 5.1x higher</span>
-                <span class="bf-delta-note">Averi Multi-Source Analysis, March 2026</span>
-              </div>
-            </div>
-            <div class="bf-tiers">
-              <div class="bf-tiers-title">AI crawler visits, indexed to non-customer baseline</div>
-              <div class="mini-bar-chart">
-                <div class="mini-bar-row">
-                  <div class="mini-bar-label">Non-customer baseline</div>
-                  <div class="mini-bar-track"><div class="mini-bar-fill" style="width:3%"></div></div>
-                  <div class="mini-bar-value">1x</div>
+              <div class="bf-compare">
+                <div class="bf-compare-cell">
+                  <div class="bf-compare-cap">AI-referred visitor conversion rate</div>
+                  <div class="bf-compare-fig">14.2%</div>
                 </div>
-                <div class="mini-bar-row">
-                  <div class="mini-bar-label">TrustRadius customer</div>
-                  <div class="mini-bar-track"><div class="mini-bar-fill" style="width:68%"></div></div>
-                  <div class="mini-bar-value">21x</div>
+                <div class="bf-compare-vs">vs.</div>
+                <div class="bf-compare-cell">
+                  <div class="bf-compare-cap">Google organic visitor conversion rate</div>
+                  <div class="bf-compare-fig baseline">2.8%</div>
                 </div>
-                <div class="mini-bar-row">
-                  <div class="mini-bar-label">TrustRadius Top Rated</div>
-                  <div class="mini-bar-track"><div class="mini-bar-fill" style="width:100%"></div></div>
-                  <div class="mini-bar-value">31x</div>
+                <div class="bf-delta-wrap">
+                  <span class="bf-delta up">&#9650; 5.1x higher</span>
+                  <span class="bf-delta-note">Averi Multi-Source Analysis, March 2026</span>
                 </div>
               </div>
-              <div class="bf-tiers-foot">Indexed to non-customer baseline = 1x &middot; TrustRadius internal crawl-log data, 2026</div>
+              <div class="bf-tiers">
+                <div class="bf-tiers-title">AI crawler visits, indexed to non-customer baseline</div>
+                <div class="mini-bar-chart">
+                  <div class="mini-bar-row">
+                    <div class="mini-bar-label">Non-customer baseline</div>
+                    <div class="mini-bar-track"><div class="mini-bar-fill" style="width:3%"></div></div>
+                    <div class="mini-bar-value">1x</div>
+                  </div>
+                  <div class="mini-bar-row">
+                    <div class="mini-bar-label">TrustRadius customer</div>
+                    <div class="mini-bar-track"><div class="mini-bar-fill" style="width:68%"></div></div>
+                    <div class="mini-bar-value">21x</div>
+                  </div>
+                  <div class="mini-bar-row">
+                    <div class="mini-bar-label">TrustRadius Top Rated</div>
+                    <div class="mini-bar-track"><div class="mini-bar-fill" style="width:100%"></div></div>
+                    <div class="mini-bar-value">31x</div>
+                  </div>
+                </div>
+                <div class="bf-tiers-foot">Indexed to non-customer baseline = 1x &middot; TrustRadius internal crawl-log data, 2026</div>
+              </div>
+              <div class="bf-definition">
+                <div class="bf-definition-title">What these figures measure</div>
+                <p><strong>AI crawler visits</strong> counts confirmed visits from named AI crawler user agents, including OAI-SearchBot, ChatGPT-User, PerplexityBot, and Claude-SearchBot, to a product's TrustRadius profile page. TrustRadius internal data compares customer accounts, Top Rated products, and non-customer baselines across the review network.</p>
+                <p><strong>Conversion rate figures</strong> reflect visitor-to-lead conversion by traffic source, AI-referred versus Google organic, per the Averi Multi-Source Analysis, March 2026. Figures describe aggregate population averages, not a guarantee for any single company.</p>
+              </div>
+              <div class="bf-footer">Source: TrustRadius internal crawl-log data and Averi Multi-Source Analysis, March 2026 &middot; figures as reported, no independent recalculation performed.</div>
             </div>
-            <div class="bf-definition">
-              <div class="bf-definition-title">What these figures measure</div>
-              <p><strong>AI crawler visits</strong> counts confirmed visits from named AI crawler user agents, including OAI-SearchBot, ChatGPT-User, PerplexityBot, and Claude-SearchBot, to a product's TrustRadius profile page. TrustRadius internal data compares customer accounts, Top Rated products, and non-customer baselines across the review network.</p>
-              <p><strong>Conversion rate figures</strong> reflect visitor-to-lead conversion by traffic source, AI-referred versus Google organic, per the Averi Multi-Source Analysis, March 2026. Figures describe aggregate population averages, not a guarantee for any single company.</p>
+            <div class="insights-panel">
+              <div class="insights-panel-label">Analyst Insights</div>
+              <h3>What these figures mean for a GEO reporting line</h3>
+              <div class="insight-list">
+                <div class="insight-item">
+                  <div class="insight-icon"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+                  <div>
+                    <p class="insight-text"><strong>AI-referred visitors convert at 5.1 times the Google organic rate.</strong> 14.2% against 2.8%, which is the proof point a leadership readout opens with.</p>
+                    <div class="insight-attribution">See the benchmark figure above</div>
+                  </div>
+                </div>
+                <div class="insight-item">
+                  <div class="insight-icon"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+                  <div>
+                    <p class="insight-text"><strong>Review-network presence multiplies AI crawler attention.</strong> TrustRadius customers draw 21 times the AI crawler visits of non-customers, and Top Rated products draw 31 times.</p>
+                    <div class="insight-attribution">See the indexed bars above</div>
+                  </div>
+                </div>
+                <div class="insight-item">
+                  <div class="insight-icon"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+                  <div>
+                    <p class="insight-text"><strong>One coverage number survives being repeated.</strong> A blended Citation and Mention Coverage Rate is the figure to close on; the four underlying metrics move to an appendix.</p>
+                    <div class="insight-attribution">See the framework steps</div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="bf-footer">Source: TrustRadius internal crawl-log data and Averi Multi-Source Analysis, March 2026 &middot; figures as reported, no independent recalculation performed.</div>
+            <div class="limitations-cards">
+              <div class="limit">
+                <h3>Population averages, not a guarantee</h3>
+                <p>Both figures describe aggregate behaviour across the TrustRadius review network. A single brand's lift depends on its category, review density, and the citable third-party content that already exists about it.</p>
+              </div>
+              <div class="limit">
+                <h3>Two sources, two measurement bases</h3>
+                <p>Conversion figures come from the Averi Multi-Source Analysis, March 2026; crawler figures come from TrustRadius internal crawl logs. They are reported side by side, not derived from one another.</p>
+              </div>
+              <div class="limit">
+                <h3>No independent recalculation</h3>
+                <p>HG Insights reports both figures as published. Neither has been recomputed against hginsights.com traffic or any other first-party dataset.</p>
+              </div>
+            </div>
+            <figure class="expert-quote-card">
+              <span class="expert-quote-mark" aria-hidden="true">&ldquo;</span>
+              <blockquote class="expert-quote-text">The GEO teams that get funded are not the teams with the most metrics. They are the teams that can put one trend line in front of a CMO and say, this is what happens to pipeline when a brand stops being invisible to AI search.</blockquote>
+              <figcaption class="expert-quote-attribution">
+                <span class="expert-quote-avatar">DW</span>
+                <span class="expert-quote-attribution-text">
+                  <span class="expert-quote-name">Dana Whitfield</span>
+                  <span class="expert-quote-title">Director of GEO Research, HG Insights</span>
+                  <a class="expert-quote-reference" href="https://hginsights.com/geo/geo-monitoring-dashboard/">See the GEO Monitoring Dashboard &rarr;</a>
+                </span>
+              </figcaption>
+            </figure>
           </div>
-          <div class="insights-panel">
-            <div class="insights-panel-label">Analyst Insights</div>
-            <h3>What these figures mean for a GEO reporting line</h3>
-            <div class="insight-list">
-              <div class="insight-item">
-                <div class="insight-icon"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
-                <div>
-                  <p class="insight-text"><strong>AI-referred visitors convert at 5.1 times the Google organic rate.</strong> 14.2% against 2.8%, which is the proof point a leadership readout opens with.</p>
-                  <div class="insight-attribution">See the benchmark figure above</div>
-                </div>
-              </div>
-              <div class="insight-item">
-                <div class="insight-icon"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
-                <div>
-                  <p class="insight-text"><strong>Review-network presence multiplies AI crawler attention.</strong> TrustRadius customers draw 21 times the AI crawler visits of non-customers, and Top Rated products draw 31 times.</p>
-                  <div class="insight-attribution">See the indexed bars above</div>
-                </div>
-              </div>
-              <div class="insight-item">
-                <div class="insight-icon"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
-                <div>
-                  <p class="insight-text"><strong>One coverage number survives being repeated.</strong> A blended Citation and Mention Coverage Rate is the figure to close on; the four underlying metrics move to an appendix.</p>
-                  <div class="insight-attribution">See the framework steps</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="limitations-cards">
-            <div class="limit">
-              <h3>Population averages, not a guarantee</h3>
-              <p>Both figures describe aggregate behaviour across the TrustRadius review network. A single brand's lift depends on its category, review density, and the citable third-party content that already exists about it.</p>
-            </div>
-            <div class="limit">
-              <h3>Two sources, two measurement bases</h3>
-              <p>Conversion figures come from the Averi Multi-Source Analysis, March 2026; crawler figures come from TrustRadius internal crawl logs. They are reported side by side, not derived from one another.</p>
-            </div>
-            <div class="limit">
-              <h3>No independent recalculation</h3>
-              <p>HG Insights reports both figures as published. Neither has been recomputed against hginsights.com traffic or any other first-party dataset.</p>
-            </div>
-          </div>
-          <figure class="expert-quote-card">
-            <span class="expert-quote-mark" aria-hidden="true">&ldquo;</span>
-            <blockquote class="expert-quote-text">The GEO teams that get funded are not the teams with the most metrics. They are the teams that can put one trend line in front of a CMO and say, this is what happens to pipeline when a brand stops being invisible to AI search.</blockquote>
-            <figcaption class="expert-quote-attribution">
-              <span class="expert-quote-avatar">DW</span>
-              <span class="expert-quote-attribution-text">
-                <span class="expert-quote-name">Dana Whitfield</span>
-                <span class="expert-quote-title">Director of GEO Research, HG Insights</span>
-                <a class="expert-quote-reference" href="https://hginsights.com/geo/geo-monitoring-dashboard/">See the GEO Monitoring Dashboard &rarr;</a>
-              </span>
-            </figcaption>
-          </figure>
         </section>
       </div>
       <aside class="sidenav">

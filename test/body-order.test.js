@@ -92,9 +92,24 @@ test('a section paints nothing unless the author names a band', () => {
   assert.match(html([':::section', 'band: tinted', '', 'Copy.', ':::'].join('\n')), /<section class="page-section tinted">/);
 });
 
-test('a section region can inset its content in the container column', () => {
-  assert.match(html([':::section', 'band: white', 'container: true', '', 'Inset copy.', ':::'].join('\n')), /<section class="page-section">\s*<div class="container">/);
-  assert.doesNotMatch(html([':::section', 'band: white', '', 'Full bleed copy.', ':::'].join('\n')), /<section class="page-section">\s*<div class="container">/);
+test('every section insets its content in the container column', () => {
+  // The export's `ContentSection` wraps its children in `.container` with no
+  // prop to skip it, and `--section-pad` is vertical only. A section that
+  // rendered outside the container would have nothing inset it, so this is the
+  // tripwire against reintroducing that as a per-document choice.
+  for (const attrs of [[], ['band: white'], ['band: tinted'], ['id: anchored']]) {
+    assert.match(
+      html([':::section', ...attrs, '', 'Copy.', ':::'].join('\n')),
+      /<section[^>]*>\s*<div class="container">/,
+      `a section written with ${attrs.length ? attrs.join(', ') : 'no attributes'} must inset its content`,
+    );
+  }
+});
+
+test('`container` is accepted and ignored, so documents written against it still render', () => {
+  const withFlag = html([':::section', 'band: white', 'container: true', '', 'Copy.', ':::'].join('\n'));
+  const without = html([':::section', 'band: white', '', 'Copy.', ':::'].join('\n'));
+  assert.equal(withFlag, without);
 });
 
 test('two-column puts side-nav in the rail and everything else in the column', () => {
