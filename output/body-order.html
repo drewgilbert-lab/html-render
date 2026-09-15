@@ -1,5 +1,5 @@
 <!-- ============================================================================
-     HG Insights page body - html-render v3.0.0
+     HG Insights page body - html-render v4.0.0
 
      Title            What Is Share of Voice in AI Search?
      Meta description Share of Voice measures how often a brand is named in AI answers to a tracked prompt set, as a percentage of all brand mentions.
@@ -266,6 +266,11 @@
     width: min(var(--container), 100% - 2 * var(--gutter));
     margin-inline: auto;
   }
+  /* A container inside a container is already inset; re-applying the gutter would
+     inset it a second time, by up to 2 x 240px. The export never nests them --
+     `:::two-column` is this renderer's own wrapper, and it is what puts a
+     `ContentSection` inside an existing column. */
+  .render-page .container .container { width: 100%; margin-inline: 0; }
 
   .render-page a { color: var(--hg-coral-text); text-decoration: underline; text-underline-offset: 2px; }
   .render-page a:hover { color: var(--hg-coral-dark); }
@@ -660,9 +665,9 @@
   .render-page .author-byline-dark .author-byline-title, .render-page .author-byline-dark .author-byline-bio { color: var(--hg-on-dark-2); }
   .render-page .author-byline-dark .author-byline-avatar-initials { background: rgba(255,255,255,0.15); color: var(--hg-white); }
 
-  /* ---- Page composition ------------------------------------- */
-  /* The renderer's own scaffolding, not an export component: the wrappers the
-     body walk emits for `:::section` and `:::two-column`. Type and colour
+  /* ---- Two-column composition -------------------------------- */
+  /* The renderer's own scaffolding, not an export component: the reading-column
+     and rail grids the body walk emits for `:::two-column`. Type and colour
      follow the export's `.content-section` / `.section-body` treatment. */
   .render-page .article-body-section { padding: clamp(48px,5vw,80px) 0; background: var(--hg-white); }
   .render-page .article-body-section .container { display: flex; gap: 48px; align-items: flex-start; }
@@ -677,6 +682,11 @@
   .render-page .spoke-body-section .container { display: grid; grid-template-columns: 1fr 260px; gap: var(--space-12); align-items: start; }
   .render-page .spoke-col { min-width: 0; }
 
+  /* ---- ContentSection block ---------------------------------- */
+  /* The `:::section` shell. The export's component wraps its children in
+     `.container` unconditionally and exposes no prop to skip it, so the body
+     walk does the same: `--section-pad` is vertical only, and a section outside
+     the container has nothing to inset it. */
   .render-page .page-section { padding: var(--section-pad); background: var(--hg-white); }
   .render-page .page-section.tinted { background: var(--hg-floral); }
   .render-page .spoke-col .page-section { padding: clamp(48px,5vw,80px) var(--space-8); }
@@ -848,13 +858,17 @@
     <div class="container">
       <div class="spoke-col">
         <section id="definition">
-          <h2>What Does Share of Voice Measure?</h2>
-          <p>Share of Voice is the percentage of all brand mentions in AI answers to a tracked prompt set that name a given brand. It is a relative metric: it moves when a competitor's mentions move, even if your own count is unchanged.</p>
+          <div class="container">
+            <h2>What Does Share of Voice Measure?</h2>
+            <p>Share of Voice is the percentage of all brand mentions in AI answers to a tracked prompt set that name a given brand. It is a relative metric: it moves when a competitor's mentions move, even if your own count is unchanged.</p>
+          </div>
         </section>
         <section class="page-section tinted" id="formula">
-          <h2>How Is Share of Voice Calculated?</h2>
-          <div class="formula-block">Share of Voice = (your brand mentions / all brand mentions) x 100</div>
-          <p>Count every brand named across the answer set, then divide.</p>
+          <div class="container">
+            <h2>How Is Share of Voice Calculated?</h2>
+            <div class="formula-block">Share of Voice = (your brand mentions / all brand mentions) x 100</div>
+            <p>Count every brand named across the answer set, then divide.</p>
+          </div>
         </section>
       </div>
       <aside class="sidenav">

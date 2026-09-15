@@ -18,24 +18,27 @@ const { el, lines, indent, container } = require('./html');
 const { renderBlock } = require('./components');
 const { renderNode } = require('./section-body');
 
-/** True for an attribute written as YAML `true`, or as the string "true". */
-function flag(value) {
-  return value === true || String(value).trim().toLowerCase() === 'true';
-}
-
 /**
- * A section. With no `band` it is a bare wrapper that paints nothing — the
- * reading-column section. `band: white` or `band: tinted` makes it one of the
- * full-width page bands. Nothing overrides the author's choice, including the
- * band before it: two tinted bands in a row are the author's to make.
+ * A section — the export's `ContentSection`.
+ *
+ * It always insets its children in the design system's `.container`, because
+ * `ContentSection` does: the export's component wraps its children in
+ * `<div className="container">` with no prop to disable it, and `--section-pad`
+ * is vertical only, so a section that skips the container has nothing giving it
+ * horizontal inset. Whether a page's content sits in the page column is the
+ * design system's decision, not a document's.
+ *
+ * `band` is still the document's: with none the section paints nothing,
+ * `white` or `tinted` makes it one of the full-width page surfaces. Nothing
+ * overrides that choice, including the band before it: two tinted bands in a
+ * row are the author's to make.
  */
 const SECTION_BANDS = { white: 'page-section', tinted: 'page-section tinted' };
 
 function renderSection(region, children) {
   const attrs = region.attrs || {};
   const band = String(attrs.band || '').trim();
-  const inner = flag(attrs.container) ? container(children) : children;
-  return el('section', { class: SECTION_BANDS[band] || null, id: attrs.id || null }, `\n${indent(inner)}\n`);
+  return el('section', { class: SECTION_BANDS[band] || null, id: attrs.id || null }, `\n${indent(container(children))}\n`);
 }
 
 /**
@@ -89,7 +92,7 @@ const REGION_FIELDS = {
   section: {
     id: { type: 'plain', hint: 'the anchor for this section' },
     band: { type: 'enum', values: ['white', 'tinted'], hint: 'omit for a section that paints nothing' },
-    container: { type: 'bool', hint: 'inset the content in the container column' },
+    container: { type: 'bool', hint: 'deprecated and ignored: every section is inset in the container column' },
   },
   'two-column': {
     variant: { type: 'enum', values: Object.keys(TWO_COLUMN_VARIANTS), hint: 'which reading column, default: spoke' },

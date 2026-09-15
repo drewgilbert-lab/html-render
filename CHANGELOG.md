@@ -10,6 +10,59 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
+## v4.0.0 — 2026-09-15, `ContentSection` brought back to the export
+
+**Breaking, and a fidelity correction rather than a catalog refresh.** No field
+was removed and no document stops rendering, so a document that rendered before
+still renders; where its content sits on the page is new. A page built from
+top-level `:::section` regions was running edge to edge and now sits in the page
+column. Majored on the same reading as `v3.0.0`: appearance changing under a
+consumer without any change to their Markdown is breaking, whatever the diff
+looks like.
+
+**Changed — `ContentSection`.** `src/body.js`, `src/assets/styles.css`.
+
+- **A section always insets its content.** `renderSection` wrapped its children
+  in `.container` only when the document wrote `container: true`. The export's
+  `components/content/ContentSection.jsx` wraps unconditionally and exposes no
+  prop to skip it, and `--section-pad` is `var(--section-y) 0`, vertical only —
+  so a section rendered outside the container had nothing giving it horizontal
+  inset. The ternary is gone.
+- **`container` is accepted and ignored.** Keeping the field means
+  `examples/cluster.md`, which carried it on all six sections, and every
+  `content.md` already authored against it still validate and render
+  identically. The field hint and `docs/authoring.md` both say so.
+- **A nested container no longer re-insets.** `:::two-column` is this
+  renderer's own wrapper and already emits a `.container`; a `:::section`
+  inside one would have applied the gutter a second time, up to 2 x 240px.
+  `.container .container` resets width and margin. The export never nests
+  them, so this rule belongs to the renderer's scaffolding, not to the
+  component.
+- **The stylesheet block is named.** `/* ---- Page composition ---- */` covered
+  both the section shell and the two-column grids, so `--audit` classified
+  neither: the audit's own source comment cites "Page composition" as the
+  example of a header indistinguishable from plumbing. It is now
+  `/* ---- ContentSection block ---- */` for the shell and
+  `/* ---- Two-column composition ---- */` for the grids, and the audit reports
+  `ContentSection` covered — 35 covered before, 36 after. **This is why the
+  divergence survived three syncs undetected.**
+
+**Still New:** `SectionBody`. The export caps prose measure with
+`.section-body{max-width:76ch}` inside the container; this renderer applies
+`max-width:76ch` to `.page-section p` only, so headings, lists and tables escape
+the measure. Implementing it is a change to what the reading measure *is*, which
+is the per-page-type measure work, not this frame fix. Left reporting as New
+because that is accurate.
+
+**Downstream:** breaking for rendered pages, not for authored Markdown. No
+skill in `geo-spoke-builder` names `container` or states an inset, and
+`--components` output changes only in that one field hint, so no skill needs
+editing and no `content.md` needs rewriting. What changes is every page
+re-rendered from that unchanged Markdown: it gains its gutters. A consumer
+holding published HTML should expect to re-render.
+
+---
+
 ## v3.0.0 — 2026-09-14, against Claude Design export `HG New Brand Design System`
 
 **Breaking, and a rebrand rather than a catalog refresh.** Every page this
