@@ -13,9 +13,10 @@ name: Sync component contract to geo-spoke-builder
 #   - It does not open a PR when the generated contract matches what is already committed.
 #   - It does not render, re-render or touch a single published page anywhere.
 #
-# It DOES set auto-merge. The review that matters happened on the html-render PR that produced
-# this contract; asking for a second human review of a generated file, downstream, adds a
-# waiting step and no judgement. geo-spoke-builder's required checks are the gate.
+# It DOES merge, once geo-spoke-builder's checks pass. The review that matters happened on the
+# html-render PR that produced this contract; asking for a second human review of a generated
+# file, downstream, adds a waiting step and no judgement. That repository's checks are the gate,
+# and they check things a reviewer could not check by eye anyway.
 #
 # See docs/component-sync.md for the maintainer's guide.
 
@@ -123,7 +124,7 @@ jobs:
       #    A contract landing without a plugin version bump never reaches an installed session
       #    (geo-spoke-builder's check-contract-freshness.py), and a plugin version bump without
       #    the matching CLAUDE.md line fails its lint-skills.py. Either one leaves the PR red and
-      #    auto-merge never fires, so all three move in one commit or the promotion does not
+      #    it is never merged, so all three move in one commit or the promotion does not
       #    happen at all.
       - name: Ship the contract into the plugin
         id: diff
@@ -168,8 +169,8 @@ jobs:
             echo "\`scripts/ship-contract.py\` in this repository. Three files change: the contract, the plugin"
             echo "version, and the version string in \`CLAUDE.md\`. No skill content is touched."
             echo
-            echo "**Set to auto-merge.** The renderer change was reviewed on its own html-render pull request;"
-            echo "the required checks here are the gate on this one. Merging it moves the production pointer,"
+            echo "**Merged automatically once the checks here pass.** The renderer change was reviewed on its"
+            echo "own html-render pull request; the checks here are the gate on this one. Merging it moves the production pointer,"
             echo "so the next newly admitted \`pillar-geo-launch\` job resolves this builder commit and the exact"
             echo "renderer commit named above. No page is re-rendered and no existing page changes."
             echo
@@ -187,7 +188,7 @@ jobs:
           {
             echo "# Dry run — nothing was pushed"
             echo
-            echo "Would have opened a pull request into \`$TARGET_REPO\` from branch \`sync/html-render-v${{ steps.source.outputs.version }}\`, with auto-merge set."
+            echo "Would have opened a pull request into \`$TARGET_REPO\` from branch \`sync/html-render-v${{ steps.source.outputs.version }}\`, and merged it once its checks passed."
             echo
             echo "## Pull request body would have been"
             echo
@@ -211,7 +212,7 @@ jobs:
           echo "--- diff ---"
           cat "$GITHUB_WORKSPACE/contract.diff"
 
-      # 7. Real run: branch, commit, push, open the PR, set auto-merge.
+      # 7. Real run: branch, commit, push, open the PR.
       - name: Open pull request
         id: pr
         if: steps.diff.outputs.changed == 'true' && steps.source.outputs.dry_run != 'true'
@@ -257,27 +258,44 @@ jobs:
           fi
           echo "url=$URL" >> "$GITHUB_OUTPUT"
 
-      # Auto-merge, not merge: the PR lands only once geo-spoke-builder's required checks pass.
-      # Those checks are what proves the pair — that the contract regenerates byte-identically
-      # from the renderer commit it names, and that every component the skills ask for exists.
+      # Wait for geo-spoke-builder's checks, then merge. This is what GitHub's own
+      # auto-merge would do, done here because it is not available: that repository is
+      # private on a free plan, where branch protection (which auto-merge requires) is a
+      # paid feature, and `allow_auto_merge` silently stays false.
       #
-      # This step fails the run if auto-merge cannot be set. A promotion that opened a PR nobody
-      # will merge is not a promotion, and the whole point is that it never waits on a person.
-      - name: Set auto-merge
+      # The checks are the gate either way, and they are what proves the pair: that the
+      # contract regenerates byte-identically from the renderer commit it names, and that
+      # every component the skills ask for exists in it. A failure leaves the pull request
+      # open and unmerged, `main` pointing at the previous pair, and every existing page
+      # untouched and still passing. Nothing rolls back, because nothing was promoted.
+      #
+      # The whole point is that a promotion never waits on a person, so a run that cannot
+      # merge fails rather than leaving a pull request nobody will look at.
+      - name: Merge once the checks pass
         if: steps.diff.outputs.changed == 'true' && steps.source.outputs.dry_run != 'true'
+        timeout-minutes: 30
         env:
           GH_TOKEN: ${{ secrets.GEO_SPOKE_BUILDER_SYNC_TOKEN }}
           URL: ${{ steps.pr.outputs.url }}
         run: |
-          set -euo pipefail
-          if gh pr merge "$URL" --repo "$TARGET_REPO" --auto --squash --delete-branch; then
-            echo "::notice::Auto-merge set on $URL"
-            echo "Opened and set to auto-merge: $URL" >> "$GITHUB_STEP_SUMMARY"
+          set -uo pipefail
+          # `gh pr checks --watch` blocks until every check has a verdict, then exits
+          # non-zero if any failed. `--fail-fast` stops at the first failure rather than
+          # holding a runner open for the rest.
+          if ! gh pr checks "$URL" --watch --fail-fast --interval 15; then
+            echo "::error::geo-spoke-builder's checks did not pass on $URL, so it was not merged. "\
+              "The pull request is open and correct; the contract it carries does not agree with "\
+              "the renderer it names, or a component a skill asks for is missing. main keeps "\
+              "pointing at the previous pair and no existing page is affected."
+            echo "Opened $URL but its checks failed, so it was NOT merged." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          if gh pr merge "$URL" --repo "$TARGET_REPO" --squash --delete-branch; then
+            echo "::notice::Merged $URL"
+            echo "Opened and merged: $URL" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "::error::Could not set auto-merge on $URL. Check that the repository has "\
-              "'Allow auto-merge' enabled and that GEO_SPOKE_BUILDER_SYNC_TOKEN carries "\
-              "Pull requests: read and write. The pull request is open and correct; it is "\
-              "just waiting on a person, which is the thing this pipeline exists to avoid."
-            echo "Opened $URL but could NOT set auto-merge — see the log." >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::$URL passed its checks but could not be merged. Check that "\
+              "GEO_SPOKE_BUILDER_SYNC_TOKEN carries Pull requests: read and write."
+            echo "Opened $URL, checks passed, but the merge failed: see the log." >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi

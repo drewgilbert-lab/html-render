@@ -114,7 +114,7 @@ compares it byte for byte with what `geo-spoke-builder` already holds. A commit
 that did not move the contract (a README fix, a test-only change) opens nothing
 and costs one short run. A commit that did move it opens a pull request there
 carrying three files — the contract, the plugin version, and the version string
-in that repo's `CLAUDE.md` — and sets auto-merge. That repo's own required
+in that repo's `CLAUDE.md` — waits for its checks, and merges it. That repo's own
 checks decide whether it lands: they check out the exact renderer commit the
 contract names, confirm the contract regenerates from it byte-identically, and
 confirm every component the skills name exists in it.

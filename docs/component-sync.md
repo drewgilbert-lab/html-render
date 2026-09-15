@@ -11,8 +11,8 @@ This replaces those manifests with one generated file, promoted downstream on ev
 ```text
 push to main → generate contract from the live CLI → diff against geo-spoke-builder
              → nothing moved? stop
-             → moved? open a PR carrying contract + plugin.json + CLAUDE.md, set auto-merge
-             → geo-spoke-builder's own checks prove the pair and merge it
+             → moved? open a PR carrying contract + plugin.json + CLAUDE.md
+             → geo-spoke-builder's own checks prove the pair, and the sync merges it
 ```
 
 Nobody merges that downstream pull request. The review happened on the `html-render` pull request
@@ -58,7 +58,7 @@ two variables *and* putting the new consumer's token in that secret.
 
 | Trigger | `dry_run` | What happens |
 |---|---|---|
-| `git push` to `main` | forced off | Generates, diffs, and opens a real PR with auto-merge set if the contract moved |
+| `git push` to `main` | forced off | Generates, diffs, and (if the contract moved) opens a real PR, waits for its checks, and merges it |
 | `workflow_dispatch` | defaults to **true** | Generates and diffs, prints what it *would* do, pushes nothing |
 
 **Merging to `main` is the release.** There is no tag step and nothing is keyed to a tag any more;
@@ -97,9 +97,16 @@ enforce that, and between them they force all three into one commit:
 calls that script rather than editing three files from here, because the plugin's version rule and
 the line of its `CLAUDE.md` that carries the version are its business, not this repo's.
 
-Either check failing leaves the pull request red, and auto-merge never fires. So all three move
-together or the promotion does not happen at all — which is the failure mode you want: the pointer
-simply does not advance, and every existing page stays exactly as it was.
+Either check failing leaves the pull request red and unmerged. So all three move together or the
+promotion does not happen at all — which is the failure mode you want: the pointer simply does not
+advance, and every existing page stays exactly as it was.
+
+**Why the sync waits and merges rather than setting GitHub's auto-merge.** Auto-merge is not
+available on `geo-spoke-builder`: it is a private repository on a free plan, where branch
+protection is a paid feature, and auto-merge requires it — `allow_auto_merge` silently stays
+false. So the workflow does what auto-merge would have done, with `gh pr checks --watch`
+followed by `gh pr merge`. The checks are the gate either way. If that repository ever moves to
+a plan with branch protection, `gh pr merge --auto` becomes the simpler option.
 
 ## What the consumer checks
 
