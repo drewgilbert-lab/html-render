@@ -19,7 +19,8 @@ node bin/html-render.js --components                            # the catalog, a
 
 Last reviewed: **2026-09-14**, against Claude Design export build
 `HGInsightsMarketingDesignSystem_3bf70b` (the 2026-09-01 recompile — same namespace, different
-contents; see §4) and `html-render` v2.0.0.
+contents; see §4), `html-render` v2.0.0 at `eb15bf0` on `main` (merged, not yet tagged — see §2),
+and `geo-spoke-builder` plugin 0.47.1.
 
 ---
 
@@ -57,29 +58,41 @@ the fix is something that reads the field contracts, not a narrower regex.
 
 ## 2. Consumer migration
 
-**v2.0.0 removed the page classes, and every consumer skill needs rewriting.** The renderer no
-longer decides what a page contains or in what order; a document composes itself in body order.
-See `CHANGELOG.md` for the full list. What this means downstream, per skill:
+**Closed 2026-09-14, except the tag.** v2.0.0 removed the page classes — the renderer no longer
+decides what a page contains or in what order; a document composes itself in body order. See
+`CHANGELOG.md` for the full list. Downstream, geo-spoke-builder#50 ("Move assembly knowledge out
+of the skills") and geo-spoke-builder#51 (contract re-stamp) are merged; the plugin is at 0.47.1.
 
-- The ASCII "Page chrome" block in each SKILL.md is no longer a description of renderer
-  behaviour — it becomes the body the skill emits. That closes the drift this whole change was
-  for: **14 skills restated the chrome order, 14 still told authors to write `pills` (accepted
-  and discarded since v1.7.0), 11 described an "On This Page" jump nav removed in v1.6.0, and 5
-  named `freshness.cadence` (also discarded).** None of those are possible any more, because
-  there is nothing to restate.
-- Every string the renderer used to inject must now be authored: FAQ and citations eyebrows,
-  `"Read the guide"` on related cards, the `"Data last updated: "` prefix, side-nav and jump-nav
-  labels, the in-production badge.
-- Content requirements that were renderer errors are now the skill's own checks, or
-  `geo-lint.py`'s. Both consumers already run that gate, so it is the natural home; whether it
-  absorbs the 33 page-class requirements or the skills carry them in their checklists is a
-  decision for that repo.
+- **15 skills carried a private copy of the composition rules this removal made pointless** — not
+  13; the count grew past the v1.5.0 batch below with `create-product-page` and `edit-spoke-page`.
+  Each restated the chrome order and a frontmatter-key mapping; 14 still told authors to write
+  `pills` (discarded since v1.7.0); 11 still described the "On This Page" jump nav removed in
+  v1.6.0; 5 still named `freshness.cadence` (discarded even earlier). None of that can be restated
+  any more: geo-spoke-builder#50 deleted it — 1,170 lines out against 987 rewritten — and replaced
+  it with one `**Elements:**` line per skill naming what that format carries, against the
+  named-element vocabulary [html-render#16](https://github.com/drewgilbert-lab/html-render/pull/16)
+  added to `docs/authoring.md` so 15 skills don't need 15 private copies of it.
+- Every string the renderer used to inject (FAQ/citations eyebrows, `"Read the guide"`, the
+  `"Data last updated: "` prefix, side-nav and jump-nav labels, the in-production badge) is now
+  authored per skill, not derived.
+- Content requirements that were renderer errors are now `geo-lint.py`'s: it counts citations from
+  the body's `citations` block instead of frontmatter, and treats a missing `.faq-answer` or
+  `.thesis-block` as an error rather than a warning — the two tells of a page that passes `--check`
+  while rendering gutted. `lint-skills.py` gained `FORBIDDEN_WIRE_NAMES`, failing a skill's own
+  build if it still names a removed key or component field.
 - `.section-header` and the automatic `.grouping-block` around each `###` are gone, so pages of
   the old pillar, cluster, and banded-spoke shapes render visibly differently. Decided
   deliberately (2026-09-14) rather than relocating the behaviour into a region option.
+- Adversarial review of the migration found real defects in 9 of the 15 rewritten files — most
+  significantly a deleted "Section headers" row that left several formats claiming bands and
+  anchors with nothing saying how either exists. Repaired and rechecked before merge.
 
-**Nothing has migrated yet.** No tag has been cut, so the catalog file downstream still reflects
-v1.8.0 and no skill has been touched.
+**What's left is only the tag.** geo-spoke-builder's synced contract is already re-stamped to
+`html-render`'s actual `main` tip (`commit=eb15bf0`), so tagging `v2.0.0` there will hit the sync
+workflow's "no change, nothing to sync" path rather than open a redundant PR — verified by running
+`scripts/generate-contract.js` at that commit and diffing it against the downstream file
+byte-for-byte. `render-page.sh`'s version gate reads `version=`, not `commit=`, and both sides
+already read `2.0.0`, so nothing downstream is blocked by the missing tag meanwhile.
 
 ### Before v2.0.0
 
@@ -258,6 +271,17 @@ eventually.
 
 ## Recently closed
 
+- **2026-09-14** — v2.0.0: the page classes are gone — `page_type`, `layout`, `standalone`,
+  `src/layouts/`, `document-contract.js`, `describe.js`, `--contract`, 134 `required` flags, 27
+  content bounds, 19 editorial rules, and 31 injected strings (full list in `CHANGELOG.md`). A
+  document composes itself in body order. [html-render#16](https://github.com/drewgilbert-lab/html-render/pull/16)
+  followed the same day: `docs/authoring.md` gained the assembly order and named-element
+  vocabulary, and the synced file now ships both halves — authoring guide plus catalog — under one
+  stamp, so a consumer holding the catalog without the assembly order can't write a page that
+  passes `--check` and renders gutted. Downstream, geo-spoke-builder#50 rewrote all 15
+  render-touching skills against that vocabulary (1,170 lines removed, 987 rewritten) and #51
+  re-stamped the synced contract to match; plugin is at 0.47.1. `html-render` itself is merged to
+  `main` at `eb15bf0` but not yet tagged `v2.0.0` — see §2.
 - **2026-09-10** — v1.8.0: page-wide layout rules — sticky side-nav offset
   80px, no two dark bands in a row, comparison tables wrap instead of
   scrolling, citations only in the formatted slot. Output changes; not
