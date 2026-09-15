@@ -279,6 +279,20 @@ jobs:
           URL: ${{ steps.pr.outputs.url }}
         run: |
           set -uo pipefail
+          # Wait for the checks to exist before watching them. `gh pr checks --watch` errors
+          # with "no checks reported" when it is asked before the consumer's workflow has
+          # registered any, and the push above and that workflow starting are a race this
+          # job can easily win.
+          for _ in $(seq 1 30); do
+            gh pr checks "$URL" >/dev/null 2>&1 && break
+            sleep 10
+          done
+          if ! gh pr checks "$URL" >/dev/null 2>&1; then
+            echo "::error::$URL has no checks five minutes after it was opened. Its checks "\
+              "are the only gate on a generated contract, so it was not merged."
+            echo "Opened $URL but no checks appeared, so it was NOT merged." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
           # `gh pr checks --watch` blocks until every check has a verdict, then exits
           # non-zero if any failed. `--fail-fast` stops at the first failure rather than
           # holding a runner open for the rest.
