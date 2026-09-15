@@ -68,7 +68,7 @@ html-render <input.md> [more.md ...] [options]
       --no-schema        omit the JSON-LD block
       --no-font          omit the configured webfont @import
       --components       print the catalog: components, regions, frontmatter
-      --audit <dir>      classify a design-web-components catalog against the registry
+      --audit <dir>      classify a Claude Design export against this registry
   -h, --help
 ```
 
@@ -219,36 +219,40 @@ asserts the committed output still matches a fresh render, so it cannot go stale
 
 ## Keeping up with the design system
 
-Every component here implements one component from the `design-web-components`
-catalog, and names it in a `source` field. When that catalog is refreshed, ask
-what this renderer is now missing:
+The design system arrives as a **Claude Design export** — a compiled folder
+with a `_ds_manifest.json` inventory, not a git checkout. Every component here
+implements one component from that export and names it in a `source` field. When
+a new export is staged, ask what this renderer is now missing:
 
 ```bash
-node bin/html-render.js --audit /path/to/design-web-components
+node bin/html-render.js --audit /path/to/claude-design-export
 ```
 
-That classifies all 52 catalogued components against the live registry:
+That classifies every exported component against the live registry:
 
-- **New** — catalogued, not implemented here.
-- **Removed** — implemented here, gone from the catalog.
+- **New** — exported, not implemented here.
+- **Removed** — implemented here under a named source, gone from the export.
+- **Legacy numbered convention** — registry sources and CSS headers still written
+  against the retired numbered catalog, which cannot join on export names. Each
+  migrates when its component is next touched, never in bulk.
 - **Out of scope by design** — site chrome and print/PDF chrome, which this
   renderer does not emit. Not gaps; the reasons live in `OUT_OF_SCOPE` in
   `src/audit.js`.
-- **Covered, but the catalog says something moved** — the review queue.
 - **Covered** — everything else.
 
 Coverage is read from live state, not a hand-kept list: it joins each registry
-entry's `source` against the numbered CSS block headers in `styles.css`. That is
-why a new CSS block must carry its component number —
-`/* ---- Figure block (53) ---- */`.
+entry's `source` against the CSS block headers in `styles.css`. That is why a new
+CSS block is headed with the component's export name and no number —
+`/* ---- Figure block ---- */`.
 
-**Changed is deliberately not classified automatically.** Deciding it needs a
-semantic comparison of HTML, CSS, and field contracts, so the audit surfaces
-candidates from the catalog's own refresh notes and leaves the judgment to you.
+**Changed is deliberately not classified automatically.** The export carries no
+refresh history and its manifest namespace does not change when it is recompiled,
+so deciding Changed means diffing the export folders and comparing markup, CSS,
+and field contracts by hand.
 
-The full procedure — confirm the source, diff, resolve ambiguity *before*
-implementing, one component at a time, cross-check the consumer manifests,
-record, verify — is
+The full procedure — confirm the export, diff, resolve ambiguity *before*
+implementing, one component at a time, cross-check the consumer, record, verify —
+is
 [.claude/skills/sync-design-components](.claude/skills/sync-design-components/SKILL.md),
 runnable as `/sync-design-components`. Each run appends to
 [CHANGELOG.md](CHANGELOG.md), which is what the next run diffs against.
@@ -382,7 +386,7 @@ request into `geo-spoke-builder` updating a single generated reference file. It
 writes nothing else there, and never merges — see
 [docs/component-sync.md](docs/component-sync.md).
 
-The design comes from the `design-web-components` catalog — the `--hg-*` token
-set and the catalogued components it defines. Each CSS block in
-`src/assets/styles.css` and each component's `source` field names the design
-system component it implements.
+The design comes from the Claude Design export of the HG Insights Marketing
+Design System — the `--hg-*` token set and the components it defines. Each CSS
+block in `src/assets/styles.css` and each component's `source` field names the
+exported component it implements.

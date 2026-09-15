@@ -1,12 +1,15 @@
 'use strict';
 
 /**
- * Page-level components: the chrome and full-width bands a layout assembles.
+ * Page chrome and full-width bands.
  *
- * These are not author-invokable. Their inputs come from frontmatter slots, so
- * an author cannot reorder or duplicate them — the layout owns composition and
- * these components own implementation. Each is the one canonical build of its
- * catalogued design component; `source` names that component.
+ * These are invokable from the body like every other component — there are no
+ * layouts and no frontmatter slots, so the document decides where they go and
+ * how many of each it carries. They live in their own file because they are the
+ * parts of a page rather than its content, not because the renderer treats them
+ * differently; `src/components/index.js` merges this list with `blocks.js` into
+ * one registry. Each is the one canonical build of its exported design
+ * component; `source` names that component.
  */
 
 const { el, lines, indent, container, initials } = require('../html');

@@ -182,7 +182,7 @@ function parseBody(body, lineOffset = 0) {
       const name = (fence[2] || '').trim();
       if (!name) {
         throw new MarkdownError(
-          'A fenced block must name a component, for example ```callout. See docs/component-library.md',
+          'A fenced block must name a component, for example ```callout. See docs/authoring.md',
           line,
         );
       }
