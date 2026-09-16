@@ -36,6 +36,29 @@ const { readLock } = require('./export-lock');
 /** The CLI capture that makes up the document. */
 const SECTIONS = [{ heading: 'Catalog', args: ['--components'] }];
 
+/**
+ * Everything the contract's bytes are made of.
+ *
+ * The stamped commit is the last commit that touched one of these, NOT `HEAD`. That
+ * distinction is the whole no-op path: stamping `HEAD` means every commit to `main` moves
+ * the contract, so a README fix opens a downstream pull request and bumps the consumer's
+ * plugin version for a catalog that did not change. It did exactly that once, on
+ * 2026-09-16, taking the plugin to 0.53.0 for a docs-only commit.
+ *
+ * The stamp is self-consistent by construction: at the commit it names, this same query
+ * returns that commit, because that commit touched an input. So a consumer that checks it
+ * out and regenerates gets byte-identical output, which is what its required check asserts.
+ */
+const CONTRACT_INPUTS = [
+  'package.json',              // the version in the header
+  'design-export.lock.json',   // the export digest in the header
+  'docs/authoring.md',         // the first half, verbatim
+  'src',                       // what `--components` prints
+  'bin',                       // the CLI that prints it
+  'scripts/generate-contract.js',
+  'scripts/export-lock.js',
+];
+
 function git(args) {
   return execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' }).trim();
 }
@@ -65,6 +88,10 @@ function header(pkg, commit, lock) {
     // checking this commit out, and `actions/checkout` cannot resolve an abbreviated SHA — a
     // short stamp here makes the whole resolver inoperable. The version beside it is
     // human-readable metadata; the SHA is what identifies the code.
+    //
+    // It is the last commit that touched what this file is made of, not `HEAD`. See
+    // CONTRACT_INPUTS: stamping `HEAD` would move the contract on every commit and defeat
+    // the no-op path this workflow depends on.
     //
     // `export` is the design-export digest, read from the committed `design-export.lock.json`
     // and never recomputed here. The sync workflow decides whether to open a downstream PR by
@@ -144,9 +171,22 @@ function authoringGuide() {
   return text.replace(/^#\s+.*\n+/, '').replace(/\s+$/, '');
 }
 
+/**
+ * The commit a consumer should check out to reproduce this contract.
+ *
+ * Falls back to `HEAD` only when the query answers nothing, which means a shallow clone
+ * with no history to search. The sync workflow checks out with `fetch-depth: 0` precisely
+ * so that cannot happen; the fallback keeps a hand run in a shallow tree working rather
+ * than stamping an empty string.
+ */
+function contractCommit() {
+  const touched = git(['log', '-1', '--format=%H', '--', ...CONTRACT_INPUTS]);
+  return touched || git(['rev-parse', 'HEAD']);
+}
+
 function buildContract() {
   const pkg = packageJson();
-  const commit = git(['rev-parse', 'HEAD']);
+  const commit = contractCommit();
   const parts = [header(pkg, commit, readLock()), '---', '', authoringGuide(), ''];
 
   for (const section of SECTIONS) {
