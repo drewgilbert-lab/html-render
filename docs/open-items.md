@@ -51,21 +51,24 @@ that is the PAT decision below, deliberately unchanged.
 
 **The sync became the promotion on 2026-09-15 (v4.1.0).** It triggers on `push` to `main` rather
 than on a `v*` tag, writes three files instead of one (contract, plugin version, the consumer's
-`CLAUDE.md` version string, via that repo's own `scripts/ship-contract.py`), waits for that
-repository's checks, and merges it.
+`CLAUDE.md` version string, via that repo's own `scripts/ship-contract.py`), and stops.
+`geo-spoke-builder` merges that pull request itself once its own checks pass.
 
-**It merges rather than setting GitHub's auto-merge, because auto-merge is not available there.**
-`geo-spoke-builder` is a private repository on a free plan, where branch protection is a paid
-feature and auto-merge requires it; `allow_auto_merge` accepts the write and stays false. The
-workflow does what auto-merge would have done, `gh pr checks --watch` then `gh pr merge`, and the
-checks are the gate either way. Revisit if that repository ever moves to a plan with branch
-protection, where `gh pr merge --auto` is simpler and holds no runner.
+**The merge moved there on 2026-09-16, during the first real promotion.** This workflow tried to
+wait for those checks and merge, and could not: the sync token can open a pull request there but
+cannot read that repository's check runs, so `gh pr checks` errored, the wait read that as "no
+checks yet", and the run failed after five minutes with the pull request open and green. Adding
+`Checks: read` to the token would have worked; putting the merge in the repository whose checks
+they are needs no permission from anybody and is the better shape. GitHub's own auto-merge would
+be simpler than either and is unavailable, since that repository is private on a free plan where
+branch protection is a paid feature.
 `geo-spoke-builder/main` is now the single production pointer: its contract names the exact
 renderer commit that belongs with it, and `pillar-geo-launch` resolves the pair from there rather
 than resolving two upstreams independently. Tagging is no longer a step anywhere.
 
 **The sync token expires 2026-11-24** and nothing owns renewing it. It now needs **Pull requests:
-read and write** as well as Contents, because the workflow merges the pull request it opens. When it lapses the
+read and write** as well as Contents, because the workflow opens a pull request. It does **not**
+need `Checks: read`: reading those checks, and merging on them, is `geo-spoke-builder`'s job. When it lapses the
 workflow fails on `Check out geo-spoke-builder`, and unlike before that is visible without
 watching Actions: the sync runs on every commit to `main` rather than on a tag somebody remembers
 to cut, and because the pointer stops advancing, `pillar-geo-launch` visibly stops picking up new
@@ -365,7 +368,7 @@ eventually.
 - **2026-09-15** — v4.1.0: the design system promotes itself. `design-export.lock.json`
   fingerprints the export (closing §4); the contract stamp carries the full 40-character renderer
   SHA and that digest; the sync runs on `push` to `main`, ships contract + plugin version +
-  `CLAUDE.md` in one commit, and merges it once that repository's checks pass. "Releases and
+  `CLAUDE.md` in one commit; that repository merges it once its own checks pass. "Releases and
   tags" is gone from
   [github-process.md](github-process.md). A design release is now one reviewed pull request here
   and nothing else — no tag, no downstream merge, no pin bump, and no page re-rendered.
