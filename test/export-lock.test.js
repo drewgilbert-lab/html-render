@@ -156,7 +156,10 @@ test('the generated contract stamps the full renderer SHA and the committed expo
     const commit = /commit=([0-9a-f]+)/.exec(stamp);
     assert.ok(commit, `no commit= in the stamp: ${stamp}`);
     assert.equal(commit[1].length, 40);
-    assert.equal(commit[1], execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim());
+    // Not HEAD: the last commit that touched what this file is made of. The test below
+    // holds that line, and the one after it says why it matters.
+    assert.ok(execFileSync('git', ['cat-file', '-t', commit[1]], { cwd: ROOT, encoding: 'utf8' })
+      .trim() === 'commit', 'the stamp names a commit that exists');
 
     const exported = /export=([0-9a-f]+)/.exec(stamp);
     assert.ok(exported, `no export= in the stamp: ${stamp}`);
@@ -164,6 +167,67 @@ test('the generated contract stamps the full renderer SHA and the committed expo
   } finally {
     fs.rmSync(out, { force: true });
   }
+});
+
+test('the stamped commit is the last one that touched what the contract is made of', () => {
+  const { execFileSync } = require('node:child_process');
+  const git = (args) => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' }).trim();
+  const inputs = ['package.json', 'design-export.lock.json', 'docs/authoring.md', 'src', 'bin',
+                  'scripts/generate-contract.js', 'scripts/export-lock.js'];
+
+  const out = path.join(os.tmpdir(), `contract-stamp-${process.pid}.md`);
+  try {
+    execFileSync(process.execPath, [path.join(ROOT, 'scripts', 'generate-contract.js'), '--out', out],
+      { cwd: ROOT, stdio: 'ignore' });
+    const stamped = /commit=([0-9a-f]{40})/.exec(fs.readFileSync(out, 'utf8').split('\n')[0])[1];
+
+    assert.equal(stamped, git(['log', '-1', '--format=%H', '--', ...inputs]));
+
+    // Self-consistent, which is what the consumer's required check depends on: at the commit
+    // the stamp names, this same query answers that commit, so regenerating there reproduces
+    // this file byte for byte.
+    assert.equal(git(['log', '-1', '--format=%H', stamped, '--', ...inputs]), stamped);
+  } finally {
+    fs.rmSync(out, { force: true });
+  }
+});
+
+test('a commit touching nothing the contract is made of does not move the contract', (t) => {
+  // The no-op path, which is what makes it safe to run the sync on every commit to main.
+  // Stamping HEAD instead defeated it: a docs-only commit opened a downstream pull request
+  // and bumped the consumer's plugin version for a catalog that had not changed.
+  const { execFileSync } = require('node:child_process');
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'contract-noop-'));
+  t.after(() => fs.rmSync(repo, { recursive: true, force: true }));
+  const run = (args) => execFileSync('git', args, { cwd: repo, encoding: 'utf8' }).trim();
+
+  // A copy of the working tree, not a clone: a clone carries committed state, so it would
+  // test the script as it was last committed rather than the script under test.
+  for (const entry of ['package.json', 'design-export.lock.json', 'CHANGELOG.md', 'README.md',
+                       'docs', 'src', 'bin', 'scripts']) {
+    fs.cpSync(path.join(ROOT, entry), path.join(repo, entry), { recursive: true });
+  }
+  run(['init', '--quiet', '--initial-branch=main']);
+  run(['config', 'user.email', 'fixture@example.invalid']);
+  run(['config', 'user.name', 'Fixture']);
+  run(['add', '-A']);
+  run(['commit', '--quiet', '-m', 'everything the contract is made of']);
+
+  const generate = () => execFileSync(
+    process.execPath, [path.join(repo, 'scripts', 'generate-contract.js')],
+    { cwd: repo, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+
+  const before = generate();
+  fs.appendFileSync(path.join(repo, 'README.md'), '\n<!-- a docs-only change -->\n');
+  run(['add', '-A']);
+  run(['commit', '--quiet', '-m', 'docs: a change the contract is not made of']);
+  assert.equal(generate(), before, 'a docs-only commit must not move the contract');
+
+  // And the other half: a change to what it IS made of does move it.
+  fs.appendFileSync(path.join(repo, 'docs', 'authoring.md'), '\n<!-- a real change -->\n');
+  run(['add', '-A']);
+  run(['commit', '--quiet', '-m', 'docs: authoring guide, which the contract ships verbatim']);
+  assert.notEqual(generate(), before, 'a change to an input must move the contract');
 });
 
 test('the contract is a pure function of committed state, not of an export folder', () => {
