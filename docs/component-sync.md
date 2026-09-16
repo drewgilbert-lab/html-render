@@ -12,7 +12,7 @@ This replaces those manifests with one generated file, promoted downstream on ev
 push to main → generate contract from the live CLI → diff against geo-spoke-builder
              → nothing moved? stop
              → moved? open a PR carrying contract + plugin.json + CLAUDE.md
-             → geo-spoke-builder's own checks prove the pair, and the sync merges it
+             → geo-spoke-builder's own checks prove the pair, and it merges its own PR
 ```
 
 Nobody merges that downstream pull request. The review happened on the `html-render` pull request
@@ -58,7 +58,7 @@ two variables *and* putting the new consumer's token in that secret.
 
 | Trigger | `dry_run` | What happens |
 |---|---|---|
-| `git push` to `main` | forced off | Generates, diffs, and (if the contract moved) opens a real PR, waits for its checks, and merges it |
+| `git push` to `main` | forced off | Generates, diffs, and opens a real PR if the contract moved. That PR merges itself downstream |
 | `workflow_dispatch` | defaults to **true** | Generates and diffs, prints what it *would* do, pushes nothing |
 
 **Merging to `main` is the release.** There is no tag step and nothing is keyed to a tag any more;
@@ -101,12 +101,19 @@ Either check failing leaves the pull request red and unmerged. So all three move
 promotion does not happen at all — which is the failure mode you want: the pointer simply does not
 advance, and every existing page stays exactly as it was.
 
-**Why the sync waits and merges rather than setting GitHub's auto-merge.** Auto-merge is not
-available on `geo-spoke-builder`: it is a private repository on a free plan, where branch
-protection is a paid feature, and auto-merge requires it — `allow_auto_merge` silently stays
-false. So the workflow does what auto-merge would have done, with `gh pr checks --watch`
-followed by `gh pr merge`. The checks are the gate either way. If that repository ever moves to
-a plan with branch protection, `gh pr merge --auto` becomes the simpler option.
+**Why the consumer merges its own pull request.** This workflow tried to, and could not: the
+sync token can open a pull request in `geo-spoke-builder` but cannot read that repository's
+check runs, so `gh pr checks` errored and the wait timed out with the pull request sitting open
+and green. `geo-spoke-builder/.github/workflows/merge-sync-pr.yml` does it instead, on a
+`workflow_run` of its own checks, with its own `GITHUB_TOKEN`, which reads both without a
+permission granted to anybody.
+
+GitHub's own auto-merge would be simpler than either and is not available: that repository is
+private on a free plan, where branch protection is a paid feature and auto-merge requires it.
+
+So a green run here means **the contract was shipped and a pull request is open**, not that the
+pointer has moved. The pointer moving is visible in `geo-spoke-builder`, which is the repository
+it is a fact about.
 
 ## What the consumer checks
 
