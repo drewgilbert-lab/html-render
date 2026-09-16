@@ -10,6 +10,88 @@ itself is `.claude/skills/sync-design-components/SKILL.md`; run
 
 ---
 
+## v4.1.0 — 2026-09-15, the export has a fingerprint, and the contract names a commit
+
+**Not a catalog refresh.** No component was added, changed or removed, and
+`--components` output is byte-identical. What changed is how this repository
+says *which* design build it is reconciled against, and how the contract it
+ships identifies the renderer that belongs with it. Minor, not major: the stamp
+stays parseable by the pattern consumers already use.
+
+**New — `design-export.lock.json` and `scripts/export-lock.js`.**
+
+- **The export finally has an identity.** A digest per component source file,
+  per token file and per stylesheet, plus one overall digest over all three,
+  committed alongside the ingest. `node scripts/export-lock.js --export <dir>`
+  writes it; `--check` prints exactly which components and stylesheets moved
+  and exits non-zero when the export has advanced.
+- **This closes the reopened §4 of `docs/open-items.md`.** `_ds_manifest.json`'s
+  `namespace` was adopted as the build identity on the premise that it changes
+  when the export is recompiled. It does not: three exports have now shipped as
+  `HGInsightsMarketingDesignSystem_3bf70b`, and the 2026-09-15 rebrand added 28
+  components, four category folders and a replaced token layer while `--audit`
+  reported no change at all. "Keep the previous download and diff the folders"
+  was the only method that worked, and it depended on a folder on one laptop.
+- **The digest excludes the export's folder name.** Renaming a download is not a
+  design change. The name is recorded as a label, and the namespace beside it,
+  so a reader can see for themselves that two builds share one.
+
+**Changed — the contract stamp.** `scripts/generate-contract.js`.
+
+- **`commit=` carries the full 40-character SHA**, not `--short`. This is the
+  only runtime reference a consumer has to this renderer: it resolves the pair
+  by checking that commit out, and `actions/checkout` cannot resolve an
+  abbreviated SHA. The version beside it is human-readable metadata; the SHA is
+  what identifies the code. Consumers parsing `[0-9a-f]{7,40}` are unaffected.
+- **`catalog=` becomes `export=`**, carrying the lock's digest instead of the
+  namespace that could not tell two builds apart. The header table gains the
+  export digest and a content count, and prints the namespace inside the
+  export row rather than as an identity of its own.
+- **The digest reaches the header from the committed lock file**, never
+  recomputed from an export folder. The sync workflow decides whether to open a
+  downstream pull request by diffing this output byte for byte, so every field
+  in it has to be a pure function of committed state — a digest computed on the
+  runner would depend on a download CI does not have. `test/export-lock.test.js`
+  holds that line.
+- **`designCatalog` drops `build` and `export`.** Both were hand-filled, and the
+  one that claimed to be an identity was wrong. The lock owns build identity;
+  `catalog` and `syncedAt` stay.
+
+**Changed — promotion replaces tagging.** `.github/workflows/sync-component-contract.yml`,
+`docs/github-process.md`, `docs/component-sync.md`, the sync skill.
+
+- **The sync runs on `push` to `main`, not on `v*` tags.** A tag was only ever
+  this trigger, and cutting one by hand put a manual step in front of every
+  design change. The no-op path is a byte comparison, so a commit that does not
+  move the contract opens nothing.
+- **The downstream pull request carries three files and sets auto-merge.** The
+  contract, the plugin version, and the version string in the consumer's
+  `CLAUDE.md` — all three, because a contract landing without a version bump
+  never reaches an installed session, and a version bump without the matching
+  `CLAUDE.md` line fails that repo's lint. Either failure leaves the pull
+  request red and nothing is promoted, which is the right failure: the pointer
+  does not move and every existing page stays as it was.
+- **The consumer owns its own three edits**, in its `scripts/ship-contract.py`.
+  This workflow calls that script rather than editing another repository's
+  `CLAUDE.md` from here.
+- **"Releases and tags" is gone from `docs/github-process.md`**, replaced by
+  "Promotion". Merging to `main` is the release. Tags are still fine to cut as
+  bookkeeping; nothing reads them.
+
+**Changed — the sync skill reconciles a whole export in one pull request.**
+
+- Changed components are classified from the lock, not from a retained previous
+  download, and every Changed component is in scope for the run — a Covered
+  component whose source moved and which is left alone is a renderer that
+  silently disagrees with the design system. The New bucket is still triaged,
+  still ordered by consumer demand, and still defaults to one or two per pass.
+- The renderer version bump lands in that same pull request. The tagging step
+  and every instruction to go and synchronize a downstream repository are
+  deleted: a person reviews and merges one pull request here, and that is the
+  entire human contribution to a design release.
+
+---
+
 ## v4.0.0 — 2026-09-15, `ContentSection` brought back to the export
 
 **Breaking, and a fidelity correction rather than a catalog refresh.** No field

@@ -31,6 +31,8 @@ const BIN = path.join(ROOT, 'bin', 'html-render.js');
 const CHANGELOG = path.join(ROOT, 'CHANGELOG.md');
 const AUTHORING = path.join(ROOT, 'docs', 'authoring.md');
 
+const { readLock } = require('./export-lock');
+
 /** The CLI capture that makes up the document. */
 const SECTIONS = [{ heading: 'Catalog', args: ['--components'] }];
 
@@ -54,12 +56,25 @@ function packageJson() {
 // Header
 // ---------------------------------------------------------------------------
 
-function header(pkg, commit) {
+function header(pkg, commit, lock) {
   const catalog = pkg.designCatalog || {};
   return [
-    // Machine-readable stamp. The sync workflow parses `commit=` out of the *previous* copy of
-    // this file to work out which changelog entries are new. Keep this line's shape stable.
-    `<!-- html-render:contract version=${pkg.version} commit=${commit} catalog=${catalog.build || catalog.commit || 'unknown'} -->`,
+    // Machine-readable stamp, and the only runtime reference downstream has to this renderer.
+    //
+    // `commit` is the FULL 40-character SHA, deliberately. Consumers resolve the renderer by
+    // checking this commit out, and `actions/checkout` cannot resolve an abbreviated SHA — a
+    // short stamp here makes the whole resolver inoperable. The version beside it is
+    // human-readable metadata; the SHA is what identifies the code.
+    //
+    // `export` is the design-export digest, read from the committed `design-export.lock.json`
+    // and never recomputed here. The sync workflow decides whether to open a downstream PR by
+    // diffing this file byte for byte against what is already committed, so every field in it
+    // must be a pure function of this repo's committed state — a digest computed from an export
+    // folder on the runner would depend on a download that CI does not have.
+    //
+    // The sync workflow parses `commit=` out of the *previous* copy of this file to work out
+    // which changelog entries are new. Keep this line's shape stable.
+    `<!-- html-render:contract version=${pkg.version} commit=${commit} export=${lock.digest} -->`,
     '',
     '# html-render — authoring guide and component catalog',
     '',
@@ -71,12 +86,13 @@ function header(pkg, commit) {
     `| Renderer version | \`v${pkg.version}\` |`,
     `| Renderer commit | \`${commit}\` |`,
     `| Design catalog | \`${catalog.catalog || 'unknown'}\` |`,
-    `| Catalog build | \`${catalog.build || catalog.commit || 'unknown'}\` |`,
-    // The export's `namespace` does not change when the export is recompiled: two
-    // exports with different components, CSS and tokens have shipped under the same
-    // one. The export name is what actually says which build this was reconciled
-    // against, and what the next sync diffs from.
-    ...(catalog.export ? [`| Catalog export | \`${catalog.export}\` |`] : []),
+    // The export's `namespace` does not change when the export is recompiled: three exports
+    // with different components, CSS and tokens have now shipped under the same one. It is
+    // printed because a reader should be able to see that for themselves, never as an identity.
+    // The digest below is the identity.
+    `| Catalog export | \`${lock.export}\` (namespace \`${lock.namespace}\`) |`,
+    `| Export digest | \`${lock.digest}\` |`,
+    `| Export contents | ${lock.counts.components} components, ${lock.counts.tokens} token files, ${lock.counts.css} stylesheets |`,
     `| Last reconciled | ${catalog.syncedAt || 'unknown'} |`,
     '',
     'Two halves. **Authoring a document** is how a document is assembled: what goes in',
@@ -130,8 +146,8 @@ function authoringGuide() {
 
 function buildContract() {
   const pkg = packageJson();
-  const commit = git(['rev-parse', '--short', 'HEAD']);
-  const parts = [header(pkg, commit), '---', '', authoringGuide(), ''];
+  const commit = git(['rev-parse', 'HEAD']);
+  const parts = [header(pkg, commit, readLock()), '---', '', authoringGuide(), ''];
 
   for (const section of SECTIONS) {
     const body = cli(section.args);

@@ -1,6 +1,6 @@
 ---
 name: sync-design-components
-description: Bring html-render's component registry back into agreement with a Claude Design export of the HG Insights Marketing Design System. Use when a new export has been staged, when asked to sync, audit, or diff html-render against the design system, or when a component is reported missing or out of date. Works one component at a time; never batch-migrates the export.
+description: Bring html-render's component registry back into agreement with a Claude Design export of the HG Insights Marketing Design System. Use when a new export has been staged, when asked to sync, audit, or diff html-render against the design system, or when a component is reported missing or out of date. Reconciles one complete export in one pull request, implementing and reviewing each component on its own inside it.
 ---
 
 # Sync html-render against a Claude Design export
@@ -23,6 +23,12 @@ edit.
 
 Components classified Unchanged are off limits entirely — including for whitespace, comment style,
 or formatting.
+
+**One export, one pull request.** The diff stays component-scoped, but the delivery does not: an
+export is one coherent design state, and shipping half of it leaves the renderer agreeing with no
+build that ever existed. Reconcile the whole export in one branch, one component at a time, with a
+separate commit per component so the review can still read them one at a time. Merging that pull
+request is the release — see Step 7.
 
 ## What an export looks like
 
@@ -84,20 +90,27 @@ tripwire.
 Ask the user for the path to the staged export unless you already have it. Do not guess, and do not
 proceed against a partial copy — `_ds_manifest.json` must exist and parse, and every
 `components[].sourcePath` it names must be present. There is no git state to check; the export is a
-compiled artifact. Record its `namespace` — that is the identity you will stamp in Step 6.
+compiled artifact.
 
-**The namespace does not identify a build.** Two different exports have shipped under the same one,
-differing in component files, CSS, and tokens, so `--audit` alone cannot tell you a Covered
-component moved. Diff the export you are syncing against the one this repo last synced — keep that
-folder for exactly this reason:
+**The namespace does not identify a build.** Three different exports have now shipped under
+`HGInsightsMarketingDesignSystem_3bf70b`, differing in component files, CSS and the whole token
+layer — the 2026-09-15 rebrand added 28 components and `--audit` reported no change at all. So
+never read a matching namespace as "same export".
+
+`design-export.lock.json` is what answers that instead. It is committed, and it carries a digest
+per component source file, per token file and per stylesheet, plus one overall digest. Compare the
+staged export against it:
 
 ```bash
-diff -rq "<previously-synced-export>" "<new-export>"
+node scripts/export-lock.js --export "<new-export>" --check
 ```
 
-Every shared file that differs is a Changed candidate for Step 2, and a changed `tokens/` or `css/`
-file is a candidate for every component whose rules live in it. If you cannot reach the previous
-export, say so and treat every Covered component as unverified rather than assuming it held.
+That prints exactly which components and stylesheets moved, and exits 1 when the export has
+advanced (which is the normal case for a sync — an exit of 0 means there is nothing to do and you
+should say so and stop). Its output is the Changed candidate list for Step 2, and a changed
+`tokens/` or `css/` file is a candidate for **every** component whose rules live in it.
+
+You no longer need the previously synced folder, and should not go looking for one.
 
 ## Step 2 — Diff at the component level
 
@@ -126,21 +139,27 @@ It reports:
   exact export names.
 - **Covered** — everything else.
 
-**Changed is not auto-classified**, and should not be. The export carries no refresh history, so
-deciding Changed needs a semantic comparison. Step 1's folder diff is where the doubt comes from:
-for every Covered component whose files or CSS it flagged, open the `.jsx` / `.d.ts` / `.prompt.md`
-and compare markup, CSS (found via the search algorithm above), and field contract against this
-repo's implementation. Classify it Changed only if
-structure, CSS, fields, or usage rules actually differ.
+**Changed is not auto-classified**, and should not be. The lock tells you a file's bytes moved; it
+cannot tell you whether the change means anything here. For every Covered component Step 1 flagged,
+open the `.jsx` / `.d.ts` / `.prompt.md` and compare markup, CSS (found via the search algorithm
+above), and field contract against this repo's implementation. Classify it Changed only if
+structure, CSS, fields, or usage rules actually differ — a reformatted source file that renders
+identically is Unchanged, and Unchanged components are off limits.
 
 Report the classification to the user as a table — name, classification, one-line reason —
-**before writing any code**. If more than a handful are New or Changed, stop and ask which to take
-this pass. This workflow moves deliberately; it does not batch-migrate the export.
+**before writing any code**.
 
-**Order the New bucket by consumer demand, not by category.** The point of implementing a component
-is that a page-building skill can ask for it, so rank by how many skills already name it (Step 5
-says where to read that), then by whatever [docs/open-items.md](../../../docs/open-items.md) §3
-records as blocked. Default to one or two per pass.
+**Every Changed component is in scope for this run.** A Covered component whose source moved and
+which you leave alone is a renderer that silently disagrees with the design system, and nothing
+downstream can see that it does. If the Changed list is long, say so and work through it; do not
+ask to defer part of it.
+
+**The New bucket is the one you triage.** Implementing an exported component this renderer has
+never had is additive, and there is no correctness argument for taking all of them. Order it by
+consumer demand, not by category: rank by how many skills already name each one (Step 5 says where
+to read that), then by whatever [docs/open-items.md](../../../docs/open-items.md) §3 records as
+blocked, and ask the user which to take. Default to one or two per pass, and say plainly in the
+report which New components you left unimplemented.
 
 ## Step 3 — Resolve ambiguity, do not guess
 
@@ -230,23 +249,28 @@ Two records, both required.
 one line per component touched, tagged New / Changed / Removed / Deprecated with a short reason.
 Reference the Step 3 decision if one applied. **Append only — never rewrite a prior entry.**
 
-**2. The provenance field.** Update `designCatalog` in `package.json` to the export you just synced
-against — this is the machine-readable half, and it is what stamps the contract file the sync
-workflow ships to `geo-spoke-builder` (see [docs/component-sync.md](../../../docs/component-sync.md)).
-Overwrite it in place; unlike the changelog, it records current state, not history.
+**2. The export lock.** Rewrite `design-export.lock.json` from the export you just reconciled
+against:
 
-- `catalog` — `HG Insights Marketing Design System (Claude Design export)`.
-- `build` — the manifest's `namespace` verbatim (e.g.
-  `HGInsightsMarketingDesignSystem_3bf70b`). Recorded because the export carries nothing better,
-  **not** because it identifies a build: it does not change when the export is recompiled.
-  `syncedAt` and the folder diff from Step 1 are what actually distinguish one build from another.
-- `syncedAt` — today's date, ISO. When this renderer last reconciled against that build.
+```bash
+node scripts/export-lock.js --export "<new-export>"
+```
+
+Commit it. This is the machine-readable provenance, it is what the next run diffs against, and its
+`digest` is stamped into the contract the sync workflow ships to `geo-spoke-builder` (see
+[docs/component-sync.md](../../../docs/component-sync.md)). The contract reads that digest **from
+the committed lock file** and never recomputes it from an export folder, because the sync's no-op
+detection is a byte comparison and only works if the contract is a pure function of committed
+state. So a sync that implements components without rewriting the lock ships a contract claiming an
+export it does not match.
+
+Update `designCatalog.syncedAt` in `package.json` to today's date while you are there. That object
+no longer carries `build` or `export` — the lock owns build identity now, precisely because those
+two fields were hand-filled and the namespace one was wrong.
 
 If Step 4 added a Named-elements row to `docs/authoring.md`, that is part of this record too: the
 sync ships that file verbatim alongside the catalog, so the row is how a consumer learns the element
 exists at all.
-
-Both records plus the release tag are the durable record the next run diffs against.
 
 ## Step 7 — Verify before reporting done
 
@@ -268,23 +292,29 @@ Then confirm each of these, and report only what you actually ran:
 - `node bin/html-render.js --components` lists the component and its fields as you meant them, and
   `node scripts/generate-contract.js --out /tmp/contract.md` regenerates the file that ships
   downstream — diff it to see exactly what the consumer will receive.
-- Re-run `--audit <export-dir>` and confirm the components you implemented have moved out of New.
-- Bump `package.json`: patch for doc/test-only, minor for additive New components. A Changed
-  component with incompatible fields, or a Removed one, is **breaking** — the render fails wherever
-  it runs, not just here. Call it out explicitly in the report; it needs the Step 4 deprecation
-  handling, not just a version bump.
-- Tag the commit with that version, e.g. `v1.2.0` — after the PR merges, per
-  [docs/github-process.md](../../../docs/github-process.md).
+- Re-run `--audit <export-dir>` and confirm the components you implemented have moved out of New,
+  and `node scripts/export-lock.js --export <export-dir> --check` now exits 0.
+- **Bump `package.json`'s version in this same pull request.** Patch for doc/test-only, minor for
+  additive New components, major for a Changed component with incompatible fields or a Removed one.
+  A breaking change fails the render wherever it runs, not just here: call it out explicitly in the
+  report, and give it the Step 4 deprecation handling rather than only a version bump.
 
-**Two things gate the release reaching a running session, and neither is this repo's to do.** Name
-both in the report rather than assuming someone knows:
+## Step 8 — Hand it over
 
-- **The versions must match.** Whatever invokes the renderer downstream refuses to run unless the
-  CLI version equals the version stamped on the synced contract. A tag that lands without the
-  contract following it stops the render.
-- **The contract only ships with a plugin version bump.** A synced contract sitting on the
-  consumer's `main` with no plugin version bump never reaches an installed session — the two are
-  indistinguishable by plugin version — and that repo's own freshness check fails the build.
+Open one pull request for the whole export, and stop there. **A person reviews and merges it. That
+is the only human step in the entire promotion, and it is yours to hand over cleanly.**
+
+Do not tag. Do not touch `geo-spoke-builder`, do not open a pull request there, do not bump its
+plugin version, and do not edit its skills. Merging here is what promotes: the sync workflow
+regenerates the contract on `main`, ships it downstream with the plugin version bump in one
+machine-owned pull request, and that repository's own checks merge it. `pillar-geo-launch` then
+resolves the new pair for the next job it admits. Nothing re-renders, and no page that already
+exists changes.
+
+**If a change you are making would break authoring vocabulary a consumer skill already uses, the
+compatibility belongs in this pull request** — a visual-system update must never require a
+coordinated skill rewrite downstream. Step 5 is how you find out; say so in the report if you did
+not or could not run it.
 
 ## Reporting back
 
