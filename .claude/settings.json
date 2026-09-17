@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git branch -D *)",
+      "Bash(git push origin --delete *)",
+      "Bash(git remote prune origin)",
+      "Bash(git fetch --prune*)"
+    ]
+  }
+}
