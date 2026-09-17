@@ -130,7 +130,13 @@ So the review that matters is the one on the pull request here. Sequence:
    checks pass, and the next newly admitted `pillar-geo-launch` job uses the new
    pair. No page is re-rendered, and no existing page changes.
 
-Tags are still fine to cut as bookkeeping. Nothing reads them.
+Tags are historical, and the series is frozen at `v4.0.0` — `v4.1.0` onward
+were never cut, and new ones shouldn't be. Nothing reads a tag: `CHANGELOG.md`
+is the durable per-release record, and the contract carries `package.json`'s
+version beside the full commit SHA consumers actually resolve. So the newest
+tag is not the current version, and a tag series lagging `main` is the expected
+state, not a missed step. The GitHub Releases page stopped at `v1.6.0` and
+means nothing for the same reason.
 
 **A design change must never require a coordinated skill rewrite downstream.**
 If a change would break authoring vocabulary a `geo-spoke-builder` skill already
